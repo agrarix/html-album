@@ -13,8 +13,8 @@ album/
 │   └── AGENTS.md          # Dit bestand (automatisch ingelezen door Antigravity)
 ├── README.md              # Projectdocumentatie voor mensen
 ├── album.json             # Configuratiebestand
-├── generate_album.sh      # Bash-generatorscript (primair script)
-├── generate_album.py      # Python-versie van het generatorscript
+├── generate_album.sh      # Bash-generatorscript (legacy, wordt niet meer bijgewerkt)
+├── generate_album.py      # Python-versie van het generatorscript (primair)
 └── requirements.txt       # Python dependencies
 ```
 
@@ -55,9 +55,10 @@ album/
 
 ## Status & Openstaande punten
 
-- Er zijn twee versies van het generatorscript: Bash (`.sh`) en Python (`.py`)
-- De gebruiker werkt op **Windows** — het Bash-script vereist WSL of Git Bash
-- Bij aanpassingen altijd `README.md` updaten als de functionaliteit wijzigt
+- De Python-versie (`generate_album.py`) is het primaire script en wordt actief onderhouden.
+- De Bash-versie (`generate_album.sh`) is verouderd (legacy) en hoeft niet meer bijgewerkt te worden.
+- De gebruiker werkt op **Windows** en gebruikt de Python-versie.
+- Bij aanpassingen altijd `README.md` updaten als de functionaliteit wijzigt.
 
 ---
 

@@ -2,7 +2,7 @@
 
 Een robuuste en snelle Python/Bash-tool die automatisch een statisch HTML-fotoalbum genereert vanuit een map met afbeeldingen. Gebaseerd op de stijl van [alm.agrarix.net](http://alm.agrarix.net).
 
-Dit project biedt zowel een **Python-versie** (`generate_album.py`, aanbevolen voor Windows/cross-platform) als een **Bash-versie** (`generate_album.sh`, voor Linux/macOS).
+Dit project biedt een actieve **Python-versie** (`generate_album.py`, aanbevolen voor Windows/cross-platform) en een verouderde, niet langer onderhouden **Bash-versie** (`generate_album.sh`, legacy).
 
 ---
 
@@ -23,8 +23,8 @@ album/
 ├── .agents/
 │   └── AGENTS.md          # Instructies voor AI-assistenten
 ├── album.json             # Configuratiebestand
-├── generate_album.py      # Python-generatorscript (aanbevolen)
-├── generate_album.sh      # Bash-generatorscript
+├── generate_album.py      # Python-generatorscript (primair)
+├── generate_album.sh      # Bash-generatorscript (legacy, niet meer bijgewerkt)
 └── requirements.txt       # Python-afhankelijkheden (Pillow)
 ```
 
@@ -77,7 +77,7 @@ Alle instellingen worden gelezen uit `album.json`:
 
 *Zonder Pillow worden de originele bestanden direct als thumbnail gelinkt.*
 
-### Bash (Linux / macOS / WSL)
+### Bash (Linux / macOS / WSL) — Legacy / Niet meer bijgewerkt
 1. Zorg dat `ImageMagick` (`convert` en `identify`) geïnstalleerd is.
 2. Voer het script uit:
    ```bash
