@@ -1,6 +1,18 @@
 # 📷 HTML Fotoalbum Generator
 
-Een Bash-script dat automatisch een statisch HTML-fotoalbum genereert vanuit een map met JPEG-afbeeldingen. Gebaseerd op de stijl van [alm.agrarix.net](http://alm.agrarix.net).
+Een robuuste en snelle Python/Bash-tool die automatisch een statisch HTML-fotoalbum genereert vanuit een map met afbeeldingen. Gebaseerd op de stijl van [alm.agrarix.net](http://alm.agrarix.net).
+
+Dit project biedt zowel een **Python-versie** (`generate_album.py`, aanbevolen voor Windows/cross-platform) als een **Bash-versie** (`generate_album.sh`, voor Linux/macOS).
+
+---
+
+## Features
+
+- **Recursief**: Verwerkt automatisch alle submappen en genereert in elke map een eigen `index.html`.
+- **Navigatie & Toetsenbord**: Slide-pagina's ondersteunen `←` (vorige), `→` (volgende) en `Esc` / `Backspace` (terug naar overzicht) via het toetsenbord.
+- **Gescheiden mappen**: Originele foto's blijven onaangetast; de complete website wordt gegenereerd in de geconfigureerde `OUTPUT_DIR`.
+- **Preview thumbnails**: Submappen worden op de hoofdpagina getoond met de eerste foto uit die submap als preview.
+- **Logbestand**: Schrijft gedetailleerde logboeken naar een configureerbaar logbestand voor eenvoudige monitoring.
 
 ---
 
@@ -8,8 +20,12 @@ Een Bash-script dat automatisch een statisch HTML-fotoalbum genereert vanuit een
 
 ```
 album/
-├── album.json           # Configuratiebestand
-└── generate_album.sh    # Generatorscript
+├── .agents/
+│   └── AGENTS.md          # Instructies voor AI-assistenten
+├── album.json             # Configuratiebestand
+├── generate_album.py      # Python-generatorscript (aanbevolen)
+├── generate_album.sh      # Bash-generatorscript
+└── requirements.txt       # Python-afhankelijkheden (Pillow)
 ```
 
 ---
@@ -18,99 +34,71 @@ album/
 
 Alle instellingen worden gelezen uit `album.json`:
 
-| Sleutel        | Beschrijving                                              | Standaardwaarde                              |
-|----------------|-----------------------------------------------------------|----------------------------------------------|
-| `SOURCE_DIR`   | Bronmap met originele foto's (en submappen)               | `/mnt/nas/WWW/domains/alm.agrarix.net/pages` |
-| `INDEX_FILE`   | Bestandsnaam van de gegenereerde hoofdpagina              | `test.html`                                  |
-| `SLIDES_DIR`   | Naam van de submap voor individuele slidepagina's         | `slides_dir`                                 |
-| `THUMBS_DIR`   | Naam van de submap voor gegenereerde thumbnails           | `thumbs_dir`                                 |
-| `DIR_THUMBNAIL`| Formaat van directory-thumbnails (ImageMagick-notatie)    | `500x300`                                    |
-| `EXCLUDED`     | Lijst met mapnamen die overgeslagen worden                | `["res"]`                                    |
+| Sleutel | Beschrijving | Standaardwaarde |
+|---|---|---|
+| `SOURCE_DIR` | Bronmap met originele foto's en submappen | `""` |
+| `OUTPUT_DIR` | Uitvoerlocatie voor de gegenereerde website | `""` |
+| `INDEX_FILE` | Bestandsnaam van de gegenereerde indexpagina's | `index.html` |
+| `SLIDES_DIR` | Naam van de submap voor individuele slidepagina's | `slides` |
+| `THUMBS_DIR` | Naam van de submap voor de thumbnails | `thumbs` |
+| `DIR_THUMBNAIL` | Grootte van thumbnails (notatie: `breedtexhoogte`) | `140x140` |
+| `LOG_FILE` | Pad/naam van het logbestand (relatief aan script-dir) | `generate_album.log` |
+| `EXCLUDED` | Mapnamen die volledig genegeerd moeten worden | `["res"]` |
 
 ### Voorbeeld `album.json`
 
 ```json
 {
-  "SLIDES_DIR": "slides_dir",
-  "THUMBS_DIR": "thumbs_dir",
+  "SLIDES_DIR": "slides",
+  "THUMBS_DIR": "thumbs",
   "EXCLUDED": ["res"],
-  "DIR_THUMBNAIL": "500x300",
-  "SOURCE_DIR": "/mnt/nas/WWW/domains/alm.agrarix.net/pages",
-  "INDEX_FILE": "test.html"
+  "DIR_THUMBNAIL": "140x140",
+  "SOURCE_DIR": "Z:/WWW/domains/alm.agrarix.net/pages",
+  "OUTPUT_DIR": "G:/Mijn Drive/Antigravity/album/output",
+  "INDEX_FILE": "index.html",
+  "LOG_FILE": "generate_album.log"
 }
 ```
+*Tip: Gebruik forward slashes (`/`) in paden, ook op Windows.*
 
 ---
 
 ## 🚀 Gebruik
 
-```bash
-bash generate_album.sh
-```
+### Python (Aanbevolen)
+1. Installeer de vereisten (eenmalig):
+   ```cmd
+   pip install -r requirements.txt
+   ```
+2. Voer het script uit:
+   ```cmd
+   python generate_album.py
+   ```
 
-Het script leest `album.json` vanuit dezelfde map als het script zelf. Als het configuratiebestand niet gevonden wordt, worden de ingebakken standaardwaarden gebruikt.
+*Zonder Pillow worden de originele bestanden direct als thumbnail gelinkt.*
 
----
-
-## 🔧 Wat doet het script?
-
-1. **Leest de configuratie** uit `album.json`.
-2. **Maakt outputmappen aan**: `slides_dir/` en `thumbs_dir/` binnen de bronmap.
-3. **Verwerkt JPEG-afbeeldingen** (`.jpg` / `.jpeg`) op het hoogste niveau van de bronmap:
-   - Kopieert het origineel naar de outputmap.
-   - Genereert een thumbnail via ImageMagick.
-   - Maakt een individuele HTML-slidepagina aan in `slides_dir/`.
-   - Voegt een klikbare tegel toe aan de hoofdindex.
-4. **Verwerkt submappen**:
-   - Slaat uitgesloten mappen over (o.a. `res`, `slides_dir`, `thumbs_dir`).
-   - Maakt een foldertegel met een voorbeeldafbeelding (de laatste foto uit de submap).
-   - Als er geen foto's zijn, wordt een 📁-icoon getoond.
-5. **Genereert de hoofdpagina** (`INDEX_FILE`) met een CSS-gridgalerij van alle foto's en mappen.
+### Bash (Linux / macOS / WSL)
+1. Zorg dat `ImageMagick` (`convert` en `identify`) geïnstalleerd is.
+2. Voer het script uit:
+   ```bash
+   bash generate_album.sh
+   ```
 
 ---
 
-## 📦 Vereisten
+## 🔧 Wat doet de generator?
 
-| Tool           | Gebruik                                  |
-|----------------|------------------------------------------|
-| `bash`         | Uitvoeren van het script                 |
-| `ImageMagick`  | Thumbnails genereren (`convert`, `identify`) |
-| `find`, `sort` | Standaard Unix-hulpprogramma's           |
-
-Zorg dat ImageMagick geïnstalleerd is:
-
-```bash
-# Debian/Ubuntu
-sudo apt install imagemagick
-
-# macOS (via Homebrew)
-brew install imagemagick
-```
+1. **Leest configuratie**: Laadt de paden uit `album.json`.
+2. **Genereert bestandsstructuur**: Maakt de mappen `slides/` en `thumbs/` aan in de `OUTPUT_DIR` (recursief per submap).
+3. **Kopieert & Schaalt**:
+   - Kopieert de originele foto naar de uitvoermap (indien nog niet aanwezig).
+   - Genereert een center-cropped thumbnail van 140x140px.
+4. **Bouwt slides**: Genereert individuele HTML-slidepagina's per afbeelding met inline CSS en JavaScript voor keyboardnavigatie.
+5. **Bouwt index**: Genereert een modern responsive thumbnailgrid. Submappen krijgen een preview-thumbnail van de eerste foto uit die map.
+6. **Schrijft logs**: Houdt live de voortgang bij in het logbestand (`LOG_FILE`).
 
 ---
 
-## 📄 Gegenereerde uitvoer
-
-Na uitvoering vind je het volgende in de `SOURCE_DIR`:
-
-```
-SOURCE_DIR/
-├── test.html          # Hoofdgalerij-pagina
-├── slides_dir/        # Individuele HTML-pagina per foto
-│   ├── foto1.html
-│   └── foto2.html
-└── thumbs_dir/        # Thumbnails
-    ├── foto1_thumb.jpg
-    ├── foto2_thumb.jpg
-    └── folder_mapnaam_thumb.jpg
-```
-
-Open `test.html` in een browser om het album te bekijken.
-
----
-
-## 📝 Notities
-
-- Het script verwerkt alleen `.jpg` en `.jpeg` bestanden (hoofdletterongevoelig).
-- Submappen worden verwacht een eigen `index.html` te hebben (het script genereert deze **niet** recursief).
-- De gegenereerde HTML gebruikt Nederlands als taal (`lang="nl"`).
+## 📄 Licentie & Footer
+De gegenereerde pagina's worden in de footer gemarkeerd met:
+`Generated by generate_album v2.0 [DATUM] [TIJD]`
