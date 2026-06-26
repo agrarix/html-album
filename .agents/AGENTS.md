@@ -29,7 +29,7 @@ album/
 | `INDEX_FILE`    | Bestandsnaam van de hoofdpagina                           | `index.html`                                   |
 | `SLIDES_DIR`    | Submap voor individuele slidepagina's                     | `slides`                                       |
 | `THUMBS_DIR`    | Submap voor thumbnails                                    | `thumbs`                                       |
-| `DIR_THUMBNAIL` | Formaat van directory-thumbnails (ImageMagick-notatie)    | `140x140`                                      |
+| `THUMBNAIL`     | Formaat van directory-thumbnails (ImageMagick-notatie)    | `140x140`                                      |
 | `EXCLUDED`      | Mappen die overgeslagen worden                            | `["res"]`                                      |
 
 ---

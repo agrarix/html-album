@@ -45,7 +45,7 @@ DEFAULTS = {
     "SLIDES_DIR": "slides",
     "THUMBS_DIR": "thumbs",
     "EXCLUDED": ["res"],
-    "DIR_THUMBNAIL": "140x140",
+    "THUMBNAIL": "140x140",
     "SOURCE_DIR": "",
     "OUTPUT_DIR": "",
     "INDEX_FILE": "index.html",
@@ -86,7 +86,7 @@ SOURCE_DIR = Path(cfg["SOURCE_DIR"].replace("\\", "/")) if cfg["SOURCE_DIR"] els
 OUTPUT_DIR = Path(cfg["OUTPUT_DIR"].replace("\\", "/")) if cfg["OUTPUT_DIR"] else Path()
 
 try:
-    _w, _h = map(int, cfg["DIR_THUMBNAIL"].lower().split("x"))
+    _w, _h = map(int, cfg["THUMBNAIL"].lower().split("x"))
     THUMB_SIZE = (_w, _h)
 except ValueError:
     THUMB_SIZE = (140, 140)

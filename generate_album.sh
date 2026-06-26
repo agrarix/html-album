@@ -17,7 +17,7 @@ VERSION="2.0"
 if [ -f "$CONFIG_FILE" ]; then
     EXCLUDED=$(grep -o '"EXCLUDED"[[:space:]]*:[[:space:]]*\[.*\]' "$CONFIG_FILE" \
         | sed 's/.*\[\(.*\)\]/\1/' | tr -d '",' | tr -s ' ')
-    DIR_THUMBNAIL=$(grep -o '"DIR_THUMBNAIL"[[:space:]]*:[[:space:]]*"[^"]*"' "$CONFIG_FILE" \
+    THUMBNAIL=$(grep -o '"THUMBNAIL"[[:space:]]*:[[:space:]]*"[^"]*"' "$CONFIG_FILE" \
         | sed 's/.*"\([^"]*\)"/\1/')
     SOURCE_DIR=$(grep -o '"SOURCE_DIR"[[:space:]]*:[[:space:]]*"[^"]*"' "$CONFIG_FILE" \
         | sed 's/.*"\([^"]*\)"/\1/')
@@ -32,7 +32,7 @@ if [ -f "$CONFIG_FILE" ]; then
 else
     echo "⚠  Configuratiebestand niet gevonden, standaardwaarden worden gebruikt."
     EXCLUDED="res"
-    DIR_THUMBNAIL="140x140"
+    THUMBNAIL="140x140"
     SOURCE_DIR="/mnt/nas/WWW/domains/alm.agrarix.net/pages"
     OUTPUT_DIR="/tmp/album_output"
     SLIDES_DIR_NAME="slides"
@@ -47,7 +47,7 @@ echo "Album Generator"
 echo "────────────────────────────────"
 echo "Bron       : $SOURCE_DIR"
 echo "Uitvoer    : $OUTPUT_DIR"
-echo "Thumbnail  : $DIR_THUMBNAIL"
+echo "Thumbnail  : $THUMBNAIL"
 echo "Uitsluit   : $EXCLUDED"
 echo "────────────────────────────────"
 echo ""
@@ -61,9 +61,9 @@ generate_thumbnail() {
     local input="$1"
     local output="$2"
     # Probeer eerst bijgesneden (crop) thumbnail, dan gewone resize, dan gewoon kopiëren
-    convert "$input" -thumbnail "${DIR_THUMBNAIL}^" -gravity center \
-        -extent "$DIR_THUMBNAIL" "$output" 2>/dev/null \
-    || convert "$input" -thumbnail "$DIR_THUMBNAIL" "$output" 2>/dev/null \
+    convert "$input" -thumbnail "${THUMBNAIL}^" -gravity center \
+        -extent "$THUMBNAIL" "$output" 2>/dev/null \
+    || convert "$input" -thumbnail "$THUMBNAIL" "$output" 2>/dev/null \
     || cp "$input" "$output"
 }
 

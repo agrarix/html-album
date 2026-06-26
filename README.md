@@ -41,7 +41,7 @@ Alle instellingen worden gelezen uit `album.json`:
 | `INDEX_FILE` | Bestandsnaam van de gegenereerde indexpagina's | `index.html` |
 | `SLIDES_DIR` | Naam van de submap voor individuele slidepagina's | `slides` |
 | `THUMBS_DIR` | Naam van de submap voor de thumbnails | `thumbs` |
-| `DIR_THUMBNAIL` | Grootte van thumbnails (notatie: `breedtexhoogte`) | `140x140` |
+| `THUMBNAIL` | Grootte van thumbnails (notatie: `breedtexhoogte`) | `140x140` |
 | `LOG_FILE` | Pad/naam van het logbestand (relatief aan script-dir) | `generate_album.log` |
 | `EXCLUDED` | Mapnamen die volledig genegeerd moeten worden | `["res"]` |
 
@@ -52,7 +52,7 @@ Alle instellingen worden gelezen uit `album.json`:
   "SLIDES_DIR": "slides",
   "THUMBS_DIR": "thumbs",
   "EXCLUDED": ["res"],
-  "DIR_THUMBNAIL": "140x140",
+  "THUMBNAIL": "140x140",
   "SOURCE_DIR": "Z:/WWW/domains/alm.agrarix.net/pages",
   "OUTPUT_DIR": "G:/Mijn Drive/Antigravity/album/output",
   "INDEX_FILE": "index.html",
