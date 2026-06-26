@@ -60,6 +60,7 @@ album/
 - De Bash-versie (`generate_album.sh`) is verouderd (legacy) en hoeft niet meer bijgewerkt te worden.
 - De gebruiker werkt op **Windows** en gebruikt de Python-versie.
 - Bij aanpassingen altijd `README.md` updaten als de functionaliteit wijzigt.
+- De assistent voert code-aanpassingen, commits en pushes volledig zelfstandig uit. De generatie (`python generate_album.py`) wordt door de gebruiker zelf handmatig gestart.
 
 ---
 
