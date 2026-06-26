@@ -30,7 +30,7 @@ VERSION = "2.0"
 # Pillow (voor thumbnails)
 # ---------------------------------------------------------------------------
 try:
-    from PIL import Image
+    from PIL import Image, ExifTags
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
@@ -252,6 +252,7 @@ a:hover { color: #000; text-decoration: underline; }
     box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 .slide-info { margin-top: 8px; font-size: 11px; color: #666; }
+.slide-exif { margin-top: 5px; font-size: 10px; color: #777; font-style: italic; }
 
 /* Voettekst */
 .footer { margin-top: 14px; font-size: 10px; color: #888; text-align: center; }
@@ -327,6 +328,108 @@ def make_thumbnail(src: Path, dst: Path) -> None:
         except Exception:
             pass
 
+def get_exif_data(img_path: Path) -> dict:
+    if not HAS_PIL:
+        return {}
+    try:
+        with Image.open(img_path) as img:
+            exif = img._getexif()
+            if not exif:
+                return {}
+            data = {}
+            for tag, val in exif.items():
+                tag_name = ExifTags.TAGS.get(tag, tag)
+                data[tag_name] = val
+            return data
+    except Exception:
+        return {}
+
+def get_formatted_exif(img_path: Path) -> str:
+    raw_exif = get_exif_data(img_path)
+    if not raw_exif:
+        return ""
+    
+    parts = []
+    
+    # Camera model
+    make = raw_exif.get("Make", "")
+    model = raw_exif.get("Model", "")
+    if model:
+        model_str = str(model).strip()
+        make_str = str(make).strip()
+        if make_str and make_str.lower() not in model_str.lower():
+            parts.append(f"📷 {make_str} {model_str}")
+        else:
+            parts.append(f"📷 {model_str}")
+            
+    # Datum / Tijd
+    dt_orig = raw_exif.get("DateTimeOriginal")
+    if dt_orig:
+        try:
+            dt = datetime.strptime(str(dt_orig).strip(), "%Y:%m:%d %H:%M:%S")
+            parts.append(f"📅 {dt.strftime('%d-%m-%Y %H:%M')}")
+        except Exception:
+            parts.append(f"📅 {str(dt_orig).strip()}")
+            
+    # Belichtingsinstellingen (Aperture, Shutter, ISO, Focal Length)
+    settings = []
+    
+    # Brandpuntsafstand
+    focal = raw_exif.get("FocalLength")
+    if focal is not None:
+        try:
+            if isinstance(focal, tuple) and len(focal) == 2:
+                f_val = focal[0] / focal[1]
+            else:
+                f_val = float(focal)
+            settings.append(f"{f_val:.0f}mm")
+        except Exception:
+            pass
+            
+    # Diafragma
+    fnum = raw_exif.get("FNumber")
+    if fnum is not None:
+        try:
+            if isinstance(fnum, tuple) and len(fnum) == 2:
+                fn_val = fnum[0] / fnum[1]
+            else:
+                fn_val = float(fnum)
+            settings.append(f"f/{fn_val:.1f}" if fn_val % 1 != 0 else f"f/{fn_val:.0f}")
+        except Exception:
+            pass
+            
+    # Sluitertijd
+    exp = raw_exif.get("ExposureTime")
+    if exp is not None:
+        try:
+            if isinstance(exp, tuple) and len(exp) == 2:
+                num, den = exp
+                if num == 1:
+                    settings.append(f"1/{den}s")
+                elif num > 1:
+                    settings.append(f"{num/den:.1f}s")
+                else:
+                    settings.append(f"{num}/{den}s")
+            else:
+                exp_val = float(exp)
+                if exp_val < 1.0:
+                    recip = round(1.0 / exp_val)
+                    settings.append(f"1/{recip}s")
+                else:
+                    settings.append(f"{exp_val:.1f}s")
+        except Exception:
+            pass
+            
+    # ISO
+    iso = raw_exif.get("ISOSpeedRatings")
+    if iso is not None:
+        settings.append(f"ISO {iso}")
+        
+    if settings:
+        parts.append("⚙️ " + " | ".join(settings))
+        
+    return "  •  ".join(parts)
+
 # ---------------------------------------------------------------------------
 # Genereer HTML voor één slide-pagina
 # ---------------------------------------------------------------------------
@@ -337,6 +440,7 @@ def generate_slide_html(
     next_slide: str,
     index_href: str,
     album_title: str,
+    src_img_path: Path,
 ) -> None:
     prev_js = f'"{prev_slide}"' if prev_slide else "null"
     next_js = f'"{next_slide}"' if next_slide else "null"
@@ -347,6 +451,9 @@ def generate_slide_html(
         prev_btn = f'<a href="{prev_slide}" class="nav-btn" title="Vorige foto (&#8592;)">&#8592;</a>'
     if next_slide:
         next_btn = f'<a href="{next_slide}" class="nav-btn" title="Volgende foto (&#8594;)">&#8594;</a>'
+
+    exif_str = get_formatted_exif(src_img_path)
+    exif_html = f'<div class="slide-exif">{exif_str}</div>' if exif_str else ""
 
     html = f"""\
 <!DOCTYPE html>
@@ -372,6 +479,7 @@ def generate_slide_html(
     <div class="slide-wrap">
         <img src="../{img_fname}" alt="{img_fname}" class="slide-image">
         <div class="slide-info">{img_fname}</div>
+        {exif_html}
     </div>
 </div>
 <script>
@@ -553,6 +661,7 @@ def process_dir(
             next_slide,
             f"../{INDEX_FILE_NAME}",
             title,
+            img,
         )
         log_bericht(f"    ✓ {fname}")
 

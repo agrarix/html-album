@@ -38,9 +38,10 @@ album/
 
 - Taal van gegenereerde HTML: Nederlands (`lang="nl"`)
 - Ondersteunde afbeeldingen: `.jpg` / `.jpeg` (hoofdletterongevoelig)
-- Thumbnails worden gegenereerd via **ImageMagick** (`convert`, `identify`)
-- Submappen krijgen een foldertegel met voorbeeldafbeelding (laatste foto uit submap)
-- Geen recursieve verwerking van submappen
+- Thumbnails worden bij voorkeur gegenereerd via **Pillow** (`PIL`) in Python, of anders via **ImageMagick** in Bash
+- Slide-pagina's tonen geformatteerde EXIF-metadata (camera model, opnamedatum, sluitertijd, diafragma, ISO, brandpuntsafstand) indien beschikbaar
+- Submappen krijgen een foldertegel met voorbeeldafbeelding (eerste foto uit submap)
+- Recursieve verwerking van submappen (elk krijgt eigen `index.html` en navigatie)
 
 ---
 
