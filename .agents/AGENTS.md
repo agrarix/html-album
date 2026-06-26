@@ -69,3 +69,4 @@ album/
 - Schrijf commentaar en documentatie in het **Nederlands**
 - Houd de `README.md` gesynchroniseerd met de werkelijke functionaliteit
 - Configuratie altijd via `album.json`, nooit hardcoded in het script
+- Stel geen tussentijdse verduidelijkingsvragen; voer wijzigingen direct autonoom door.
