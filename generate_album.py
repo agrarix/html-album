@@ -253,6 +253,20 @@ a:hover { color: #000; text-decoration: underline; }
 """
 
 # ---------------------------------------------------------------------------
+# Controleer of thumbnail opnieuw gegenereerd moet worden
+# ---------------------------------------------------------------------------
+def needs_thumbnail_regeneration(thumb_path: Path) -> bool:
+    if not thumb_path.exists():
+        return True
+    if not HAS_PIL:
+        return False
+    try:
+        with Image.open(thumb_path) as img:
+            return img.size != THUMB_SIZE
+    except Exception:
+        return True
+
+# ---------------------------------------------------------------------------
 # Thumbnail maken met Pillow (bijgesneden vulling)
 # ---------------------------------------------------------------------------
 def make_thumbnail(src: Path, dst: Path) -> None:
@@ -408,7 +422,7 @@ def generate_index_html(
         )
 
         if first_img:
-            if not folder_thumb_dst.exists():
+            if needs_thumbnail_regeneration(folder_thumb_dst):
                 make_thumbnail(first_img, folder_thumb_dst)
             thumb_tag = f'<img src="{THUMBS_DIR_NAME}/folder_{dname}_thumb.jpg" alt="{dname}" loading="lazy">'
             label = f"\U0001f4c1 {dname}"
@@ -501,7 +515,7 @@ def process_dir(
                 continue
 
         thumb = out_dir / THUMBS_DIR_NAME / f"{name_no_ext}_thumb.jpg"
-        if not thumb.exists():
+        if needs_thumbnail_regeneration(thumb):
             make_thumbnail(img, thumb)
 
         prev_slide = images[i - 1].stem + ".html" if i > 0 else ""
