@@ -30,7 +30,7 @@ VERSION = "2.0"
 # Pillow (voor thumbnails)
 # ---------------------------------------------------------------------------
 try:
-    from PIL import Image, ExifTags
+    from PIL import Image, ExifTags, ImageOps
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
@@ -304,6 +304,7 @@ def make_thumbnail(src: Path, dst: Path) -> None:
         return
     try:
         with Image.open(src) as img:
+            img = ImageOps.exif_transpose(img)
             img = img.convert("RGB")
             tw, th = THUMB_SIZE
             img_ratio = img.width / img.height
