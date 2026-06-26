@@ -1,0 +1,10 @@
+{
+  "SLIDES_DIR": "slides",
+  "THUMBS_DIR": "thumbs",
+  "EXCLUDED": ["res"],
+  "DIR_THUMBNAIL": "140x140",
+  "SOURCE_DIR": "Z:/WWW/domains/alm.agrarix.net/pages",
+  "OUTPUT_DIR": "g:/Mijn Drive/Antigravity/album/output",
+  "INDEX_FILE": "index.html",
+  "LOG_FILE": "generate_album.log"
+}
