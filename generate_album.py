@@ -91,7 +91,12 @@ try:
 except ValueError:
     THUMB_SIZE = (140, 140)
 
-EXCLUDED: set[str] = set(cfg["EXCLUDED"]) | {SLIDES_DIR_NAME, THUMBS_DIR_NAME}
+EXCLUDED: set[str] = {
+    x.lower() for x in (
+        set(cfg["EXCLUDED"]) |
+        {SLIDES_DIR_NAME, THUMBS_DIR_NAME, "slides", "thumbs", "slides_dir", "thumbs_dir"}
+    )
+}
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif"}
 
 # Bepaal het logbestand-pad. Als het een relatieve bestandsnaam is, zet het in SCRIPT_DIR (applicatie-root).
@@ -252,6 +257,26 @@ a:hover { color: #000; text-decoration: underline; }
 .footer { margin-top: 14px; font-size: 10px; color: #888; text-align: center; }
 """
 
+def get_css() -> str:
+    tw, th = THUMB_SIZE
+    cell_w = tw + 10
+    page_max_w = max(880, cell_w * 2 + 40)
+    
+    css_res = CSS
+    css_res = css_res.replace("max-width: 880px;", f"max-width: {page_max_w}px;")
+    css_res = css_res.replace("width: 148px;", f"width: {cell_w}px;")
+    css_res = css_res.replace("width: 138px;", f"width: {tw}px;")
+    css_res = css_res.replace("height: 112px;", f"height: {th}px;")
+    css_res = css_res.replace("max-width: 138px;", f"max-width: {tw}px;")
+    css_res = css_res.replace("max-height: 112px;", f"max-height: {th}px;")
+    css_res = css_res.replace("line-height: 112px;", f"line-height: {th}px;")
+    
+    if th > 140:
+        folder_font_size = min(120, int(th * 0.4))
+        css_res = css_res.replace("font-size: 44px;", f"font-size: {folder_font_size}px;")
+        
+    return css_res
+
 # ---------------------------------------------------------------------------
 # Controleer of thumbnail opnieuw gegenereerd moet worden
 # ---------------------------------------------------------------------------
@@ -331,7 +356,7 @@ def generate_slide_html(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{img_fname} \u2014 {album_title}</title>
     <style>
-{CSS}
+{get_css()}
     </style>
 </head>
 <body>
@@ -407,7 +432,7 @@ def generate_index_html(
         )
 
     subdirs = sorted(
-        [d for d in src_dir.iterdir() if d.is_dir() and d.name not in EXCLUDED],
+        [d for d in src_dir.iterdir() if d.is_dir() and d.name.lower() not in EXCLUDED],
         key=lambda d: d.name.lower(),
     )
 
@@ -457,7 +482,7 @@ def generate_index_html(
     <meta name="keywords" content="fotoalbum,gallery,foto,online">
     <title>{title}</title>
     <style>
-{CSS}
+{get_css()}
     </style>
 </head>
 <body>
@@ -540,7 +565,7 @@ def process_dir(
     )
 
     subdirs = sorted(
-        [d for d in src_dir.iterdir() if d.is_dir() and d.name not in EXCLUDED],
+        [d for d in src_dir.iterdir() if d.is_dir() and d.name.lower() not in EXCLUDED],
         key=lambda d: d.name.lower(),
     )
     for subdir in subdirs:
