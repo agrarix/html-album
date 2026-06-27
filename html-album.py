@@ -57,7 +57,7 @@ parser.add_argument(
     help="Pad naar het configuratiebestand (standaard: %(default)s)"
 )
 parser.add_argument(
-    "-v", "--version",
+    "-V", "--version",
     action="version",
     version=f"%(prog)s {VERSION}",
     help="Toon de versie van het programma"
