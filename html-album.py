@@ -164,8 +164,7 @@ def get_css() -> str:
     css_res = css_res.replace("line-height: 112px;", f"line-height: {th}px;")
     
     if cols > 0:
-        css_res = css_res.replace("display: flex;", "display: grid;")
-        css_res = css_res.replace("flex-wrap: wrap;", f"grid-template-columns: repeat({cols}, {cell_w}px);")
+        css_res += f"\n@media (max-width: 600px) {{\n    .thumb-grid {{\n        display: grid;\n        grid-template-columns: repeat({cols}, {cell_w}px);\n    }}\n}}\n"
     
     if th > 140:
         folder_font_size = min(120, int(th * 0.5))
