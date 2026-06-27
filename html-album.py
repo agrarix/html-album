@@ -42,6 +42,16 @@ SCRIPT_DIR = Path(__file__).parent
 
 config_naam = "html-album.rc"
 if len(sys.argv) > 1:
+    arg = sys.argv[1]
+    if arg.lower() in ("--help", "-h", "/help", "/?", "?"):
+        print("HTML Fotoalbum Generator")
+        print("Gebruik:")
+        print("  python html-album.py [configbestand]")
+        print()
+        print("Opties:")
+        print("  [configbestand]   Pad naar het configuratiebestand (standaard: html-album.rc)")
+        print("  -h, --help, /help  Toon deze help-informatie")
+        sys.exit(0)
     config_naam = sys.argv[1]
 
 CONFIG_FILE = Path(config_naam)
