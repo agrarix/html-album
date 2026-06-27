@@ -145,8 +145,8 @@ def get_css() -> str:
     css_res = css_res.replace("line-height: 112px;", f"line-height: {th}px;")
     
     if th > 140:
-        folder_font_size = min(120, int(th * 0.4))
-        css_res = css_res.replace("font-size: 44px;", f"font-size: {folder_font_size}px;")
+        folder_font_size = min(120, int(th * 0.5))
+        css_res = css_res.replace("font-size: 64px;", f"font-size: {folder_font_size}px;")
         
     return css_res
 
