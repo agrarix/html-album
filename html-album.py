@@ -125,146 +125,17 @@ def log_bericht(bericht: str) -> None:
         except Exception:
             pass
 
-# ---------------------------------------------------------------------------
-# Gedeelde CSS — inlinegeplaatst in elke gegenereerde pagina
-# ---------------------------------------------------------------------------
-CSS = """\
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-    font-family: Verdana, Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    color: #444;
-    background-color: #cccccc;
-    background-image: linear-gradient(to bottom, #aaaaaa 0px, #cccccc 80px);
-    background-repeat: no-repeat;
-    min-height: 100vh;
-}
-a { color: #444; text-decoration: none; }
-a:hover { color: #000; text-decoration: underline; }
-
-.page-wrap {
-    max-width: 880px;
-    margin: 0 auto;
-    padding: 10px 10px 20px;
-}
-
-/* Header */
-.album-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(to bottom, #eeeeee 0%, #d4d4d4 100%);
-    border: 1px solid #aaaaaa;
-    border-radius: 4px;
-    padding: 6px 10px;
-    margin-bottom: 10px;
-    min-height: 42px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-}
-.nav-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    background: linear-gradient(to bottom, #dddddd, #c0c0c0);
-    border: 1px solid #999;
-    border-radius: 3px;
-    font-size: 16px;
-    flex-shrink: 0;
-    color: #333;
-    cursor: pointer;
-    user-select: none;
-}
-.nav-btn:hover {
-    background: linear-gradient(to bottom, #cccccc, #b0b0b0);
-    color: #000;
-    text-decoration: none;
-}
-.nav-btn.disabled { opacity: 0.35; pointer-events: none; }
-.header-title {
-    flex-grow: 1;
-    font-size: 14px;
-    font-weight: bold;
-    color: #222;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.header-nav { display: flex; gap: 4px; flex-shrink: 0; }
-
-/* Thumbnailraster */
-.thumb-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-}
-.thumb-cell {
-    width: 148px;
-    background: #e8e8e8;
-    border: 1px solid #bbbbbb;
-    border-radius: 3px;
-    padding: 4px;
-    text-align: center;
-    transition: border-color 0.15s, background 0.15s;
-}
-.thumb-cell:hover { border-color: #777; background: #ddd; }
-.thumb-cell a { display: block; color: inherit; text-decoration: none; }
-.thumb-cell a:hover { text-decoration: none; }
-
-.thumb-img-wrap {
-    width: 138px;
-    height: 112px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    margin: 0 auto;
-    background: #d4d4d4;
-}
-.thumb-cell img {
-    max-width: 138px;
-    max-height: 112px;
-    display: block;
-}
-.thumb-label {
-    margin-top: 4px;
-    font-size: 10px;
-    color: #555;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 138px;
-    padding: 0 2px;
-}
-
-/* Mappenkaartjes */
-.thumb-cell.folder { background: #dce8f0; border-color: #a8c4d8; }
-.thumb-cell.folder:hover { border-color: #5588aa; }
-.thumb-cell.folder .thumb-label { font-weight: bold; }
-.folder-icon { font-size: 44px; line-height: 112px; }
-
-/* Slideweergave */
-.slide-wrap { text-align: center; margin-top: 4px; }
-.slide-image {
-    max-width: 100%;
-    height: auto;
-    border: 1px solid #aaaaaa;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-}
-.slide-info { margin-top: 8px; font-size: 11px; color: #666; }
-.slide-exif { margin-top: 5px; font-size: 10px; color: #777; font-style: italic; }
-
-/* Voettekst */
-.footer { margin-top: 14px; font-size: 10px; color: #888; text-align: center; }
-"""
-
 def get_css() -> str:
     tw, th = THUMB_SIZE
     cell_w = tw + 10
     page_max_w = max(880, cell_w * 2 + 40)
     
-    css_res = CSS
+    css_path = SCRIPT_DIR / "html-album.css"
+    if css_path.exists():
+        css_res = css_path.read_text(encoding="utf-8")
+    else:
+        css_res = "* { box-sizing: border-box; }"
+    
     css_res = css_res.replace("max-width: 880px;", f"max-width: {page_max_w}px;")
     css_res = css_res.replace("width: 148px;", f"width: {cell_w}px;")
     css_res = css_res.replace("width: 138px;", f"width: {tw}px;")
@@ -443,6 +314,7 @@ def generate_slide_html(
     index_href: str,
     album_title: str,
     src_img_path: Path,
+    css_href: str,
 ) -> None:
     prev_js = f'"{prev_slide}"' if prev_slide else "null"
     next_js = f'"{next_slide}"' if next_slide else "null"
@@ -464,9 +336,7 @@ def generate_slide_html(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{img_fname} \u2014 {album_title}</title>
-    <style>
-{get_css()}
-    </style>
+    <link rel="stylesheet" href="{css_href}">
 </head>
 <body>
 <div class="page-wrap">
@@ -512,6 +382,7 @@ def generate_index_html(
     up_href: str,
     src_dir: Path,
     out_dir: Path,
+    css_href: str,
 ) -> None:
     generated_date = datetime.now().strftime("%d-%m-%Y %H:%M")
 
@@ -591,9 +462,7 @@ def generate_index_html(
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="keywords" content="fotoalbum,gallery,foto,online">
     <title>{title}</title>
-    <style>
-{get_css()}
-    </style>
+    <link rel="stylesheet" href="{css_href}">
 </head>
 <body>
 <div class="page-wrap">
@@ -634,6 +503,13 @@ def process_dir(
     )
     log_bericht(f"    foto's: {len(images)}")
 
+    # Bereken relatieve pad naar OUTPUT_DIR root voor CSS link
+    rel_parts = [p for p in out_dir.relative_to(OUTPUT_DIR).parts if p not in ('.', '/')]
+    relative_path_to_root = "../" * len(rel_parts)
+    
+    index_css_href = f"{relative_path_to_root}html-album.css"
+    slide_css_href = f"../{relative_path_to_root}html-album.css"
+
     for i, img in enumerate(images):
         fname       = img.name
         name_no_ext = img.stem
@@ -664,6 +540,7 @@ def process_dir(
             f"../{INDEX_FILE_NAME}",
             title,
             img,
+            slide_css_href,
         )
         log_bericht(f"    ✓ {fname}")
 
@@ -673,6 +550,7 @@ def process_dir(
         parent_index,
         src_dir,
         out_dir,
+        index_css_href,
     )
 
     subdirs = sorted(
@@ -704,6 +582,12 @@ def main() -> None:
         
     # Maak output directory alvast aan voor logbestand
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Genereer en schrijf html-album.css naar de output directory
+    try:
+        (OUTPUT_DIR / "html-album.css").write_text(get_css(), encoding="utf-8")
+    except Exception as exc:
+        print(f"Kon html-album.css niet schrijven naar {OUTPUT_DIR}: {exc}")
     if LOG_FILE_PATH:
         LOG_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
         try:

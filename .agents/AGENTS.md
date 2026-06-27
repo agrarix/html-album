@@ -72,3 +72,4 @@ html-album/
 - Configuratie altijd via `html-album.json`, nooit hardcoded in het script
 - Stel geen tussentijdse verduidelijkingsvragen; voer wijzigingen direct autonoom door.
 - Alle Git-handelingen (add, commit, push, etc.) mogen zonder bevestiging vooraf worden uitgevoerd.
+- Maak geen implementatieplannen (zoals `implementation_plan.md`) en vraag niet om goedkeuring vooraf; ga direct over tot de uitvoering.
