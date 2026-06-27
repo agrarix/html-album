@@ -48,19 +48,19 @@ for _i, _arg in enumerate(sys.argv):
 
 parser = argparse.ArgumentParser(
     prog="html-album",
-    description="Genereert een statisch HTML-fotoalbum vanuit een map met JPEG-afbeeldingen."
+    description="Generates a static HTML photo album from a directory of JPEG images."
 )
 parser.add_argument(
     "configbestand",
     nargs="?",
     default="html-album.rc",
-    help="Pad naar het configuratiebestand (standaard: %(default)s)"
+    help="Path to the configuration file (default: %(default)s)"
 )
 parser.add_argument(
     "-V", "--version",
     action="version",
     version=f"%(prog)s {VERSION}",
-    help="Toon de versie van het programma"
+    help="Show the program's version number and exit"
 )
 
 args = parser.parse_args()
