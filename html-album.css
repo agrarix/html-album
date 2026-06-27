@@ -177,6 +177,12 @@ a:hover { color: #000; text-decoration: underline; }
     .album-header {
         min-height: 58px;
     }
+    .thumb-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
     .thumb-cell {
         width: 100% !important;
         max-width: 100% !important;
