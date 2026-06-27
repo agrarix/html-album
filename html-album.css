@@ -97,6 +97,7 @@ a:hover { color: #000; text-decoration: underline; }
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
+    justify-content: center;
 }
 .thumb-cell {
     width: 148px;
@@ -140,7 +141,7 @@ a:hover { color: #000; text-decoration: underline; }
 /* Mappenkaartjes */
 .thumb-cell.folder { background: #dce8f0; border-color: #a8c4d8; }
 .thumb-cell.folder:hover { border-color: #5588aa; }
-.thumb-cell.folder .thumb-label { font-weight: bold; font-size: 20px; }
+.thumb-cell.folder .thumb-label { font-weight: bold; font-size: 12px; }
 .folder-icon { font-size: 64px; line-height: 112px; }
 
 /* Slideweergave */
