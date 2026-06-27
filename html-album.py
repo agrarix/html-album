@@ -666,26 +666,30 @@ def process_dir(
     for i, img in enumerate(images):
         fname       = img.name
         name_no_ext = img.stem
+        actions     = []
 
         # Kopieer het origineel naar de uitvoermap indien bron != doel en niet aanwezig
         dst_img = out_dir / fname
         if dst_img != img and not dst_img.exists():
             try:
                 shutil.copy2(img, dst_img)
+                actions.append("original copied")
             except PermissionError as pe:
-                log_bericht(f"    ⚠  Toegangsweigering bij kopiëren van '{fname}': {pe}")
+                log_bericht(f"    ⚠  Permission denied copying '{fname}': {pe}")
             except Exception as e:
-                log_bericht(f"    ⚠  Fout bij kopiëren van '{fname}': {e}")
+                log_bericht(f"    ⚠  Error copying '{fname}': {e}")
 
         # Genereer verkleinde versie in slides/ indien PICTURE_SIZE is ingesteld
         if PICTURE_SIZE:
             dst_resized = out_dir / SLIDES_DIR_NAME / fname
             if needs_image_regeneration(dst_resized, img):
                 make_resized_image(img, dst_resized)
+                actions.append("slide resized")
 
         thumb = out_dir / THUMBS_DIR_NAME / f"{name_no_ext}_thumb.jpg"
         if needs_thumbnail_regeneration(thumb, img):
             make_thumbnail(img, thumb)
+            actions.append("thumbnail generated")
 
         prev_slide = images[i - 1].stem + ".html" if i > 0 else ""
         next_slide = images[i + 1].stem + ".html" if i < len(images) - 1 else ""
@@ -700,7 +704,11 @@ def process_dir(
             img,
             slide_css_href,
         )
-        log_bericht(f"    ✓ {fname}")
+        
+        if actions:
+            log_bericht(f"    ✓ {fname} ({', '.join(actions)})")
+        else:
+            log_bericht(f"    ✓ {fname} (unchanged)")
 
     generate_index_html(
         out_dir / INDEX_FILE_NAME,
