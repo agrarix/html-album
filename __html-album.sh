@@ -1,18 +1,18 @@
 #!/bin/bash
 
-# Album Generator Script
+# HTML-Album Generator Script
 # Generates an HTML photo album similar to alm.agrarix.net
 # - Recursive: every subdirectory gets its own index.html
 # - Separate OUTPUT_DIR from SOURCE_DIR
 # - prev/next navigation on slide pages with keyboard support
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-CONFIG_FILE="$SCRIPT_DIR/album.json"
-PGM="generate_album"
+CONFIG_FILE="$SCRIPT_DIR/html-album.json"
+PGM="html-album"
 VERSION="2.0"
 
 # ---------------------------------------------------------------------------
-# Read configuration from album.json
+# Read configuration from html-album.json
 # ---------------------------------------------------------------------------
 if [ -f "$CONFIG_FILE" ]; then
     EXCLUDED=$(grep -o '"EXCLUDED"[[:space:]]*:[[:space:]]*\[.*\]' "$CONFIG_FILE" \

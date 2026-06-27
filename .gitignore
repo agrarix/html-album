@@ -4,7 +4,7 @@ test.html
 
 # Logs
 *.log
-generate_album.log
+html-album.log
 
 # Python cache en omgevingen
 __pycache__/

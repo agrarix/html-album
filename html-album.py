@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-generate_album.py — HTML Fotoalbum Generator
+html-album.py — HTML Fotoalbum Generator
 Genereert een HTML-album vergelijkbaar met alm.agrarix.net
 
 Vereisten:
     pip install Pillow
 
 Gebruik:
-    python generate_album.py
-    (leest album.json in dezelfde map)
+    python html-album.py
+    (leest html-album.json in dezelfde map)
 """
 
 import json
@@ -23,7 +23,7 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 # Programma details voor de footer
-PGM = "generate_album"
+PGM = "html-album"
 VERSION = "2.0"
 
 # ---------------------------------------------------------------------------
@@ -39,7 +39,7 @@ except ImportError:
 # Configuratie inlezen uit album.json
 # ---------------------------------------------------------------------------
 SCRIPT_DIR = Path(__file__).parent
-CONFIG_FILE = SCRIPT_DIR / "album.json"
+CONFIG_FILE = SCRIPT_DIR / "html-album.json"
 
 DEFAULTS = {
     "SLIDES_DIR": "slides",
@@ -49,11 +49,11 @@ DEFAULTS = {
     "SOURCE_DIR": "",
     "OUTPUT_DIR": "",
     "INDEX_FILE": "index.html",
-    "LOG_FILE": "generate_album.log",
+    "LOG_FILE": "html-album.log",
 }
 
 def _laad_config(pad: Path) -> dict:
-    """Lees album.json. Herstelt automatisch Windows-backslashes in paden."""
+    """Lees html-album.json. Herstelt automatisch Windows-backslashes in paden."""
     with open(pad, encoding="utf-8") as f:
         inhoud = f.read()
     try:
@@ -68,7 +68,7 @@ def _laad_config(pad: Path) -> dict:
         try:
             return json.loads(hersteld)
         except json.JSONDecodeError as e:
-            print(f"FOUT: album.json is ongeldig: {e}")
+            print(f"FOUT: html-album.json is ongeldig: {e}")
             print("  Tip: gebruik forward slashes in paden: C:/pad/naar/map")
             print("  Tip: controleer of er komma's ontbreken tussen regels.")
             sys.exit(1)
@@ -76,7 +76,7 @@ def _laad_config(pad: Path) -> dict:
 if CONFIG_FILE.exists():
     cfg = {**DEFAULTS, **_laad_config(CONFIG_FILE)}
 else:
-    print("album.json niet gevonden, standaardwaarden worden gebruikt.")
+    print("html-album.json niet gevonden, standaardwaarden worden gebruikt.")
     cfg = DEFAULTS
 
 SLIDES_DIR_NAME: str = cfg["SLIDES_DIR"]
@@ -100,7 +100,7 @@ EXCLUDED: set[str] = {
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif"}
 
 # Bepaal het logbestand-pad. Als het een relatieve bestandsnaam is, zet het in SCRIPT_DIR (applicatie-root).
-cfg_log_file = cfg.get("LOG_FILE", "generate_album.log")
+cfg_log_file = cfg.get("LOG_FILE", "html-album.log")
 if Path(cfg_log_file).is_absolute():
     LOG_FILE_PATH = Path(cfg_log_file.replace("\\", "/"))
 else:
@@ -110,7 +110,7 @@ else:
 # (Wordt geïnitialiseerd in main)
 
 def log_bericht(bericht: str) -> None:
-    """Schrijft naar stdout én naar het logbestand generate_album.log."""
+    """Schrijft naar stdout én naar het logbestand html-album.log."""
     # Print direct naar het scherm (UTF-8)
     print(bericht)
     sys.stdout.flush()
@@ -694,11 +694,11 @@ def main() -> None:
     
     if not SOURCE_DIR or not SOURCE_DIR.exists():
         print(f"\n❌ Bronmap niet gevonden: {SOURCE_DIR}")
-        print("   Pas SOURCE_DIR aan in album.json")
+        print("   Pas SOURCE_DIR aan in html-album.json")
         sys.exit(1)
 
     if not OUTPUT_DIR or str(OUTPUT_DIR) in ("", "."):
-        print("\n❌ OUTPUT_DIR is niet ingesteld in album.json")
+        print("\n❌ OUTPUT_DIR is niet ingesteld in html-album.json")
         sys.exit(1)
         
     # Maak output directory alvast aan voor logbestand
@@ -711,7 +711,7 @@ def main() -> None:
         except Exception as exc:
             print(f"Kon logbestand niet maken op {LOG_FILE_PATH}: {exc}")
 
-    log_bericht("Album Generator")
+    log_bericht("HTML Fotoalbum Generator")
     log_bericht("─" * 36)
     log_bericht(f"Bron      : {SOURCE_DIR}")
     log_bericht(f"Uitvoer   : {OUTPUT_DIR}")
