@@ -39,7 +39,15 @@ except ImportError:
 # Configuratie inlezen uit html-album.rc
 # ---------------------------------------------------------------------------
 SCRIPT_DIR = Path(__file__).parent
-CONFIG_FILE = SCRIPT_DIR / "html-album.rc"
+
+config_naam = "html-album.rc"
+if len(sys.argv) > 1:
+    config_naam = sys.argv[1]
+
+CONFIG_FILE = Path(config_naam)
+if not CONFIG_FILE.is_absolute():
+    CONFIG_FILE = SCRIPT_DIR / CONFIG_FILE
+
 
 DEFAULTS = {
     "SLIDES_DIR": "slides",
@@ -76,13 +84,13 @@ def _laad_config(pad: Path) -> dict:
                         config[key] = val
         return config
     except Exception as e:
-        print(f"FOUT bij laden van html-album.rc: {e}")
+        print(f"FOUT bij laden van {CONFIG_FILE.name}: {e}")
         sys.exit(1)
 
 if CONFIG_FILE.exists():
     cfg = {**DEFAULTS, **_laad_config(CONFIG_FILE)}
 else:
-    print("html-album.rc niet gevonden, standaardwaarden worden gebruikt.")
+    print(f"{CONFIG_FILE.name} niet gevonden, standaardwaarden worden gebruikt.")
     cfg = DEFAULTS
 
 SLIDES_DIR_NAME: str = cfg["SLIDES_DIR"]
