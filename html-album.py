@@ -772,6 +772,10 @@ def main() -> None:
     log_bericht(f"Uitvoer   : {OUTPUT_DIR}")
     log_bericht(f"Logbestand: {LOG_FILE_PATH}")
     log_bericht(f"Thumbnail : {THUMB_SIZE[0]}x{THUMB_SIZE[1]}")
+    if FORCE_ALL:
+        log_bericht("Modus     : Volledig opnieuw genereren (--all)")
+    else:
+        log_bericht("Modus     : Alleen nieuwe/gewijzigde bestanden")
     if PICTURE_SIZE:
         log_bericht(f"Foto      : {PICTURE_SIZE[0]}x{PICTURE_SIZE[1]}")
     else:
