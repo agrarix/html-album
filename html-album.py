@@ -186,8 +186,9 @@ def needs_thumbnail_regeneration(thumb_path: Path, src_path: Path) -> bool:
     except Exception:
         pass
     try:
+        tw, th = THUMB_SIZE
         with Image.open(thumb_path) as img:
-            return img.size != THUMB_SIZE
+            return not (img.width == tw or img.height == th or (img.width < tw and img.height < th))
     except Exception:
         return True
 
@@ -205,19 +206,7 @@ def make_thumbnail(src: Path, dst: Path) -> None:
         with Image.open(src) as img:
             img = ImageOps.exif_transpose(img)
             img = img.convert("RGB")
-            tw, th = THUMB_SIZE
-            img_ratio = img.width / img.height
-            target_ratio = tw / th
-            if img_ratio > target_ratio:
-                new_h = th
-                new_w = round(img.width * new_h / img.height)
-            else:
-                new_w = tw
-                new_h = round(img.height * new_w / img.width)
-            img = img.resize((new_w, new_h), Image.LANCZOS)
-            left = (new_w - tw) // 2
-            top  = (new_h - th) // 2
-            img = img.crop((left, top, left + tw, top + th))
+            img.thumbnail(THUMB_SIZE, Image.LANCZOS)
             img.save(dst, "JPEG", quality=85, optimize=True)
     except PermissionError as pe:
         log_bericht(f"    ⚠  Toegangsweigering (bestand in gebruik) bij maken thumbnail voor '{src.name}': {pe}")
