@@ -13,6 +13,7 @@ Dit project biedt een actieve **Python-versie** (`html-album.py`, aanbevolen voo
 - **EXIF-metadata**: Leest en toont automatisch camera-instellingen (cameramodel, opnamedatum, sluitertijd, diafragma, ISO en brandpuntsafstand) op de slide-pagina's indien beschikbaar.
 - **Gescheiden mappen**: Originele foto's blijven onaangetast; de complete website wordt gegenereerd in de geconfigureerde `OUTPUT_DIR`.
 - **Preview thumbnails**: Submappen worden op de hoofdpagina getoond met de eerste foto uit die submap als preview.
+- **Mobielvriendelijk**: Volledige viewport-ondersteuning voor correcte schaling op mobiel, grotere tikbare navigatieknoppen, en een raster dat op mobiel automatisch schaalt naar 2 flexibele kolommen.
 - **Logbestand**: Schrijft gedetailleerde logboeken naar een configureerbaar logbestand voor eenvoudige monitoring.
 
 ---
