@@ -62,9 +62,15 @@ parser.add_argument(
     version=f"%(prog)s {VERSION}",
     help="Show the program's version number and exit"
 )
+parser.add_argument(
+    "-a", "--all",
+    action="store_true",
+    help="Force regeneration of all images and thumbnails"
+)
 
 args = parser.parse_args()
 config_naam = args.configbestand
+FORCE_ALL = args.all
 
 CONFIG_FILE = Path(config_naam)
 if not CONFIG_FILE.is_absolute():
@@ -210,6 +216,8 @@ def get_css() -> str:
 # Controleer of thumbnail opnieuw gegenereerd moet worden
 # ---------------------------------------------------------------------------
 def needs_thumbnail_regeneration(thumb_path: Path, src_path: Path) -> bool:
+    if FORCE_ALL:
+        return True
     if not thumb_path.exists():
         return True
     if not HAS_PIL:
@@ -260,6 +268,8 @@ def make_thumbnail(src: Path, dst: Path) -> None:
 # Controleer of afbeelding opnieuw verkleind/gekopieerd moet worden
 # ---------------------------------------------------------------------------
 def needs_image_regeneration(dst_path: Path, src_path: Path) -> bool:
+    if FORCE_ALL:
+        return True
     if not dst_path.exists():
         return True
     try:
