@@ -41,7 +41,7 @@ Alle instellingen worden gelezen uit `html-album.rc`:
 | `SOURCE_DIR` | Bronmap met originele foto's en submappen | `""` |
 | `OUTPUT_DIR` | Uitvoerlocatie voor de gegenereerde website | `""` |
 | `INDEX_FILE` | Bestandsnaam van de gegenereerde indexpagina's | `index.html` |
-| `SLIDES_DIR` | Naam van de submap voor individuele slidepagina's | `slides` |
+| `PICTURES_DIR` | Naam van de submap voor individuele slidepagina's | `pictures` |
 | `THUMBS_DIR` | Naam van de submap voor de thumbnails | `thumbs` |
 | `THUMBNAIL` | Grootte van thumbnails (notatie: `breedtexhoogte`) | `140x140` |
 | `PICTURE` | Maximale grootte van slide-afbeeldingen (leeg = originele grootte) | `""` |
@@ -55,7 +55,7 @@ Alle instellingen worden gelezen uit `html-album.rc`:
 ### Voorbeeld `html-album.rc`
 
 ```shell
-SLIDES_DIR="slides"
+PICTURES_DIR="pictures"
 THUMBS_DIR="thumbs"
 EXCLUDED="res"
 THUMBNAIL="140x140"

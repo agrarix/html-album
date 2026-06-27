@@ -78,7 +78,7 @@ if not CONFIG_FILE.is_absolute():
 
 
 DEFAULTS = {
-    "SLIDES_DIR": "slides",
+    "PICTURES_DIR": "pictures",
     "THUMBS_DIR": "thumbs",
     "EXCLUDED": ["res"],
     "THUMBNAIL": "140x140",
@@ -124,7 +124,7 @@ else:
     print(f"{CONFIG_FILE.name} niet gevonden, standaardwaarden worden gebruikt.")
     cfg = DEFAULTS
 
-SLIDES_DIR_NAME: str = cfg["SLIDES_DIR"]
+PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "pictures"))
 THUMBS_DIR_NAME: str = cfg["THUMBS_DIR"]
 INDEX_FILE_NAME: str = cfg["INDEX_FILE"]
 SOURCE_DIR = Path(cfg["SOURCE_DIR"].replace("\\", "/")) if cfg["SOURCE_DIR"] else Path()
@@ -148,7 +148,7 @@ if cfg.get("PICTURE"):
 EXCLUDED: set[str] = {
     x.lower() for x in (
         set(cfg["EXCLUDED"]) |
-        {SLIDES_DIR_NAME, THUMBS_DIR_NAME, "slides", "thumbs", "slides_dir", "thumbs_dir"}
+        {PICTURES_DIR_NAME, THUMBS_DIR_NAME, "pictures", "slides", "thumbs", "slides_dir", "thumbs_dir", "pictures_dir"}
     )
 }
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif"}
@@ -516,7 +516,7 @@ def generate_index_html(
         fname       = img.name
         name_no_ext = img.stem
         thumb_rel   = f"{THUMBS_DIR_NAME}/{name_no_ext}_thumb.jpg"
-        slide_rel   = f"{SLIDES_DIR_NAME}/{name_no_ext}.html"
+        slide_rel   = f"{PICTURES_DIR_NAME}/{name_no_ext}.html"
         img_cells.append(
             f'        <div class="thumb-cell">\n'
             f'            <a href="{slide_rel}" title="{fname}">\n'
@@ -620,7 +620,7 @@ def process_dir(
     log_bericht(f"    doel : {out_dir}")
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / SLIDES_DIR_NAME).mkdir(exist_ok=True)
+    (out_dir / PICTURES_DIR_NAME).mkdir(exist_ok=True)
     (out_dir / THUMBS_DIR_NAME).mkdir(exist_ok=True)
 
     images = sorted(
@@ -682,9 +682,9 @@ def process_dir(
             except Exception as e:
                 log_bericht(f"    ⚠  Error copying '{fname}': {e}")
 
-        # Genereer verkleinde versie in slides/ indien PICTURE_SIZE is ingesteld
+        # Genereer verkleinde versie in pictures/ indien PICTURE_SIZE is ingesteld
         if PICTURE_SIZE:
-            dst_resized = out_dir / SLIDES_DIR_NAME / fname
+            dst_resized = out_dir / PICTURES_DIR_NAME / fname
             if needs_image_regeneration(dst_resized, img):
                 make_resized_image(img, dst_resized)
                 actions.append("PICTURE/")
@@ -698,7 +698,7 @@ def process_dir(
         next_slide = images[i + 1].stem + ".html" if i < len(images) - 1 else ""
 
         generate_slide_html(
-            out_dir / SLIDES_DIR_NAME / f"{name_no_ext}.html",
+            out_dir / PICTURES_DIR_NAME / f"{name_no_ext}.html",
             fname,
             prev_slide,
             next_slide,
