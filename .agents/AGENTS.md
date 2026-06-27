@@ -12,15 +12,14 @@ html-album/
 ├── .agents/
 │   └── AGENTS.md          # Dit bestand (automatisch ingelezen door Antigravity)
 ├── README.md              # Projectdocumentatie voor mensen
-├── html-album.json        # Configuratiebestand
-├── __html-album.sh        # Bash-generatorscript (legacy, wordt niet meer bijgewerkt)
+├── html-album.rc          # Configuratiebestand
 ├── html-album.py          # Python-versie van het generatorscript (primair)
 └── requirements.txt       # Python dependencies
 ```
 
 ---
 
-## Configuratie (`html-album.json`)
+## Configuratie (`html-album.rc`)
 
 | Sleutel         | Beschrijving                                              | Huidige waarde                                 |
 |-----------------|-----------------------------------------------------------|------------------------------------------------|
@@ -69,7 +68,7 @@ html-album/
 - Communiceer en beantwoord vragen altijd in het **Nederlands**
 - Schrijf commentaar en documentatie in het **Nederlands**
 - Houd de `README.md` gesynchroniseerd met de werkelijke functionaliteit
-- Configuratie altijd via `html-album.json`, nooit hardcoded in het script
+- Configuratie altijd via `html-album.rc`, nooit hardcoded in het script
 - Stel geen tussentijdse verduidelijkingsvragen; voer wijzigingen direct autonoom door.
 - Alle Git-handelingen (add, commit, push, etc.) mogen zonder bevestiging vooraf worden uitgevoerd.
 - Maak geen implementatieplannen (zoals `implementation_plan.md`) en vraag niet om goedkeuring vooraf; ga direct over tot de uitvoering.

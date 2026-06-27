@@ -36,10 +36,10 @@ except ImportError:
     HAS_PIL = False
 
 # ---------------------------------------------------------------------------
-# Configuratie inlezen uit album.json
+# Configuratie inlezen uit html-album.rc
 # ---------------------------------------------------------------------------
 SCRIPT_DIR = Path(__file__).parent
-CONFIG_FILE = SCRIPT_DIR / "html-album.json"
+CONFIG_FILE = SCRIPT_DIR / "html-album.rc"
 
 DEFAULTS = {
     "SLIDES_DIR": "slides",
@@ -53,30 +53,34 @@ DEFAULTS = {
 }
 
 def _laad_config(pad: Path) -> dict:
-    """Lees html-album.json. Herstelt automatisch Windows-backslashes in paden."""
-    with open(pad, encoding="utf-8") as f:
-        inhoud = f.read()
+    """Lees html-album.rc met KEY="VALUE" syntax."""
+    config = {}
     try:
-        return json.loads(inhoud)
-    except json.JSONDecodeError:
-        # Vervang backslashes buiten escape-sequenties door forward slashes
-        hersteld = re.sub(
-            r'("[^"]*"\s*:\s*"[^"]*?)\\([^"]*")',
-            lambda m: m.group(0).replace("\\", "/"),
-            inhoud,
-        )
-        try:
-            return json.loads(hersteld)
-        except json.JSONDecodeError as e:
-            print(f"FOUT: html-album.json is ongeldig: {e}")
-            print("  Tip: gebruik forward slashes in paden: C:/pad/naar/map")
-            print("  Tip: controleer of er komma's ontbreken tussen regels.")
-            sys.exit(1)
+        with open(pad, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    key, val = line.split("=", 1)
+                    key = key.strip()
+                    val = val.strip()
+                    if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+                        val = val[1:-1]
+                    if key == "EXCLUDED":
+                        val = val.replace("[", "").replace("]", "").replace('"', '').replace("'", "")
+                        config[key] = [x.strip() for x in val.split(",") if x.strip()]
+                    else:
+                        config[key] = val
+        return config
+    except Exception as e:
+        print(f"FOUT bij laden van html-album.rc: {e}")
+        sys.exit(1)
 
 if CONFIG_FILE.exists():
     cfg = {**DEFAULTS, **_laad_config(CONFIG_FILE)}
 else:
-    print("html-album.json niet gevonden, standaardwaarden worden gebruikt.")
+    print("html-album.rc niet gevonden, standaardwaarden worden gebruikt.")
     cfg = DEFAULTS
 
 SLIDES_DIR_NAME: str = cfg["SLIDES_DIR"]
@@ -573,11 +577,11 @@ def main() -> None:
     
     if not SOURCE_DIR or not SOURCE_DIR.exists():
         print(f"\n❌ Bronmap niet gevonden: {SOURCE_DIR}")
-        print("   Pas SOURCE_DIR aan in html-album.json")
+        print("   Pas SOURCE_DIR aan in html-album.rc")
         sys.exit(1)
 
     if not OUTPUT_DIR or str(OUTPUT_DIR) in ("", "."):
-        print("\n❌ OUTPUT_DIR is niet ingesteld in html-album.json")
+        print("\n❌ OUTPUT_DIR is niet ingesteld in html-album.rc")
         sys.exit(1)
         
     # Maak output directory alvast aan voor logbestand
