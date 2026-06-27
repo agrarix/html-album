@@ -468,7 +468,7 @@ def generate_index_html(
 <div class="page-wrap">
     <div class="album-header">
         {up_btn}
-        <span class="header-title">\U0001f4f7 {title}</span>
+        <span class="header-title">Foto album : {title}</span>
     </div>
     <div class="thumb-grid">
 {all_cells}
