@@ -54,6 +54,7 @@ DEFAULTS = {
     "THUMBS_DIR": "thumbs",
     "EXCLUDED": ["res"],
     "THUMBNAIL": "140x140",
+    "PICTURE": "",
     "SOURCE_DIR": "",
     "OUTPUT_DIR": "",
     "INDEX_FILE": "index.html",
@@ -61,6 +62,7 @@ DEFAULTS = {
     "COLUMNS": "0",
     "ROWS": "0",
 }
+
 
 def _laad_config(pad: Path) -> dict:
     """Lees html-album.rc met KEY="VALUE" syntax."""
@@ -104,6 +106,15 @@ try:
     THUMB_SIZE = (_w, _h)
 except ValueError:
     THUMB_SIZE = (140, 140)
+
+PICTURE_SIZE = None
+if cfg.get("PICTURE"):
+    try:
+        _wp, _hp = map(int, cfg["PICTURE"].lower().split("x"))
+        PICTURE_SIZE = (_wp, _hp)
+    except ValueError:
+        pass
+
 
 EXCLUDED: set[str] = {
     x.lower() for x in (
@@ -217,6 +228,54 @@ def make_thumbnail(src: Path, dst: Path) -> None:
         log_bericht(f"    ⚠  Toegangsweigering (bestand in gebruik) bij maken thumbnail voor '{src.name}': {pe}")
     except Exception as exc:
         log_bericht(f"    ⚠  Thumbnail mislukt voor '{src.name}': {exc}")
+        try:
+            shutil.copy2(src, dst)
+        except Exception:
+            pass
+
+# ---------------------------------------------------------------------------
+# Controleer of afbeelding opnieuw verkleind/gekopieerd moet worden
+# ---------------------------------------------------------------------------
+def needs_image_regeneration(dst_path: Path, src_path: Path) -> bool:
+    if not dst_path.exists():
+        return True
+    try:
+        if src_path.stat().st_mtime > dst_path.stat().st_mtime:
+            return True
+    except Exception:
+        pass
+    
+    if HAS_PIL and PICTURE_SIZE:
+        try:
+            with Image.open(dst_path) as img:
+                w, h = img.size
+                pw, ph = PICTURE_SIZE
+                if w > pw or h > ph:
+                    return True
+        except Exception:
+            return True
+    return False
+
+# ---------------------------------------------------------------------------
+# Grote afbeelding kopiëren/schalen met Pillow
+# ---------------------------------------------------------------------------
+def make_resized_image(src: Path, dst: Path) -> None:
+    if not HAS_PIL or not PICTURE_SIZE:
+        try:
+            shutil.copy2(src, dst)
+        except Exception as e:
+            log_bericht(f"    ⚠  Kon bestand niet kopiëren: {e}")
+        return
+    try:
+        with Image.open(src) as img:
+            img = ImageOps.exif_transpose(img)
+            img = img.convert("RGB")
+            img.thumbnail(PICTURE_SIZE, Image.LANCZOS)
+            img.save(dst, "JPEG", quality=85, optimize=True)
+    except PermissionError as pe:
+        log_bericht(f"    ⚠  Toegangsweigering (bestand in gebruik) bij maken foto voor '{src.name}': {pe}")
+    except Exception as exc:
+        log_bericht(f"    ⚠  Schalen mislukt voor '{src.name}': {exc}")
         try:
             shutil.copy2(src, dst)
         except Exception:
@@ -567,15 +626,8 @@ def process_dir(
         name_no_ext = img.stem
 
         dst_img = out_dir / fname
-        if not dst_img.exists():
-            try:
-                shutil.copy2(img, dst_img)
-            except PermissionError as pe:
-                log_bericht(f"    ⚠  Toegangsweigering (bestand in gebruik) bij kopiëren van '{fname}': {pe}")
-                continue
-            except Exception as e:
-                log_bericht(f"    ⚠  Fout bij kopiëren van '{fname}': {e}")
-                continue
+        if needs_image_regeneration(dst_img, img):
+            make_resized_image(img, dst_img)
 
         thumb = out_dir / THUMBS_DIR_NAME / f"{name_no_ext}_thumb.jpg"
         if needs_thumbnail_regeneration(thumb, img):
@@ -655,6 +707,10 @@ def main() -> None:
     log_bericht(f"Uitvoer   : {OUTPUT_DIR}")
     log_bericht(f"Logbestand: {LOG_FILE_PATH}")
     log_bericht(f"Thumbnail : {THUMB_SIZE[0]}x{THUMB_SIZE[1]}")
+    if PICTURE_SIZE:
+        log_bericht(f"Foto      : {PICTURE_SIZE[0]}x{PICTURE_SIZE[1]}")
+    else:
+        log_bericht("Foto      : Originele grootte")
     log_bericht(f"Uitsluit  : {', '.join(sorted(EXCLUDED))}")
     if HAS_PIL:
         try:

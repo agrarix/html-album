@@ -43,10 +43,12 @@ Alle instellingen worden gelezen uit `html-album.rc`:
 | `SLIDES_DIR` | Naam van de submap voor individuele slidepagina's | `slides` |
 | `THUMBS_DIR` | Naam van de submap voor de thumbnails | `thumbs` |
 | `THUMBNAIL` | Grootte van thumbnails (notatie: `breedtexhoogte`) | `140x140` |
+| `PICTURE` | Maximale grootte van slide-afbeeldingen (leeg = originele grootte) | `""` |
 | `LOG_FILE` | Pad/naam van het logbestand (relatief aan script-dir) | `html-album.log` |
 | `EXCLUDED` | Mapnamen die volledig genegeerd moeten worden | `["res"]` |
 | `COLUMNS` | Vaste hoeveelheid kolommen in het raster (0 = auto-responsive flex) | `0` |
 | `ROWS` | Hoeveelheid rijen (momenteel niet actief gebruikt, 0 = oneindig) | `0` |
+
 
 ### Voorbeeld `html-album.rc`
 
@@ -98,8 +100,8 @@ ROWS="0"
 1. **Leest configuratie**: Laadt de paden uit `html-album.rc`.
 2. **Genereert bestandsstructuur**: Maakt de mappen `slides/` en `thumbs/` aan in de `OUTPUT_DIR` (recursief per submap).
 3. **Kopieert & Schaalt**:
-   - Kopieert de originele foto naar de uitvoermap (indien nog niet aanwezig).
-   - Genereert een thumbnail die past binnen de geconfigureerde `THUMBNAIL` afmetingen (bijv. 450x450px) met behoud van de originele beeldverhouding (aspect ratio), en centreert deze in het kader.
+   - Schaalt de originele foto naar de afmetingen gedefinieerd in `PICTURE` (indien ingesteld en Pillow aanwezig is) en slaat deze op in de uitvoermap. Als `PICTURE` leeg is, wordt het origineel direct gekopieerd.
+   - Genereert een thumbnail die past binnen de geconfigureerde `THUMBNAIL` afmetingen (bijv. 450x450px) met behoud van de originele beeldverhouding (aspect ratio).
 4. **Bouwt slides**: Genereert individuele HTML-slidepagina's per afbeelding met inline CSS en JavaScript voor keyboardnavigatie.
 5. **Bouwt index**: Genereert een modern responsive thumbnailgrid. Submappen krijgen een preview-thumbnail van de eerste foto uit die map.
 6. **Schrijft logs**: Houdt live de voortgang bij in het logbestand (`LOG_FILE`).
