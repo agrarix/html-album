@@ -23,9 +23,8 @@ Dit project biedt een actieve **Python-versie** (`html-album.py`, aanbevolen voo
 html-album/
 ├── .agents/
 │   └── AGENTS.md          # Instructies voor AI-assistenten
-├── html-album.json        # Configuratiebestand
+├── html-album.rc          # Configuratiebestand
 ├── html-album.py          # Python-generatorscript (primair)
-├── __html-album.sh        # Bash-generatorscript (legacy, niet meer bijgewerkt)
 └── requirements.txt       # Python-afhankelijkheden (Pillow)
 ```
 
@@ -33,7 +32,7 @@ html-album/
 
 ## ⚙️ Configuratie
 
-Alle instellingen worden gelezen uit `html-album.json`:
+Alle instellingen worden gelezen uit `html-album.rc`:
 
 | Sleutel | Beschrijving | Standaardwaarde |
 |---|---|---|
@@ -46,19 +45,17 @@ Alle instellingen worden gelezen uit `html-album.json`:
 | `LOG_FILE` | Pad/naam van het logbestand (relatief aan script-dir) | `html-album.log` |
 | `EXCLUDED` | Mapnamen die volledig genegeerd moeten worden | `["res"]` |
 
-### Voorbeeld `html-album.json`
+### Voorbeeld `html-album.rc`
 
-```json
-{
-  "SLIDES_DIR": "slides",
-  "THUMBS_DIR": "thumbs",
-  "EXCLUDED": ["res"],
-  "THUMBNAIL": "140x140",
-  "SOURCE_DIR": "Z:/WWW/domains/alm.agrarix.net/pages",
-  "OUTPUT_DIR": "G:/Mijn Drive/Antigravity/html-album/output",
-  "INDEX_FILE": "index.html",
-  "LOG_FILE": "html-album.log"
-}
+```shell
+SLIDES_DIR="slides"
+THUMBS_DIR="thumbs"
+EXCLUDED="res"
+THUMBNAIL="140x140"
+SOURCE_DIR="Z:/WWW/domains/alm.agrarix.net/pages"
+OUTPUT_DIR="G:/Mijn Drive/Antigravity/html-album/output"
+INDEX_FILE="index.html"
+LOG_FILE="html-album.log"
 ```
 *Tip: Gebruik forward slashes (`/`) in paden, ook op Windows.*
 
@@ -89,7 +86,7 @@ Alle instellingen worden gelezen uit `html-album.json`:
 
 ## 🔧 Wat doet the generator?
 
-1. **Leest configuratie**: Laadt de paden uit `html-album.json`.
+1. **Leest configuratie**: Laadt de paden uit `html-album.rc`.
 2. **Genereert bestandsstructuur**: Maakt de mappen `slides/` en `thumbs/` aan in de `OUTPUT_DIR` (recursief per submap).
 3. **Kopieert & Schaalt**:
    - Kopieert de originele foto naar de uitvoermap (indien nog niet aanwezig).
