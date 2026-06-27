@@ -50,6 +50,8 @@ DEFAULTS = {
     "OUTPUT_DIR": "",
     "INDEX_FILE": "index.html",
     "LOG_FILE": "html-album.log",
+    "COLUMNS": "0",
+    "ROWS": "0",
 }
 
 def _laad_config(pad: Path) -> dict:
@@ -132,7 +134,12 @@ def log_bericht(bericht: str) -> None:
 def get_css() -> str:
     tw, th = THUMB_SIZE
     cell_w = tw + 10
-    page_max_w = max(880, cell_w * 2 + 40)
+    
+    cols = int(cfg.get("COLUMNS", 0))
+    if cols > 0:
+        page_max_w = max(880, cell_w * cols + 40)
+    else:
+        page_max_w = max(880, cell_w * 2 + 40)
     
     css_path = SCRIPT_DIR / "html-album.css"
     if css_path.exists():
@@ -147,6 +154,10 @@ def get_css() -> str:
     css_res = css_res.replace("max-width: 138px;", f"max-width: {tw}px;")
     css_res = css_res.replace("max-height: 112px;", f"max-height: {th}px;")
     css_res = css_res.replace("line-height: 112px;", f"line-height: {th}px;")
+    
+    if cols > 0:
+        css_res = css_res.replace("display: flex;", "display: grid;")
+        css_res = css_res.replace("flex-wrap: wrap;", f"grid-template-columns: repeat({cols}, {cell_w}px);")
     
     if th > 140:
         folder_font_size = min(120, int(th * 0.5))
