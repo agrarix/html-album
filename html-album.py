@@ -355,6 +355,7 @@ def generate_slide_html(
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{img_fname}</title>
     <link rel="stylesheet" href="{css_href}">
 </head>
@@ -480,6 +481,7 @@ def generate_index_html(
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="keywords" content="fotoalbum,gallery,foto,online">
     <title>{title}</title>
     <link rel="stylesheet" href="{css_href}">
