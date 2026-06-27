@@ -50,6 +50,13 @@ a:hover { color: #000; text-decoration: underline; }
     color: #000;
     text-decoration: none;
 }
+.nav-btn.up-btn {
+    color: #0056b3;
+    font-weight: bold;
+}
+.nav-btn.up-btn:hover {
+    color: #003d82;
+}
 .nav-btn.disabled { opacity: 0.35; pointer-events: none; }
 .header-title {
     flex-grow: 1;
@@ -110,7 +117,7 @@ a:hover { color: #000; text-decoration: underline; }
 /* Mappenkaartjes */
 .thumb-cell.folder { background: #dce8f0; border-color: #a8c4d8; }
 .thumb-cell.folder:hover { border-color: #5588aa; }
-.thumb-cell.folder .thumb-label { font-weight: bold; font-size: 12px; }
+.thumb-cell.folder .thumb-label { font-weight: bold; font-size: 20px; }
 .folder-icon { font-size: 64px; line-height: 112px; }
 
 /* Slideweergave */

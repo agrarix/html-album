@@ -341,7 +341,7 @@ def generate_slide_html(
 <body>
 <div class="page-wrap">
     <div class="album-header">
-        <a href="{index_href}" class="nav-btn" title="Terug naar album (Esc)">&#8593;</a>
+        <a href="{index_href}" class="nav-btn up-btn" title="Terug naar album (Esc)">&#8593;</a>
         <span class="header-title">{album_title} \u2014 {img_fname}</span>
         <div class="header-nav">
             {prev_btn}
@@ -388,7 +388,7 @@ def generate_index_html(
 
     up_btn = ""
     if up_href:
-        up_btn = f'<a href="{up_href}" class="nav-btn" title="Omhoog naar bovenliggende map">&#8593;</a>'
+        up_btn = f'<a href="{up_href}" class="nav-btn up-btn" title="Omhoog naar bovenliggende map">&#8593;</a>'
 
     images = sorted(
         [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS],
