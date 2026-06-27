@@ -44,6 +44,8 @@ Alle instellingen worden gelezen uit `html-album.rc`:
 | `THUMBNAIL` | Grootte van thumbnails (notatie: `breedtexhoogte`) | `140x140` |
 | `LOG_FILE` | Pad/naam van het logbestand (relatief aan script-dir) | `html-album.log` |
 | `EXCLUDED` | Mapnamen die volledig genegeerd moeten worden | `["res"]` |
+| `COLUMNS` | Vaste hoeveelheid kolommen in het raster (0 = auto-responsive flex) | `0` |
+| `ROWS` | Hoeveelheid rijen (momenteel niet actief gebruikt, 0 = oneindig) | `0` |
 
 ### Voorbeeld `html-album.rc`
 
@@ -56,6 +58,8 @@ SOURCE_DIR="Z:/WWW/domains/alm.agrarix.net/pages"
 OUTPUT_DIR="G:/Mijn Drive/Antigravity/html-album/output"
 INDEX_FILE="index.html"
 LOG_FILE="html-album.log"
+COLUMNS="2"
+ROWS="0"
 ```
 *Tip: Gebruik forward slashes (`/`) in paden, ook op Windows.*
 
@@ -71,6 +75,10 @@ LOG_FILE="html-album.log"
 2. Voer het script uit:
    ```cmd
    python html-album.py
+   ```
+   *Tip: Je kunt optioneel een specifiek configuratiebestand als argument opgeven:*
+   ```cmd
+   python html-album.py test.rc
    ```
 
 *Zonder Pillow worden de originele bestanden direct als thumbnail gelinkt.*
