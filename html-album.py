@@ -608,7 +608,7 @@ def process_dir(
         slide_depth = depth + 1
         
         # Voor indexpagina's
-        links.append(f'<a href="{"../" * depth}{INDEX_FILE_NAME}">{root_display}</a>')
+        links.append(f'<a href="{"../" * depth}{INDEX_FILE_NAME}">{root_name}</a>')
         for idx, part_name in enumerate(rel_path.parts[:-1]):
             steps_up = depth - 1 - idx
             links.append(f'<a href="{"../" * steps_up}{INDEX_FILE_NAME}">{part_name}</a>')
@@ -616,7 +616,7 @@ def process_dir(
         breadcrumb_html = " / ".join(links)
         
         # Voor slidepagina's (één niveau dieper wegens slides/ submap)
-        slide_links.append(f'<a href="{"../" * slide_depth}{INDEX_FILE_NAME}">{root_display}</a>')
+        slide_links.append(f'<a href="{"../" * slide_depth}{INDEX_FILE_NAME}">{root_name}</a>')
         for idx, part_name in enumerate(rel_path.parts[:-1]):
             steps_up = slide_depth - 1 - idx
             slide_links.append(f'<a href="{"../" * steps_up}{INDEX_FILE_NAME}">{part_name}</a>')
