@@ -60,6 +60,26 @@ a:hover { color: #000; text-decoration: underline; }
     background: linear-gradient(to bottom, #85b3ff, #2974eb);
     color: #000;
 }
+.nav-btn.prev-btn {
+    background: linear-gradient(to bottom, #ffc485, #e67e22);
+    border: 1px solid #d35400;
+    color: #000;
+    font-weight: bold;
+}
+.nav-btn.prev-btn:hover {
+    background: linear-gradient(to bottom, #ffa84c, #d35400);
+    color: #000;
+}
+.nav-btn.next-btn {
+    background: linear-gradient(to bottom, #a3e4d7, #2ecc71);
+    border: 1px solid #27ae60;
+    color: #000;
+    font-weight: bold;
+}
+.nav-btn.next-btn:hover {
+    background: linear-gradient(to bottom, #76d7c4, #27ae60);
+    color: #000;
+}
 .nav-btn.disabled { opacity: 0.35; pointer-events: none; }
 .header-title {
     flex-grow: 1;

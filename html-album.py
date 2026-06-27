@@ -319,12 +319,12 @@ def generate_slide_html(
     prev_js = f'"{prev_slide}"' if prev_slide else "null"
     next_js = f'"{next_slide}"' if next_slide else "null"
 
-    prev_btn = '<span class="nav-btn disabled" title="Geen vorige foto">&#8592;</span>'
-    next_btn = '<span class="nav-btn disabled" title="Geen volgende foto">&#8594;</span>'
+    prev_btn = '<span class="nav-btn prev-btn disabled" title="Geen vorige foto">&#8592;</span>'
+    next_btn = '<span class="nav-btn next-btn disabled" title="Geen volgende foto">&#8594;</span>'
     if prev_slide:
-        prev_btn = f'<a href="{prev_slide}" class="nav-btn" title="Vorige foto (&#8592;)">&#8592;</a>'
+        prev_btn = f'<a href="{prev_slide}" class="nav-btn prev-btn" title="Vorige foto (&#8592;)">&#8592;</a>'
     if next_slide:
-        next_btn = f'<a href="{next_slide}" class="nav-btn" title="Volgende foto (&#8594;)">&#8594;</a>'
+        next_btn = f'<a href="{next_slide}" class="nav-btn next-btn" title="Volgende foto (&#8594;)">&#8594;</a>'
 
     exif_str = get_formatted_exif(src_img_path)
     exif_html = f'<div class="slide-exif">{exif_str}</div>' if exif_str else ""
