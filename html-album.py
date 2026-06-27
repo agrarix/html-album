@@ -546,7 +546,7 @@ def generate_index_html(
         if first_img:
             if needs_thumbnail_regeneration(folder_thumb_dst, first_img):
                 make_thumbnail(first_img, folder_thumb_dst)
-                log_bericht(f"    ✓ Folder tile '{dname}' (THUMB/)")
+                log_bericht(f"    ✓ Folder tile '{dname}' ({THUMBS_DIR_NAME}/)")
             else:
                 log_bericht(f"    ✓ Folder tile '{dname}' (unchanged)")
             thumb_tag = f'<img src="{THUMBS_DIR_NAME}/folder_{dname}_thumb.jpg" alt="{dname}" loading="lazy">'
@@ -676,7 +676,7 @@ def process_dir(
         if dst_img != img and not dst_img.exists():
             try:
                 shutil.copy2(img, dst_img)
-                actions.append("ORIGINAL/")
+                actions.append("./")
             except PermissionError as pe:
                 log_bericht(f"    ⚠  Permission denied copying '{fname}': {pe}")
             except Exception as e:
@@ -687,12 +687,12 @@ def process_dir(
             dst_resized = out_dir / PICTURES_DIR_NAME / fname
             if needs_image_regeneration(dst_resized, img):
                 make_resized_image(img, dst_resized)
-                actions.append("PICTURE/")
+                actions.append(f"{PICTURES_DIR_NAME}/")
 
         thumb = out_dir / THUMBS_DIR_NAME / f"{name_no_ext}_thumb.jpg"
         if needs_thumbnail_regeneration(thumb, img):
             make_thumbnail(img, thumb)
-            actions.append("THUMB/")
+            actions.append(f"{THUMBS_DIR_NAME}/")
 
         prev_slide = images[i - 1].stem + ".html" if i > 0 else ""
         next_slide = images[i + 1].stem + ".html" if i < len(images) - 1 else ""
