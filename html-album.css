@@ -125,6 +125,8 @@ a:hover { color: #000; text-decoration: underline; }
 .thumb-cell img {
     max-width: 138px;
     max-height: 112px;
+    width: auto;
+    height: auto;
     display: block;
 }
 .thumb-label {
