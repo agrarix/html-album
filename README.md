@@ -98,7 +98,7 @@ ROWS="0"
 2. **Genereert bestandsstructuur**: Maakt de mappen `slides/` en `thumbs/` aan in de `OUTPUT_DIR` (recursief per submap).
 3. **Kopieert & Schaalt**:
    - Kopieert de originele foto naar de uitvoermap (indien nog niet aanwezig).
-   - Genereert een center-cropped thumbnail van 140x140px.
+   - Genereert een thumbnail die past binnen de geconfigureerde `THUMBNAIL` afmetingen (bijv. 450x450px) met behoud van de originele beeldverhouding (aspect ratio), en centreert deze in het kader.
 4. **Bouwt slides**: Genereert individuele HTML-slidepagina's per afbeelding met inline CSS en JavaScript voor keyboardnavigatie.
 5. **Bouwt index**: Genereert een modern responsive thumbnailgrid. Submappen krijgen een preview-thumbnail van de eerste foto uit die map.
 6. **Schrijft logs**: Houdt live de voortgang bij in het logbestand (`LOG_FILE`).
