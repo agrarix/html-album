@@ -328,7 +328,7 @@ def generate_slide_html(
     prev_slide: str,
     next_slide: str,
     index_href: str,
-    album_title: str,
+    slide_breadcrumb_html: str,
     src_img_path: Path,
     css_href: str,
 ) -> None:
@@ -351,14 +351,14 @@ def generate_slide_html(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{img_fname} \u2014 {album_title}</title>
+    <title>{img_fname}</title>
     <link rel="stylesheet" href="{css_href}">
 </head>
 <body>
 <div class="page-wrap">
     <div class="album-header">
         <a href="{index_href}" class="nav-btn up-btn" title="Terug naar album (Esc)">&#8593;</a>
-        <span class="header-title">{album_title} \u2014 {img_fname}</span>
+        <span class="header-title">{slide_breadcrumb_html}</span>
         <div class="header-nav">
             {prev_btn}
             {next_btn}
@@ -395,6 +395,7 @@ document.addEventListener('keydown', function(e) {{
 def generate_index_html(
     index_file: Path,
     title: str,
+    breadcrumb_html: str,
     up_href: str,
     src_dir: Path,
     out_dir: Path,
@@ -484,7 +485,7 @@ def generate_index_html(
 <div class="page-wrap">
     <div class="album-header">
         {up_btn}
-        <span class="header-title">Foto album : {title}</span>
+        <span class="header-title">{breadcrumb_html}</span>
     </div>
     <div class="thumb-grid">
 {all_cells}
@@ -526,6 +527,35 @@ def process_dir(
     index_css_href = f"{relative_path_to_root}html-album.css"
     slide_css_href = f"../{relative_path_to_root}html-album.css"
 
+    # Bouw kruimelpad (breadcrumbs)
+    rel_path = src_dir.relative_to(SOURCE_DIR)
+    root_name = SOURCE_DIR.name
+    
+    if rel_path == Path('.'):
+        breadcrumb_html = f'<a href="{INDEX_FILE_NAME}">{root_name}</a>'
+        slide_breadcrumb_html = f'<a href="../{INDEX_FILE_NAME}">{root_name}</a>'
+    else:
+        links = []
+        slide_links = []
+        depth = len(rel_path.parts)
+        slide_depth = depth + 1
+        
+        # Voor indexpagina's
+        links.append(f'<a href="{"../" * depth}{INDEX_FILE_NAME}">{root_name}</a>')
+        for idx, part_name in enumerate(rel_path.parts[:-1]):
+            steps_up = depth - 1 - idx
+            links.append(f'<a href="{"../" * steps_up}{INDEX_FILE_NAME}">{part_name}</a>')
+        links.append(f'<a href="{INDEX_FILE_NAME}">{rel_path.parts[-1]}</a>')
+        breadcrumb_html = " / ".join(links)
+        
+        # Voor slidepagina's (één niveau dieper wegens slides/ submap)
+        slide_links.append(f'<a href="{"../" * slide_depth}{INDEX_FILE_NAME}">{root_name}</a>')
+        for idx, part_name in enumerate(rel_path.parts[:-1]):
+            steps_up = slide_depth - 1 - idx
+            slide_links.append(f'<a href="{"../" * steps_up}{INDEX_FILE_NAME}">{part_name}</a>')
+        slide_links.append(f'<a href="../{INDEX_FILE_NAME}">{rel_path.parts[-1]}</a>')
+        slide_breadcrumb_html = " / ".join(slide_links)
+
     for i, img in enumerate(images):
         fname       = img.name
         name_no_ext = img.stem
@@ -554,7 +584,7 @@ def process_dir(
             prev_slide,
             next_slide,
             f"../{INDEX_FILE_NAME}",
-            title,
+            slide_breadcrumb_html,
             img,
             slide_css_href,
         )
@@ -563,6 +593,7 @@ def process_dir(
     generate_index_html(
         out_dir / INDEX_FILE_NAME,
         title,
+        breadcrumb_html,
         parent_index,
         src_dir,
         out_dir,
