@@ -166,3 +166,16 @@ a:hover { color: #000; text-decoration: underline; }
 
 /* Voettekst */
 .footer { margin-top: 14px; font-size: 10px; color: #888; text-align: center; }
+
+/* Mobiele stijlen */
+@media (max-width: 600px) {
+    .nav-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+    .album-header {
+        min-height: 52px;
+    }
+}
+
