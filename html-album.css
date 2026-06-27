@@ -176,6 +176,13 @@ a:hover { color: #000; text-decoration: underline; }
     }
     .album-header {
         min-height: 58px;
+        height: auto;
+    }
+    .header-title {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        overflow-wrap: break-word;
     }
     .thumb-grid {
         display: grid !important;
