@@ -1,4 +1,4 @@
-SLIDES_DIR="slides"
+PICTURES_DIR="pictures"
 THUMBS_DIR="thumbs"
 EXCLUDED="res"
 THUMBNAIL="150x150"

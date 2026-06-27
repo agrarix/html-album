@@ -26,7 +26,7 @@ html-album/
 | `SOURCE_DIR`    | Bronmap met originele foto's                              | `Z:\WWW\domains\alm.agrarix.net\pages`         |
 | `OUTPUT_DIR`    | Outputmap voor gegenereerd album                          | `D:\TEMP\html-album\output`                 |
 | `INDEX_FILE`    | Bestandsnaam van de hoofdpagina                           | `index.html`                                   |
-| `SLIDES_DIR`    | Submap voor individuele slidepagina's                     | `slides`                                       |
+| `PICTURES_DIR`  | Submap voor individuele slidepagina's                     | `pictures`                                     |
 | `THUMBS_DIR`    | Submap voor thumbnails                                    | `thumbs`                                       |
 | `THUMBNAIL`     | Formaat van directory-thumbnails (ImageMagick-notatie)    | `140x140`                                      |
 | `EXCLUDED`      | Mappen die overgeslagen worden                            | `["res"]`                                      |
