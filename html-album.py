@@ -188,6 +188,11 @@ def needs_thumbnail_regeneration(thumb_path: Path, src_path: Path) -> bool:
     try:
         tw, th = THUMB_SIZE
         with Image.open(thumb_path) as img:
+            # Als de thumbnail kleiner is dan de ingestelde THUMB_SIZE,
+            # maar de bronfoto groter is dan de thumbnail, moet hij opnieuw
+            with Image.open(src_path) as src_img:
+                if (img.width < tw and img.height < th) and (src_img.width > img.width or src_img.height > img.height):
+                    return True
             return not (img.width == tw or img.height == th or (img.width < tw and img.height < th))
     except Exception:
         return True
