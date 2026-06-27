@@ -535,10 +535,11 @@ def process_dir(
     # Bouw kruimelpad (breadcrumbs)
     rel_path = src_dir.relative_to(SOURCE_DIR)
     root_name = SOURCE_DIR.name
+    root_display = f"Foto album : {root_name}"
     
     if rel_path == Path('.'):
-        breadcrumb_html = f'<a href="{INDEX_FILE_NAME}">{root_name}</a>'
-        slide_breadcrumb_html = f'<a href="../{INDEX_FILE_NAME}">{root_name}</a>'
+        breadcrumb_html = f'<a href="{INDEX_FILE_NAME}">{root_display}</a>'
+        slide_breadcrumb_html = f'<a href="../{INDEX_FILE_NAME}">{root_display}</a>'
     else:
         links = []
         slide_links = []
@@ -546,7 +547,7 @@ def process_dir(
         slide_depth = depth + 1
         
         # Voor indexpagina's
-        links.append(f'<a href="{"../" * depth}{INDEX_FILE_NAME}">{root_name}</a>')
+        links.append(f'<a href="{"../" * depth}{INDEX_FILE_NAME}">{root_display}</a>')
         for idx, part_name in enumerate(rel_path.parts[:-1]):
             steps_up = depth - 1 - idx
             links.append(f'<a href="{"../" * steps_up}{INDEX_FILE_NAME}">{part_name}</a>')
@@ -554,7 +555,7 @@ def process_dir(
         breadcrumb_html = " / ".join(links)
         
         # Voor slidepagina's (één niveau dieper wegens slides/ submap)
-        slide_links.append(f'<a href="{"../" * slide_depth}{INDEX_FILE_NAME}">{root_name}</a>')
+        slide_links.append(f'<a href="{"../" * slide_depth}{INDEX_FILE_NAME}">{root_display}</a>')
         for idx, part_name in enumerate(rel_path.parts[:-1]):
             steps_up = slide_depth - 1 - idx
             slide_links.append(f'<a href="{"../" * steps_up}{INDEX_FILE_NAME}">{part_name}</a>')
