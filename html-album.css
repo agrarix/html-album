@@ -51,11 +51,14 @@ a:hover { color: #000; text-decoration: underline; }
     text-decoration: none;
 }
 .nav-btn.up-btn {
-    color: #0056b3;
+    background: linear-gradient(to bottom, #a0c4ff, #4387f3);
+    border: 1px solid #2b6ad4;
+    color: #000;
     font-weight: bold;
 }
 .nav-btn.up-btn:hover {
-    color: #003d82;
+    background: linear-gradient(to bottom, #85b3ff, #2974eb);
+    color: #000;
 }
 .nav-btn.disabled { opacity: 0.35; pointer-events: none; }
 .header-title {
