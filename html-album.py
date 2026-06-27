@@ -689,7 +689,7 @@ def process_dir(
         thumb = out_dir / THUMBS_DIR_NAME / f"{name_no_ext}_thumb.jpg"
         if needs_thumbnail_regeneration(thumb, img):
             make_thumbnail(img, thumb)
-            actions.append("THUMBNAIL/")
+            actions.append("THUMB/")
 
         prev_slide = images[i - 1].stem + ".html" if i > 0 else ""
         next_slide = images[i + 1].stem + ".html" if i < len(images) - 1 else ""
