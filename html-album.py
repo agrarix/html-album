@@ -157,11 +157,16 @@ def get_css() -> str:
 # ---------------------------------------------------------------------------
 # Controleer of thumbnail opnieuw gegenereerd moet worden
 # ---------------------------------------------------------------------------
-def needs_thumbnail_regeneration(thumb_path: Path) -> bool:
+def needs_thumbnail_regeneration(thumb_path: Path, src_path: Path) -> bool:
     if not thumb_path.exists():
         return True
     if not HAS_PIL:
         return False
+    try:
+        if src_path.stat().st_mtime > thumb_path.stat().st_mtime:
+            return True
+    except Exception:
+        pass
     try:
         with Image.open(thumb_path) as img:
             return img.size != THUMB_SIZE
@@ -432,7 +437,7 @@ def generate_index_html(
         )
 
         if first_img:
-            if needs_thumbnail_regeneration(folder_thumb_dst):
+            if needs_thumbnail_regeneration(folder_thumb_dst, first_img):
                 make_thumbnail(first_img, folder_thumb_dst)
             thumb_tag = f'<img src="{THUMBS_DIR_NAME}/folder_{dname}_thumb.jpg" alt="{dname}" loading="lazy">'
             label = f"\U0001f4c1 {dname}"
@@ -530,7 +535,7 @@ def process_dir(
                 continue
 
         thumb = out_dir / THUMBS_DIR_NAME / f"{name_no_ext}_thumb.jpg"
-        if needs_thumbnail_regeneration(thumb):
+        if needs_thumbnail_regeneration(thumb, img):
             make_thumbnail(img, thumb)
 
         prev_slide = images[i - 1].stem + ".html" if i > 0 else ""
