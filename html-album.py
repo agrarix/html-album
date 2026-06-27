@@ -241,6 +241,7 @@ a:hover { color: #000; text-decoration: underline; }
 /* Mappenkaartjes */
 .thumb-cell.folder { background: #dce8f0; border-color: #a8c4d8; }
 .thumb-cell.folder:hover { border-color: #5588aa; }
+.thumb-cell.folder .thumb-label { font-weight: bold; }
 .folder-icon { font-size: 44px; line-height: 112px; }
 
 /* Slideweergave */
