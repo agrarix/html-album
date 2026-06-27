@@ -11,6 +11,7 @@ Gebruik:
     (leest html-album.json in dezelfde map)
 """
 
+import argparse
 import json
 import re
 import shutil
@@ -36,23 +37,34 @@ except ImportError:
     HAS_PIL = False
 
 # ---------------------------------------------------------------------------
-# Configuratie inlezen uit html-album.rc
+# Argumenten en configuratie inlezen
 # ---------------------------------------------------------------------------
 SCRIPT_DIR = Path(__file__).parent
 
-config_naam = "html-album.rc"
-if len(sys.argv) > 1:
-    arg = sys.argv[1]
-    if arg.lower() in ("--help", "-h", "/help", "/?", "?"):
-        print("HTML Fotoalbum Generator")
-        print("Gebruik:")
-        print("  python html-album.py [configbestand]")
-        print()
-        print("Opties:")
-        print("  [configbestand]   Pad naar het configuratiebestand (standaard: html-album.rc)")
-        print("  -h, --help, /help  Toon deze help-informatie")
-        sys.exit(0)
-    config_naam = sys.argv[1]
+# Windows-stijl /help en /? mappen naar --help voor argparse
+for _i, _arg in enumerate(sys.argv):
+    if _arg.lower() in ("/help", "/?", "?"):
+        sys.argv[_i] = "--help"
+
+parser = argparse.ArgumentParser(
+    prog="html-album",
+    description="Genereert een statisch HTML-fotoalbum vanuit een map met JPEG-afbeeldingen."
+)
+parser.add_argument(
+    "configbestand",
+    nargs="?",
+    default="html-album.rc",
+    help="Pad naar het configuratiebestand (standaard: %(default)s)"
+)
+parser.add_argument(
+    "-v", "--version",
+    action="version",
+    version=f"%(prog)s {VERSION}",
+    help="Toon de versie van het programma"
+)
+
+args = parser.parse_args()
+config_naam = args.configbestand
 
 CONFIG_FILE = Path(config_naam)
 if not CONFIG_FILE.is_absolute():
