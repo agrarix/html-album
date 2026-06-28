@@ -547,7 +547,7 @@ def generate_index_html(
         folder_thumb_dst = out_dir / THUMBS_DIR_NAME / f"folder_{dname}_thumb.jpg"
 
         first_img = next(
-            (f for f in sorted(subdir.iterdir(), key=lambda x: x.name.lower()) if f.is_file() and f.suffix.lower() in IMAGE_EXTS),
+            (f for f in sorted(subdir.iterdir(), key=lambda x: x.name.lower(), reverse=REVERSE_ORDER) if f.is_file() and f.suffix.lower() in IMAGE_EXTS),
             None,
         )
 
