@@ -717,10 +717,11 @@ def process_dir(
             slide_css_href,
         )
         
+        is_map_foto = " [map foto]" if i == 0 else ""
         if actions:
-            log_bericht(f"    ✓ {fname} ({', '.join(actions)})")
+            log_bericht(f"    ✓ {fname} ({', '.join(actions)}){is_map_foto}")
         else:
-            log_bericht(f"    ✓ {fname} (unchanged)")
+            log_bericht(f"    ✓ {fname} (unchanged){is_map_foto}")
 
     generate_index_html(
         out_dir / INDEX_FILE_NAME,
