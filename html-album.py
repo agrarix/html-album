@@ -554,9 +554,9 @@ def generate_index_html(
         if first_img:
             if needs_thumbnail_regeneration(folder_thumb_dst, first_img):
                 make_thumbnail(first_img, folder_thumb_dst)
-                log_bericht(f"    ✓ Folder '{dname}' ({THUMBS_DIR_NAME}/)")
+                log_bericht(f"    ✓ Folder '{dname}' ({THUMBS_DIR_NAME}/ met foto: {first_img.name})")
             else:
-                log_bericht(f"    ✓ Folder '{dname}' (unchanged)")
+                log_bericht(f"    ✓ Folder '{dname}' (unchanged, foto: {first_img.name})")
             thumb_tag = f'<img src="{THUMBS_DIR_NAME}/folder_{dname}_thumb.jpg" alt="{dname}" loading="lazy">'
             label = f"\U0001f4c1 {dname}"
         else:
