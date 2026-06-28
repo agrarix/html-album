@@ -519,18 +519,24 @@ def generate_index_html(
     )
 
     img_cells: list[str] = []
-    for img in images:
+    for i, img in enumerate(images):
         fname       = img.name
         name_no_ext = img.stem
         thumb_rel   = f"{THUMBS_DIR_NAME}/{name_no_ext}_thumb.jpg"
         slide_rel   = f"{PICTURES_DIR_NAME}/{name_no_ext}.html"
+        
+        is_map_foto = (i == 0)
+        cell_class = "thumb-cell map-foto" if is_map_foto else "thumb-cell"
+        title_text = f"{fname} [map foto]" if is_map_foto else fname
+        label_text = f"\U0001f4c1 {fname}" if is_map_foto else fname
+        
         img_cells.append(
-            f'        <div class="thumb-cell">\n'
-            f'            <a href="{slide_rel}" title="{fname}">\n'
+            f'        <div class="{cell_class}">\n'
+            f'            <a href="{slide_rel}" title="{title_text}">\n'
             f'                <div class="thumb-img-wrap">\n'
             f'                    <img src="{thumb_rel}" alt="{fname}" loading="lazy">\n'
             f'                </div>\n'
-            f'                <div class="thumb-label">{fname}</div>\n'
+            f'                <div class="thumb-label">{label_text}</div>\n'
             f'            </a>\n'
             f'        </div>'
         )
