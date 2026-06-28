@@ -67,10 +67,16 @@ parser.add_argument(
     action="store_true",
     help="Force regeneration of all images and thumbnails"
 )
+parser.add_argument(
+    "-r", "--recursief",
+    action="store_true",
+    help="Reversed order of folders and images (reverse)"
+)
 
 args = parser.parse_args()
 config_naam = args.configbestand
 FORCE_ALL = args.all
+REVERSE_ORDER = args.recursief
 
 CONFIG_FILE = Path(config_naam)
 if not CONFIG_FILE.is_absolute():
@@ -509,6 +515,7 @@ def generate_index_html(
     images = sorted(
         [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS],
         key=lambda f: f.name.lower(),
+        reverse=REVERSE_ORDER,
     )
 
     img_cells: list[str] = []
@@ -531,6 +538,7 @@ def generate_index_html(
     subdirs = sorted(
         [d for d in src_dir.iterdir() if d.is_dir() and d.name.lower() not in EXCLUDED],
         key=lambda d: d.name.lower(),
+        reverse=REVERSE_ORDER,
     )
 
     dir_cells: list[str] = []
@@ -539,7 +547,7 @@ def generate_index_html(
         folder_thumb_dst = out_dir / THUMBS_DIR_NAME / f"folder_{dname}_thumb.jpg"
 
         first_img = next(
-            (f for f in sorted(subdir.iterdir(), key=lambda x: x.name.lower()) if f.is_file() and f.suffix.lower() in IMAGE_EXTS),
+            (f for f in sorted(subdir.iterdir(), key=lambda x: x.name.lower(), reverse=REVERSE_ORDER) if f.is_file() and f.suffix.lower() in IMAGE_EXTS),
             None,
         )
 
@@ -626,6 +634,7 @@ def process_dir(
     images = sorted(
         [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS],
         key=lambda f: f.name.lower(),
+        reverse=REVERSE_ORDER,
     )
     log_bericht(f"    foto's: {len(images)}")
 
@@ -726,6 +735,7 @@ def process_dir(
     subdirs = sorted(
         [d for d in src_dir.iterdir() if d.is_dir() and d.name.lower() not in EXCLUDED],
         key=lambda d: d.name.lower(),
+        reverse=REVERSE_ORDER,
     )
     for subdir in subdirs:
         process_dir(
@@ -787,6 +797,8 @@ def main() -> None:
         log_bericht("Modus     : Volledig opnieuw genereren (--all)")
     else:
         log_bericht("Modus     : Alleen nieuwe/gewijzigde bestanden")
+    if REVERSE_ORDER:
+        log_bericht("Volgorde  : Achterstevoren (omgekeerd)")
     if PICTURE_SIZE:
         log_bericht(f"Foto      : {PICTURE_SIZE[0]}x{PICTURE_SIZE[1]}")
     else:
