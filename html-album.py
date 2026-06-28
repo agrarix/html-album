@@ -550,7 +550,6 @@ def generate_index_html(
     dir_cells: list[str] = []
     for subdir in subdirs:
         dname            = subdir.name
-        folder_thumb_dst = out_dir / THUMBS_DIR_NAME / f"folder_{dname}_thumb.jpg"
 
         first_img = next(
             (f for f in sorted(subdir.iterdir(), key=lambda x: x.name.lower(), reverse=REVERSE_ORDER) if f.is_file() and f.suffix.lower() in IMAGE_EXTS),
@@ -558,12 +557,13 @@ def generate_index_html(
         )
 
         if first_img:
+            folder_thumb_dst = out_dir / THUMBS_DIR_NAME / f"folder_{dname}_{first_img.stem}_thumb.jpg"
             if needs_thumbnail_regeneration(folder_thumb_dst, first_img):
                 make_thumbnail(first_img, folder_thumb_dst)
                 log_bericht(f"    ✓ Folder '{dname}' ({THUMBS_DIR_NAME}/ met foto: {first_img.name})")
             else:
                 log_bericht(f"    ✓ Folder '{dname}' (unchanged, foto: {first_img.name})")
-            thumb_tag = f'<img src="{THUMBS_DIR_NAME}/folder_{dname}_thumb.jpg" alt="{dname}" loading="lazy">'
+            thumb_tag = f'<img src="{THUMBS_DIR_NAME}/folder_{dname}_{first_img.stem}_thumb.jpg" alt="{dname}" loading="lazy">'
             label = f"\U0001f4c1 {dname}"
         else:
             thumb_tag = '<div class="folder-icon">\U0001f4c1</div>'
