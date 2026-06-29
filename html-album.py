@@ -28,6 +28,14 @@ if hasattr(sys.stdout, "reconfigure"):
 PGM = "html-album"
 VERSION = "2.0"
 
+def safe_copy(src: Path, dst: Path) -> None:
+    """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
+    try:
+        shutil.copy2(src, dst)
+    except OSError:
+        shutil.copyfile(src, dst)
+
+
 # ---------------------------------------------------------------------------
 # Pillow (voor thumbnails)
 # ---------------------------------------------------------------------------
@@ -257,7 +265,7 @@ def needs_thumbnail_regeneration(thumb_path: Path, src_path: Path) -> bool:
 def make_thumbnail(src: Path, dst: Path) -> None:
     if not HAS_PIL:
         try:
-            shutil.copy2(src, dst)
+            safe_copy(src, dst)
         except Exception as e:
             log_bericht(f"    ⚠  Kon bestand niet kopiëren als thumbnail fallback: {e}")
         return
@@ -272,7 +280,7 @@ def make_thumbnail(src: Path, dst: Path) -> None:
     except Exception as exc:
         log_bericht(f"    ⚠  Thumbnail mislukt voor '{src.name}': {exc}")
         try:
-            shutil.copy2(src, dst)
+            safe_copy(src, dst)
         except Exception:
             pass
 
@@ -307,7 +315,7 @@ def needs_image_regeneration(dst_path: Path, src_path: Path) -> bool:
 def make_resized_image(src: Path, dst: Path) -> None:
     if not HAS_PIL or not PICTURE_SIZE:
         try:
-            shutil.copy2(src, dst)
+            safe_copy(src, dst)
         except Exception as e:
             log_bericht(f"    ⚠  Kon bestand niet kopiëren: {e}")
         return
@@ -322,7 +330,7 @@ def make_resized_image(src: Path, dst: Path) -> None:
     except Exception as exc:
         log_bericht(f"    ⚠  Schalen mislukt voor '{src.name}': {exc}")
         try:
-            shutil.copy2(src, dst)
+            safe_copy(src, dst)
         except Exception:
             pass
 
@@ -696,7 +704,7 @@ def process_dir(
         dst_img = out_dir / fname
         if dst_img != img and not dst_img.exists():
             try:
-                shutil.copy2(img, dst_img)
+                safe_copy(img, dst_img)
                 actions.append("./")
             except PermissionError as pe:
                 log_bericht(f"    ⚠  Permission denied copying '{fname}': {pe}")
