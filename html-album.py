@@ -82,7 +82,7 @@ parser.add_argument(
     help="Reversed order of folders and images (reverse)"
 )
 parser.add_argument(
-    "-N", "--rename",
+    "--rename",
     action="store_true",
     help="Rename picture filenames to YYMMDD_HHMMSS-<orig-name> in output"
 )
