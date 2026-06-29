@@ -677,8 +677,9 @@ def process_dir(
     rel_parts = [p for p in out_dir.relative_to(OUTPUT_DIR).parts if p not in ('.', '/')]
     relative_path_to_root = "../" * len(rel_parts)
     
-    index_css_href = f"{relative_path_to_root}html-album.css"
-    slide_css_href = f"../{relative_path_to_root}html-album.css"
+    version_str = datetime.now().strftime("%Y%m%d%H%M%S")
+    index_css_href = f"{relative_path_to_root}html-album.css?v={version_str}"
+    slide_css_href = f"../{relative_path_to_root}html-album.css?v={version_str}"
 
     # Bouw kruimelpad (breadcrumbs)
     rel_path = src_dir.relative_to(SOURCE_DIR)
