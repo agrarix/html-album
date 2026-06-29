@@ -757,16 +757,31 @@ def process_dir(
     for i, (img, fname, name_no_ext) in enumerate(mapped_images):
         actions     = []
 
-        # Kopieer het origineel naar de uitvoermap indien bron != doel en niet aanwezig
+        # Kopieer of hernoem het origineel naar de uitvoermap
         dst_img = out_dir / fname
-        if dst_img != img and not dst_img.exists():
-            try:
-                safe_copy(img, dst_img)
-                actions.append("./")
-            except PermissionError as pe:
-                log_bericht(f"    ⚠  Permission denied copying '{fname}': {pe}")
-            except Exception as e:
-                log_bericht(f"    ⚠  Error copying '{fname}': {e}")
+        if dst_img != img:
+            if img.parent == dst_img.parent:
+                # Bron- en doelmap zijn hetzelfde: fysiek hernoemen
+                if not dst_img.exists():
+                    try:
+                        img.rename(dst_img)
+                        img = dst_img  # Update img naar het nieuwe pad voor thumbnails/exif
+                        actions.append("rename")
+                    except Exception as e:
+                        log_bericht(f"    ⚠  Error renaming '{img.name}' to '{fname}': {e}")
+                else:
+                    # Als de hernoemde versie al bestaat, update het pad naar het bestaande bestand
+                    img = dst_img
+            else:
+                # Bron- en doelmap zijn verschillend: kopiëren
+                if not dst_img.exists():
+                    try:
+                        safe_copy(img, dst_img)
+                        actions.append("./")
+                    except PermissionError as pe:
+                        log_bericht(f"    ⚠  Permission denied copying '{fname}': {pe}")
+                    except Exception as e:
+                        log_bericht(f"    ⚠  Error copying '{fname}': {e}")
 
         # Genereer verkleinde versie in pictures/ indien PICTURE_SIZE is ingesteld
         if PICTURE_SIZE:
