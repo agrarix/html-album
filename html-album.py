@@ -13,6 +13,7 @@ Gebruik:
 
 import argparse
 import json
+import os
 import re
 import shutil
 import sys
@@ -136,8 +137,10 @@ else:
 PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "pictures"))
 THUMBS_DIR_NAME: str = cfg["THUMBS_DIR"]
 INDEX_FILE_NAME: str = cfg["INDEX_FILE"]
-SOURCE_DIR = Path(cfg["SOURCE_DIR"].replace("\\", "/")) if cfg["SOURCE_DIR"] else Path()
-OUTPUT_DIR = Path(cfg["OUTPUT_DIR"].replace("\\", "/")) if cfg["OUTPUT_DIR"] else Path()
+SOURCE_DIR_RAW = os.path.expandvars(cfg["SOURCE_DIR"]) if cfg["SOURCE_DIR"] else ""
+OUTPUT_DIR_RAW = os.path.expandvars(cfg["OUTPUT_DIR"]) if cfg["OUTPUT_DIR"] else ""
+SOURCE_DIR = Path(SOURCE_DIR_RAW.replace("\\", "/")) if SOURCE_DIR_RAW else Path()
+OUTPUT_DIR = Path(OUTPUT_DIR_RAW.replace("\\", "/")) if OUTPUT_DIR_RAW else Path()
 
 try:
     _w, _h = map(int, cfg["THUMBNAIL"].lower().split("x"))
@@ -163,7 +166,7 @@ EXCLUDED: set[str] = {
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif"}
 
 # Bepaal het logbestand-pad. Als het een relatieve bestandsnaam is, zet het in SCRIPT_DIR (applicatie-root).
-cfg_log_file = cfg.get("LOG_FILE", "html-album.log")
+cfg_log_file = os.path.expandvars(cfg.get("LOG_FILE", "html-album.log"))
 if Path(cfg_log_file).is_absolute():
     LOG_FILE_PATH = Path(cfg_log_file.replace("\\", "/"))
 else:
