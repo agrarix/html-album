@@ -766,7 +766,7 @@ def process_dir(
                     try:
                         img.rename(dst_img)
                         img = dst_img  # Update img naar het nieuwe pad voor thumbnails/exif
-                        actions.append("rename")
+                        actions.append("renamed")
                     except Exception as e:
                         log_bericht(f"    ⚠  Error renaming '{img.name}' to '{fname}': {e}")
                 else:
