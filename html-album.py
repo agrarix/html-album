@@ -80,7 +80,10 @@ REVERSE_ORDER = args.reverse
 
 CONFIG_FILE = Path(config_naam)
 if not CONFIG_FILE.is_absolute():
-    CONFIG_FILE = SCRIPT_DIR / CONFIG_FILE
+    if sys.platform != "win32":
+        CONFIG_FILE = Path.home() / "etc" / config_naam
+    else:
+        CONFIG_FILE = SCRIPT_DIR / CONFIG_FILE
 
 
 DEFAULTS = {

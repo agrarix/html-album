@@ -41,6 +41,7 @@ html-album/
 - Slide-pagina's tonen geformatteerde EXIF-metadata (camera model, opnamedatum, sluitertijd, diafragma, ISO, brandpuntsafstand) indien beschikbaar
 - Submappen krijgen een foldertegel met voorbeeldafbeelding (eerste foto uit submap)
 - Recursieve verwerking van submappen (elk krijgt eigen `index.html` en navigatie)
+- Op Linux-systemen worden relatieve configuratiebestanden (.rc) standaard gezocht in `$HOME/etc/` in plaats van de scriptdirectory (voor dual OS ondersteuning)
 
 ---
 
