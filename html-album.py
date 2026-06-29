@@ -140,13 +140,13 @@ def _laad_config(pad: Path) -> dict:
                         config[key] = val
         return config
     except Exception as e:
-        print(f"FOUT bij laden van {CONFIG_FILE.name}: {e}")
+        print(f"ERROR loading {CONFIG_FILE.name}: {e}")
         sys.exit(1)
 
 if CONFIG_FILE.exists():
     cfg = {**DEFAULTS, **_laad_config(CONFIG_FILE)}
 else:
-    print(f"{CONFIG_FILE.name} niet gevonden, standaardwaarden worden gebruikt.")
+    print(f"{CONFIG_FILE.name} not found, using default values.")
     cfg = DEFAULTS
 
 RENAME_FILES = CLI_RENAME or cfg.get("RENAME", "false").lower() in ("true", "1", "yes")
@@ -203,7 +203,7 @@ def log_bericht(bericht: str) -> None:
         try:
             with open(LOG_FILE_PATH, "a", encoding="utf-8") as lf:
                 # Strip eventuele ansi-achtige tekens of print gewoon platte tekst
-                schoon_bericht = bericht.replace("\U0001f4c2", "[MAP]").replace("\u2713", "[OK]").replace("\u2705", "[KLAAR]")
+                schoon_bericht = bericht.replace("\U0001f4c2", "[DIR]").replace("\u2713", "[OK]").replace("\u2705", "[DONE]")
                 lf.write(f"[{datetime.now().strftime('%H:%M:%S')}] {schoon_bericht}\n")
         except Exception:
             pass
@@ -222,12 +222,12 @@ def get_css() -> str:
     if css_path.exists():
         css_res = css_path.read_text(encoding="utf-8")
     else:
-        log_bericht("    ⚠ Waarschuwing: html-album.css niet gevonden in scriptdirectory! Minimale fallback-styling wordt gebruikt.")
+        log_bericht("    ⚠ Warning: html-album.css not found in script directory! Minimal fallback styling will be used.")
         if sys.stdin.isatty():
             try:
-                antwoord = input("    Druk op [Enter] om door te gaan, of 'q' om te stoppen: ").strip().lower()
+                antwoord = input("    Press [Enter] to continue, or 'q' to stop: ").strip().lower()
                 if antwoord == 'q':
-                    log_bericht("    Generatie afgebroken door gebruiker.")
+                    log_bericht("    Generation aborted by user.")
                     sys.exit(0)
             except (EOFError, KeyboardInterrupt):
                 pass
@@ -285,7 +285,7 @@ def make_thumbnail(src: Path, dst: Path) -> None:
         try:
             safe_copy(src, dst)
         except Exception as e:
-            log_bericht(f"    ⚠  Kon bestand niet kopiëren als thumbnail fallback: {e}")
+            log_bericht(f"    ⚠  Could not copy file as thumbnail fallback: {e}")
         return
     try:
         with Image.open(src) as img:
@@ -294,9 +294,9 @@ def make_thumbnail(src: Path, dst: Path) -> None:
             img.thumbnail(THUMB_SIZE, Image.LANCZOS)
             img.save(dst, "JPEG", quality=85, optimize=True)
     except PermissionError as pe:
-        log_bericht(f"    ⚠  Toegangsweigering (bestand in gebruik) bij maken thumbnail voor '{src.name}': {pe}")
+        log_bericht(f"    ⚠  Access denied (file in use) while creating thumbnail for '{src.name}': {pe}")
     except Exception as exc:
-        log_bericht(f"    ⚠  Thumbnail mislukt voor '{src.name}': {exc}")
+        log_bericht(f"    ⚠  Thumbnail generation failed for '{src.name}': {exc}")
         try:
             safe_copy(src, dst)
         except Exception:
@@ -335,7 +335,7 @@ def make_resized_image(src: Path, dst: Path) -> None:
         try:
             safe_copy(src, dst)
         except Exception as e:
-            log_bericht(f"    ⚠  Kon bestand niet kopiëren: {e}")
+            log_bericht(f"    ⚠  Could not copy file: {e}")
         return
     try:
         with Image.open(src) as img:
@@ -344,9 +344,9 @@ def make_resized_image(src: Path, dst: Path) -> None:
             img.thumbnail(PICTURE_SIZE, Image.LANCZOS)
             img.save(dst, "JPEG", quality=85, optimize=True)
     except PermissionError as pe:
-        log_bericht(f"    ⚠  Toegangsweigering (bestand in gebruik) bij maken foto voor '{src.name}': {pe}")
+        log_bericht(f"    ⚠  Access denied (file in use) while creating image for '{src.name}': {pe}")
     except Exception as exc:
-        log_bericht(f"    ⚠  Schalen mislukt voor '{src.name}': {exc}")
+        log_bericht(f"    ⚠  Resizing failed for '{src.name}': {exc}")
         try:
             safe_copy(src, dst)
         except Exception:
@@ -499,12 +499,12 @@ def generate_slide_html(
     svg_left = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>'
     svg_right = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>'
 
-    prev_btn = f'<span class="nav-btn prev-btn disabled" title="Geen vorige foto">{svg_left}</span>'
-    next_btn = f'<span class="nav-btn next-btn disabled" title="Geen volgende foto">{svg_right}</span>'
+    prev_btn = f'<span class="nav-btn prev-btn disabled" title="No previous picture">{svg_left}</span>'
+    next_btn = f'<span class="nav-btn next-btn disabled" title="No next picture">{svg_right}</span>'
     if prev_slide:
-        prev_btn = f'<a href="{prev_slide}" class="nav-btn prev-btn" title="Vorige foto (&#8592;)">{svg_left}</a>'
+        prev_btn = f'<a href="{prev_slide}" class="nav-btn prev-btn" title="Previous picture (&#8592;)">{svg_left}</a>'
     if next_slide:
-        next_btn = f'<a href="{next_slide}" class="nav-btn next-btn" title="Volgende foto (&#8594;)">{svg_right}</a>'
+        next_btn = f'<a href="{next_slide}" class="nav-btn next-btn" title="Next picture (&#8594;)">{svg_right}</a>'
 
     exif_str = get_formatted_exif(src_img_path)
     exif_html = f'<div class="slide-exif">{exif_str}</div>' if exif_str else ""
@@ -515,7 +515,7 @@ def generate_slide_html(
 
     html = f"""\
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -525,7 +525,7 @@ def generate_slide_html(
 <body>
 <div class="page-wrap">
     <div class="album-header">
-        <a href="{index_href}" class="nav-btn up-btn" title="Terug naar album (Esc)">{svg_up}</a>
+        <a href="{index_href}" class="nav-btn up-btn" title="Back to album (Esc)">{svg_up}</a>
         <span class="header-title">{slide_breadcrumb_html}</span>
         <div class="header-nav">
             {prev_btn}
@@ -574,7 +574,7 @@ def generate_index_html(
     up_btn = ""
     if up_href:
         svg_up = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>'
-        up_btn = f'<a href="{up_href}" class="nav-btn up-btn" title="Omhoog naar bovenliggende map">{svg_up}</a>'
+        up_btn = f'<a href="{up_href}" class="nav-btn up-btn" title="Up to parent directory">{svg_up}</a>'
 
     images = sorted(
         [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS],
@@ -591,7 +591,7 @@ def generate_index_html(
         
         is_map_foto = (i == 0)
         cell_class = "thumb-cell map-foto" if is_map_foto else "thumb-cell"
-        title_text = f"{fname} [map foto]" if is_map_foto else fname
+        title_text = f"{fname} [folder cover]" if is_map_foto else fname
         label_text = f"\U0001f4c1 {fname}" if is_map_foto else fname
         
         img_cells.append(
@@ -625,9 +625,9 @@ def generate_index_html(
             folder_thumb_dst = out_dir / THUMBS_DIR_NAME / f"folder_{dname}_{first_img_stem}_thumb.jpg"
             if needs_thumbnail_regeneration(folder_thumb_dst, first_img):
                 make_thumbnail(first_img, folder_thumb_dst)
-                log_bericht(f"    ✓ Folder '{dname}' ({THUMBS_DIR_NAME}/ met foto: {first_img.name})")
+                log_bericht(f"    ✓ Folder '{dname}' ({THUMBS_DIR_NAME}/ with photo: {first_img.name})")
             else:
-                log_bericht(f"    ✓ Folder '{dname}' (unchanged, foto: {first_img.name})")
+                log_bericht(f"    ✓ Folder '{dname}' (unchanged, photo: {first_img.name})")
             thumb_tag = f'<img src="{THUMBS_DIR_NAME}/folder_{dname}_{first_img_stem}_thumb.jpg" alt="{dname}" loading="lazy">'
             label = f"\U0001f4c1 {dname}"
         else:
@@ -661,11 +661,11 @@ def generate_index_html(
 
     html = f"""\
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="keywords" content="fotoalbum,gallery,foto,online">
+    <meta name="keywords" content="photoalbum,gallery,photo,online">
     <title>{title}</title>
     <link rel="stylesheet" href="{css_href}">
 </head>
@@ -695,8 +695,8 @@ def process_dir(
     title: str,
 ) -> None:
     log_bericht(f"\U0001f4c2  {title}")
-    log_bericht(f"    bron : {src_dir}")
-    log_bericht(f"    doel : {out_dir}")
+    log_bericht(f"    source : {src_dir}")
+    log_bericht(f"    output : {out_dir}")
 
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / PICTURES_DIR_NAME).mkdir(exist_ok=True)
@@ -707,7 +707,7 @@ def process_dir(
         key=lambda f: f.name.lower(),
         reverse=REVERSE_ORDER,
     )
-    log_bericht(f"    foto's: {len(images)}")
+    log_bericht(f"    photos : {len(images)}")
 
     # Bereken relatieve pad naar OUTPUT_DIR root voor CSS link
     rel_parts = [p for p in out_dir.relative_to(OUTPUT_DIR).parts if p not in ('.', '/')]
@@ -720,7 +720,7 @@ def process_dir(
     # Bouw kruimelpad (breadcrumbs)
     rel_path = src_dir.relative_to(SOURCE_DIR)
     root_name = SOURCE_DIR.name
-    root_display = f"Foto album : {root_name}"
+    root_display = f"Photo album : {root_name}"
     
     if rel_path == Path('.'):
         breadcrumb_html = f'<a href="{INDEX_FILE_NAME}">{root_display}</a>'
@@ -809,7 +809,7 @@ def process_dir(
             slide_css_href,
         )
         
-        is_map_foto = " [map foto]" if i == 0 else ""
+        is_map_foto = " [folder cover]" if i == 0 else ""
         if actions:
             log_bericht(f"    ✓ {fname} ({', '.join(actions)}){is_map_foto}")
         else:
@@ -845,12 +845,12 @@ def main() -> None:
     global LOG_FILE_PATH
     
     if not SOURCE_DIR or not SOURCE_DIR.exists():
-        print(f"\n❌ Bronmap niet gevonden: {SOURCE_DIR}")
-        print("   Pas SOURCE_DIR aan in html-album.rc")
+        print(f"\n❌ Source directory not found: {SOURCE_DIR}")
+        print("   Adjust SOURCE_DIR in html-album.rc")
         sys.exit(1)
 
     if not OUTPUT_DIR or str(OUTPUT_DIR) in ("", "."):
-        print("\n❌ OUTPUT_DIR is niet ingesteld in html-album.rc")
+        print("\n❌ OUTPUT_DIR is not set in html-album.rc")
         sys.exit(1)
         
     # Maak output directory alvast aan voor logbestand
@@ -875,28 +875,28 @@ def main() -> None:
     footer_preview = footer_preview.replace("${DATE}", date_str).replace("{date_str}", date_str)
     footer_preview = footer_preview.replace("${TIME}", time_str).replace("{time_str}", time_str)
 
-    log_bericht("HTML Fotoalbum Generator")
+    log_bericht("HTML Photo Album Generator")
     log_bericht("─" * 36)
-    log_bericht(f"Bron      : {SOURCE_DIR}")
-    log_bericht(f"Uitvoer   : {OUTPUT_DIR}")
-    log_bericht(f"Logbestand: {LOG_FILE_PATH}")
+    log_bericht(f"Source    : {SOURCE_DIR}")
+    log_bericht(f"Output    : {OUTPUT_DIR}")
+    log_bericht(f"Log file  : {LOG_FILE_PATH}")
     log_bericht(f"Thumbnail : {THUMB_SIZE[0]}x{THUMB_SIZE[1]}")
     if FORCE_ALL:
-        log_bericht("Modus     : Volledig opnieuw genereren (--all)")
+        log_bericht("Mode      : Force regeneration of all (--all)")
     else:
-        log_bericht("Modus     : Alleen nieuwe/gewijzigde bestanden")
+        log_bericht("Mode      : Only new/modified files")
     if REVERSE_ORDER:
-        log_bericht("Volgorde  : Achterstevoren (omgekeerd)")
+        log_bericht("Order     : Reversed (reverse)")
     if RENAME_FILES:
-        log_bericht("Hernoemen : Ja, naar YYMMDD_HHMMSS-<orig-naam>")
+        log_bericht("Rename    : Yes, to YYMMDD_HHMMSS-<orig-name>")
     else:
-        log_bericht("Hernoemen : Nee")
+        log_bericht("Rename    : No")
     if PICTURE_SIZE:
-        log_bericht(f"Foto      : {PICTURE_SIZE[0]}x{PICTURE_SIZE[1]}")
+        log_bericht(f"Image     : {PICTURE_SIZE[0]}x{PICTURE_SIZE[1]}")
     else:
-        log_bericht("Foto      : Originele grootte")
-    log_bericht(f"Uitsluit  : {', '.join(sorted(EXCLUDED))}")
-    log_bericht(f"Voettekst : {footer_preview}")
+        log_bericht("Image     : Original size")
+    log_bericht(f"Exclude   : {', '.join(sorted(EXCLUDED))}")
+    log_bericht(f"Footer    : {footer_preview}")
     if HAS_PIL:
         try:
             from PIL import __version__ as pil_ver
@@ -904,21 +904,21 @@ def main() -> None:
         except Exception:
             log_bericht("Pillow    : ✓")
     else:
-        log_bericht("Pillow    : ✗ niet gevonden — installeer met: pip install Pillow")
-        log_bericht("            Zonder Pillow worden originele bestanden als thumbnail gebruikt.")
+        log_bericht("Pillow    : ✗ not found — install with: pip install Pillow")
+        log_bericht("            Without Pillow, original files will be used as thumbnails.")
     # Genereer en schrijf html-album.css naar de output directory
     try:
         (OUTPUT_DIR / "html-album.css").write_text(get_css(), encoding="utf-8")
-        log_bericht(f"CSS       : ✓ html-album.css vernieuwd in {OUTPUT_DIR}")
+        log_bericht(f"CSS       : ✓ html-album.css updated in {OUTPUT_DIR}")
     except Exception as exc:
-        log_bericht(f"CSS       : ✗ Fout bij schrijven html-album.css: {exc}")
+        log_bericht(f"CSS       : ✗ Error writing html-album.css: {exc}")
     log_bericht("─" * 36)
 
     root_title = SOURCE_DIR.name
     process_dir(SOURCE_DIR, OUTPUT_DIR, "", root_title)
 
     log_bericht("\n" + "═" * 36)
-    log_bericht("✅  Album gegenereerd!")
+    log_bericht("✅  Album generated!")
     log_bericht(f"    Open: {OUTPUT_DIR / INDEX_FILE_NAME}")
     log_bericht("═" * 36)
 
