@@ -35,7 +35,7 @@ html-album/
 
 ## Technische details
 
-- Taal van gegenereerde HTML: Nederlands (`lang="nl"`)
+- Taal van gegenereerde HTML: Engels (`lang="en"`)
 - Ondersteunde afbeeldingen: `.jpg` / `.jpeg` (hoofdletterongevoelig)
 - Thumbnails worden bij voorkeur gegenereerd via **Pillow** (`PIL`) in Python, of anders via **ImageMagick** in Bash
 - Slide-pagina's tonen geformatteerde EXIF-metadata (camera model, opnamedatum, sluitertijd, diafragma, ISO, brandpuntsafstand) indien beschikbaar
