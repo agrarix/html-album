@@ -216,7 +216,10 @@ def get_css() -> str:
         log_bericht("    ⚠ Waarschuwing: html-album.css niet gevonden in scriptdirectory! Minimale fallback-styling wordt gebruikt.")
         if sys.stdin.isatty():
             try:
-                input("    Druk op [Enter] om door te gaan met minimale styling...")
+                antwoord = input("    Druk op [Enter] om door te gaan, of 'q' om te stoppen: ").strip().lower()
+                if antwoord == 'q':
+                    log_bericht("    Generatie afgebroken door gebruiker.")
+                    sys.exit(0)
             except (EOFError, KeyboardInterrupt):
                 pass
         css_res = "* { box-sizing: border-box; }"
