@@ -155,3 +155,16 @@ De volgende variabelen worden automatisch vervangen:
 - `${TIME}` (of `{time_str}`): Tijdstip van generatie (`HH:MM`)
 
 Bij het starten van de generator wordt er tevens een voorbeeld van de geformatteerde voettekst getoond op stdout (de console) en weggeschreven naar het logbestand.
+
+---
+
+## 📝 Nog te doen
+
+Hier staan de openstaande punten en ideeën voor de HTML Fotoalbum Generator.
+
+### Openstaande taken
+*Geen openstaande taken op dit moment.*
+
+### Voltooide taken
+- [x] Foto's hernoemen op basis van de EXIF datum & tijd (`YYMMDD_HHMMSS-<orig-name>`) via de `--rename` optie.
+- [x] `html-album.py` geschikt maken voor Linux (dual OS).
