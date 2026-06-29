@@ -57,7 +57,7 @@ html-album/
 
 - De Python-versie (`html-album.py`) is het primaire script en wordt actief onderhouden.
 - De Bash-versie (`__html-album.sh`) is verouderd (legacy) en hoeft niet meer bijgewerkt te worden.
-- De gebruiker werkt op **Windows** en gebruikt de Python-versie.
+- De gebruiker werkt hoofdzakelijk op **Windows**, maar het script is tevens geschikt voor **Linux** (dual OS), specifiek voor installatie op de server **xynix** (`192.168.178.8`) in de directory `scripts/`.
 - Bij aanpassingen altijd `README.md` updaten als de functionaliteit wijzigt.
 - De assistent voert code-aanpassingen, commits en pushes volledig zelfstandig uit. De generatie (`python html-album.py`) wordt door de gebruiker zelf handmatig gestart.
 
