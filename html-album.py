@@ -60,7 +60,7 @@ parser = argparse.ArgumentParser(
     description="Generates a static HTML photo album from a directory of JPEG images."
 )
 parser.add_argument(
-    "configbestand",
+    "config_file",
     nargs="?",
     default="html-album.rc",
     help="Path to the configuration file (default: %(default)s)"
@@ -84,11 +84,11 @@ parser.add_argument(
 parser.add_argument(
     "-N", "--rename",
     action="store_true",
-    help="Rename picture filenames to YYMMDD_HHMMSS-<orig-naam> in output"
+    help="Rename picture filenames to YYMMDD_HHMMSS-<orig-name> in output"
 )
 
 args = parser.parse_args()
-config_naam = args.configbestand
+config_naam = args.config_file
 FORCE_ALL = args.all
 REVERSE_ORDER = args.reverse
 CLI_RENAME = args.rename
