@@ -213,6 +213,7 @@ def get_css() -> str:
     if css_path.exists():
         css_res = css_path.read_text(encoding="utf-8")
     else:
+        log_bericht("    ⚠ Waarschuwing: html-album.css niet gevonden in scriptdirectory! Minimale fallback-styling wordt gebruikt.")
         css_res = "* { box-sizing: border-box; }"
     
     css_res = css_res.replace("max-width: 880px;", f"max-width: {page_max_w}px;")
