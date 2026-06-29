@@ -163,7 +163,7 @@ Bij het starten van de generator wordt er tevens een voorbeeld van de geformatte
 Hier staan de openstaande punten en ideeën voor de HTML Fotoalbum Generator.
 
 ### Openstaande taken
-*Geen openstaande taken op dit moment.*
+- [ ] Een filter met bijvoorbeeld `"(c) Fam. de Boer - Wennink"` (configureerbaar via de configuratie) onderin de foto zetten.
 
 ### Voltooide taken
 - [x] Foto's hernoemen op basis van de EXIF datum & tijd (`YYMMDD_HHMMSS-<orig-name>`) via de `--rename` optie.
