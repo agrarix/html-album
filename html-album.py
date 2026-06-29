@@ -68,7 +68,7 @@ parser.add_argument(
     help="Force regeneration of all images and thumbnails"
 )
 parser.add_argument(
-    "-r", "--recursief",
+    "-r", "--reverse",
     action="store_true",
     help="Reversed order of folders and images (reverse)"
 )
@@ -76,7 +76,7 @@ parser.add_argument(
 args = parser.parse_args()
 config_naam = args.configbestand
 FORCE_ALL = args.all
-REVERSE_ORDER = args.recursief
+REVERSE_ORDER = args.reverse
 
 CONFIG_FILE = Path(config_naam)
 if not CONFIG_FILE.is_absolute():
