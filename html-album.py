@@ -461,17 +461,22 @@ def generate_slide_html(
     prev_js = f'"{prev_slide}"' if prev_slide else "null"
     next_js = f'"{next_slide}"' if next_slide else "null"
 
-    prev_btn = '<span class="nav-btn prev-btn disabled" title="Geen vorige foto">&#8592;</span>'
-    next_btn = '<span class="nav-btn next-btn disabled" title="Geen volgende foto">&#8594;</span>'
+    svg_left = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>'
+    svg_right = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>'
+
+    prev_btn = f'<span class="nav-btn prev-btn disabled" title="Geen vorige foto">{svg_left}</span>'
+    next_btn = f'<span class="nav-btn next-btn disabled" title="Geen volgende foto">{svg_right}</span>'
     if prev_slide:
-        prev_btn = f'<a href="{prev_slide}" class="nav-btn prev-btn" title="Vorige foto (&#8592;)">&#8592;</a>'
+        prev_btn = f'<a href="{prev_slide}" class="nav-btn prev-btn" title="Vorige foto (&#8592;)">{svg_left}</a>'
     if next_slide:
-        next_btn = f'<a href="{next_slide}" class="nav-btn next-btn" title="Volgende foto (&#8594;)">&#8594;</a>'
+        next_btn = f'<a href="{next_slide}" class="nav-btn next-btn" title="Volgende foto (&#8594;)">{svg_right}</a>'
 
     exif_str = get_formatted_exif(src_img_path)
     exif_html = f'<div class="slide-exif">{exif_str}</div>' if exif_str else ""
 
     img_src = img_fname if PICTURE_SIZE else f"../{img_fname}"
+
+    svg_up = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>'
 
     html = f"""\
 <!DOCTYPE html>
@@ -485,7 +490,7 @@ def generate_slide_html(
 <body>
 <div class="page-wrap">
     <div class="album-header">
-        <a href="{index_href}" class="nav-btn up-btn" title="Terug naar album (Esc)">&#8593;</a>
+        <a href="{index_href}" class="nav-btn up-btn" title="Terug naar album (Esc)">{svg_up}</a>
         <span class="header-title">{slide_breadcrumb_html}</span>
         <div class="header-nav">
             {prev_btn}
@@ -533,7 +538,8 @@ def generate_index_html(
 
     up_btn = ""
     if up_href:
-        up_btn = f'<a href="{up_href}" class="nav-btn up-btn" title="Omhoog naar bovenliggende map">&#8593;</a>'
+        svg_up = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>'
+        up_btn = f'<a href="{up_href}" class="nav-btn up-btn" title="Omhoog naar bovenliggende map">{svg_up}</a>'
 
     images = sorted(
         [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS],
