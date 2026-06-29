@@ -45,6 +45,11 @@ a:hover { color: #000; text-decoration: underline; }
     cursor: pointer;
     user-select: none;
 }
+.nav-btn svg {
+    width: 1em;
+    height: 1em;
+    display: block;
+}
 .nav-btn:hover {
     background: linear-gradient(to bottom, #cccccc, #b0b0b0);
     color: #000;
