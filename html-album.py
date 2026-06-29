@@ -799,12 +799,7 @@ def main() -> None:
         
     # Maak output directory alvast aan voor logbestand
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Genereer en schrijf html-album.css naar de output directory
-    try:
-        (OUTPUT_DIR / "html-album.css").write_text(get_css(), encoding="utf-8")
-    except Exception as exc:
-        print(f"Kon html-album.css niet schrijven naar {OUTPUT_DIR}: {exc}")
+
     if LOG_FILE_PATH:
         LOG_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
         try:
@@ -851,6 +846,12 @@ def main() -> None:
     else:
         log_bericht("Pillow    : ✗ niet gevonden — installeer met: pip install Pillow")
         log_bericht("            Zonder Pillow worden originele bestanden als thumbnail gebruikt.")
+    # Genereer en schrijf html-album.css naar de output directory
+    try:
+        (OUTPUT_DIR / "html-album.css").write_text(get_css(), encoding="utf-8")
+        log_bericht(f"CSS       : ✓ html-album.css vernieuwd in {OUTPUT_DIR}")
+    except Exception as exc:
+        log_bericht(f"CSS       : ✗ Fout bij schrijven html-album.css: {exc}")
     log_bericht("─" * 36)
 
     root_title = SOURCE_DIR.name
