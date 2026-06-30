@@ -30,6 +30,11 @@ html-album/
 | `THUMBS_DIR`    | Submap voor thumbnails                                    | `thumbs`                                       |
 | `THUMBNAIL`     | Formaat van directory-thumbnails (ImageMagick-notatie)    | `140x140`                                      |
 | `EXCLUDED`      | Mappen die overgeslagen worden                            | `["res"]`                                      |
+| `WATERMARK`     | Tekst van het watermerk op slide-foto's                   | `""`                                           |
+| `WM_FONT`       | Lettertype voor het watermerk                             | `"Verdana"`                                    |
+| `WM_SIZE`       | Lettergrootte van het watermerk in pixels                 | `12`                                           |
+| `WM_TRANSPARANCY`| Transparantie van het watermerk (bijv. `80%` of `0.80`)  | `"80%"`                                        |
+| `WM_LOCATION`   | Verticale positie van het watermerk (percentage)          | `90`                                           |
 
 ---
 
