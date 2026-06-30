@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (30-06-2026 09:44)"
+VERSION = "2.0 (30-06-2026 11:40)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -122,6 +122,7 @@ DEFAULTS = {
     "WM_ICON_SIZE": "0",
     "WM_TRANSPARANCY": "80%",
     "WM_LOCATION": "90",
+    "WM_ALLIGNMENT": "center",
 }
 
 
@@ -212,6 +213,8 @@ try:
     WM_LOCATION = float(_wm_loc_raw)
 except ValueError:
     WM_LOCATION = 90.0
+
+WM_ALLIGNMENT = cfg.get("WM_ALLIGNMENT", cfg.get("WM_ALIGNMENT", "center")).split("#")[0].strip().lower()
 
 
 EXCLUDED: set[str] = {
@@ -430,8 +433,14 @@ def apply_watermark(img: Image.Image, font_size: int) -> Image.Image:
         except AttributeError:
             text_width, text_height = draw.textsize(WATERMARK, font=font)
             
-        # Bereken X (gecentreerd) en Y (op basis van WM_LOCATION percentage)
-        x = (img.width - text_width) // 2
+        # Bereken X op basis van uitlijning (left, center, right)
+        if WM_ALLIGNMENT == "left":
+            x = 20
+        elif WM_ALLIGNMENT == "right":
+            x = img.width - text_width - 20
+        else:  # center
+            x = (img.width - text_width) // 2
+            
         y = int(img.height * WM_LOCATION / 100) - (text_height // 2)
         
         x = max(0, min(x, img.width - text_width))
@@ -1021,7 +1030,7 @@ def main() -> None:
         log_bericht("Image     : Original size")
     log_bericht(f"Exclude   : {', '.join(sorted(EXCLUDED))}")
     if WATERMARK:
-        log_bericht(f"Watermark : '{WATERMARK}' (Font: {WM_FONT}, Size: {WM_SIZE}, Icon Size: {WM_ICON_SIZE}, Transparency: {WM_TRANSPARANCY * 100:.0f}%, Location: {WM_LOCATION}%)")
+        log_bericht(f"Watermark : '{WATERMARK}' (Font: {WM_FONT}, Size: {WM_SIZE}, Icon Size: {WM_ICON_SIZE}, Alignment: {WM_ALLIGNMENT}, Transparency: {WM_TRANSPARANCY * 100:.0f}%, Location: {WM_LOCATION}%)")
     else:
         log_bericht("Watermark : None")
     log_bericht(f"Footer    : {footer_preview}")
