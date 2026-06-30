@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 html-album.py — HTML Fotoalbum Generator
 Genereert een HTML-album vergelijkbaar met alm.agrarix.net
