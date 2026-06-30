@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (30-06-2026 08:52)"
+VERSION = "2.0 (30-06-2026 09:44)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -119,6 +119,7 @@ DEFAULTS = {
     "WATERMARK": "",
     "WM_FONT": "Verdana",
     "WM_SIZE": "12",
+    "WM_ICON_SIZE": "0",
     "WM_TRANSPARANCY": "80%",
     "WM_LOCATION": "90",
 }
@@ -188,6 +189,12 @@ try:
     WM_SIZE = int(_wm_size_raw)
 except ValueError:
     WM_SIZE = 12
+
+try:
+    _wm_icon_size_raw = cfg.get("WM_ICON_SIZE", "0").split("#")[0].strip()
+    WM_ICON_SIZE = int(_wm_icon_size_raw)
+except ValueError:
+    WM_ICON_SIZE = 0
 
 try:
     _wm_trans_raw = cfg.get("WM_TRANSPARANCY", "80%").split("#")[0].strip()
@@ -325,6 +332,10 @@ def make_thumbnail(src: Path, dst: Path) -> None:
             img = ImageOps.exif_transpose(img)
             img = img.convert("RGB")
             img.thumbnail(THUMB_SIZE, Image.LANCZOS)
+            
+            if WATERMARK and WM_ICON_SIZE > 0:
+                img = apply_watermark(img, WM_ICON_SIZE)
+                
             img.save(dst, "JPEG", quality=85, optimize=True)
     except PermissionError as pe:
         log_bericht(f"    ⚠  Access denied (file in use) while creating thumbnail for '{src.name}': {pe}")
@@ -363,9 +374,9 @@ def needs_image_regeneration(dst_path: Path, src_path: Path) -> bool:
 # ---------------------------------------------------------------------------
 # Grote afbeelding kopiëren/schalen met Pillow
 # ---------------------------------------------------------------------------
-def apply_watermark(img: Image.Image) -> Image.Image:
-    """Voegt een semi-transparant watermerk toe aan de afbeelding."""
-    if not WATERMARK:
+def apply_watermark(img: Image.Image, font_size: int) -> Image.Image:
+    """Voegt een semi-transparant watermerk toe aan de afbeelding met de opgegeven lettergrootte."""
+    if not WATERMARK or font_size <= 0:
         return img
         
     try:
@@ -403,7 +414,7 @@ def apply_watermark(img: Image.Image) -> Image.Image:
             
         for path in font_paths:
             try:
-                font = ImageFont.truetype(path, WM_SIZE)
+                font = ImageFont.truetype(path, font_size)
                 break
             except Exception:
                 continue
@@ -453,7 +464,7 @@ def make_resized_image(src: Path, dst: Path) -> None:
             img.thumbnail(PICTURE_SIZE, Image.LANCZOS)
             
             if WATERMARK:
-                img = apply_watermark(img)
+                img = apply_watermark(img, WM_SIZE)
                 
             img.save(dst, "JPEG", quality=85, optimize=True)
     except PermissionError as pe:
@@ -1010,7 +1021,7 @@ def main() -> None:
         log_bericht("Image     : Original size")
     log_bericht(f"Exclude   : {', '.join(sorted(EXCLUDED))}")
     if WATERMARK:
-        log_bericht(f"Watermark : '{WATERMARK}' (Font: {WM_FONT}, Size: {WM_SIZE}, Transparency: {WM_TRANSPARANCY * 100:.0f}%, Location: {WM_LOCATION}%)")
+        log_bericht(f"Watermark : '{WATERMARK}' (Font: {WM_FONT}, Size: {WM_SIZE}, Icon Size: {WM_ICON_SIZE}, Transparency: {WM_TRANSPARANCY * 100:.0f}%, Location: {WM_LOCATION}%)")
     else:
         log_bericht("Watermark : None")
     log_bericht(f"Footer    : {footer_preview}")
