@@ -16,6 +16,7 @@ Dit project biedt een actieve **Python-versie** (`html-album.py`, aanbevolen voo
 - **Mobielvriendelijk**: Volledige viewport-ondersteuning voor correcte schaling op mobiel, grotere tikbare navigatieknoppen, en een raster dat op mobiel automatisch schaalt naar 2 flexibele kolommen. Tevens zijn de breadcrumbs geoptimaliseerd voor kleine schermen door het weglaten van "Foto album :" op subpagina's en het toestaan van automatische tekstterugloop (wrapping) op afbreekstreepjes en slashes.
 - **Logbestand**: Schrijft gedetailleerde logboeken naar een configureerbaar logbestand voor eenvoudige monitoring.
 - **Configureerbare voettekst**: De footer onderaan de indexpagina is volledig aan te passen via de configuratie en ondersteunt dynamische variabelen. De geformatteerde versie wordt tijdens het starten getoond in de console en meegeschreven in het logbestand.
+- **Watermerk**: Ondersteunt een configureerbaar, semi-transparant watermerk (tekst) op slide-foto's via Pillow.
 
 ---
 
@@ -143,7 +144,7 @@ WM_LOCATION=90
 2. **Genereert bestandsstructuur**: Maakt de mappen `pictures/` (of de geconfigureerde `PICTURES_DIR`) en `thumbs/` aan in de `OUTPUT_DIR` (recursief per submap).
 3. **Kopieert & Schaalt**:
    - Kopieert de originele foto naar de uitvoermap (indien bronmap en uitvoermap verschillen, en deze nog niet bestaat).
-   - Indien `PICTURE` is ingesteld, wordt de afbeelding verkleind naar deze maximale afmetingen en opgeslagen in de map `pictures/` (bijv. `pictures/foto1.jpg`). De slide HTML verwijst hier direct naar.
+   - Indien `PICTURE` is ingesteld, wordt de afbeelding verkleind naar deze maximale afmetingen, optioneel voorzien van een watermerk (indien `WATERMARK` is ingesteld), en opgeslagen in de map `pictures/` (bijv. `pictures/foto1.jpg`). De slide HTML verwijst hier direct naar.
    - Indien `PICTURE` leeg is, wordt er geen verkleinde versie gegenereerd en verwijst de slide HTML naar de originele foto in de bovenliggende map.
    - Genereert een thumbnail in de map `thumbs/` die past binnen de geconfigureerde `THUMBNAIL` afmetingen met behoud van de originele beeldverhouding.
 4. **Bouwt slides**: Genereert individuele HTML-slidepagina's per afbeelding met inline CSS en JavaScript voor keyboardnavigatie.
