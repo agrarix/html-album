@@ -58,6 +58,7 @@ Alle instellingen worden gelezen uit `html-album.rc`:
 | `WM_ICON_SIZE` | Lettergrootte van het watermerk op thumbnails/iconen (0 = geen watermerk op thumbnails) | `0` |
 | `WM_TRANSPARANCY` | Transparantiegraad van het watermerk (bijv. `80%` of `0.80`) | `"80%"` |
 | `WM_LOCATION` | Verticale positie van het watermerk als percentage vanaf de bovenkant (bijv. `90` voor 90%) | `90` |
+| `WM_ALLIGNMENT` | Horizontale uitlijning van het watermerk (`left`, `center`, `right`) | `"center"` |
 
 
 ### Voorbeeld `html-album.rc`

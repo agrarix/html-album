@@ -36,6 +36,7 @@ html-album/
 | `WM_ICON_SIZE`  | Lettergrootte van het watermerk op thumbnails/iconen      | `0`                                            |
 | `WM_TRANSPARANCY`| Transparantie van het watermerk (bijv. `80%` of `0.80`)  | `"80%"`                                        |
 | `WM_LOCATION`   | Verticale positie van het watermerk (percentage)          | `90`                                           |
+| `WM_ALLIGNMENT`  | Horizontale uitlijning van het watermerk (`left`, `center`, `right`) | `"center"`                                    |
 
 ---
 
