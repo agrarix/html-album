@@ -33,6 +33,7 @@ html-album/
 | `WATERMARK`     | Tekst van het watermerk op slide-foto's                   | `""`                                           |
 | `WM_FONT`       | Lettertype voor het watermerk                             | `"Verdana"`                                    |
 | `WM_SIZE`       | Lettergrootte van het watermerk in pixels                 | `12`                                           |
+| `WM_ICON_SIZE`  | Lettergrootte van het watermerk op thumbnails/iconen      | `0`                                            |
 | `WM_TRANSPARANCY`| Transparantie van het watermerk (bijv. `80%` of `0.80`)  | `"80%"`                                        |
 | `WM_LOCATION`   | Verticale positie van het watermerk (percentage)          | `90`                                           |
 

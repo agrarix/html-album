@@ -55,6 +55,7 @@ Alle instellingen worden gelezen uit `html-album.rc`:
 | `WATERMARK` | Tekst van het watermerk op slide-foto's (leeg = geen watermerk) | `""` |
 | `WM_FONT` | Systeemlettertype voor het watermerk | `"Verdana"` |
 | `WM_SIZE` | Lettergrootte van het watermerk in pixels | `12` |
+| `WM_ICON_SIZE` | Lettergrootte van het watermerk op thumbnails/iconen (0 = geen watermerk op thumbnails) | `0` |
 | `WM_TRANSPARANCY` | Transparantiegraad van het watermerk (bijv. `80%` of `0.80`) | `"80%"` |
 | `WM_LOCATION` | Verticale positie van het watermerk als percentage vanaf de bovenkant (bijv. `90` voor 90%) | `90` |
 
