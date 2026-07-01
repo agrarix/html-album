@@ -103,8 +103,8 @@ if not CONFIG_FILE.is_absolute():
 
 
 DEFAULTS = {
-    "PICTURES_DIR": "pictures",
-    "THUMBS_DIR": "thumbs",
+    "PICTURES_DIR": "_pictures",
+    "THUMBS_DIR": "_thumbs",
     "EXCLUDED": ["res"],
     "THUMBNAIL": "140x140",
     "PICTURE": "",
@@ -159,7 +159,7 @@ else:
 
 RENAME_FILES = CLI_RENAME or cfg.get("RENAME", "false").lower() in ("true", "1", "yes")
 
-PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "pictures"))
+PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "_pictures"))
 THUMBS_DIR_NAME: str = cfg["THUMBS_DIR"]
 INDEX_FILE_NAME: str = cfg["INDEX_FILE"]
 SOURCE_DIR_RAW = os.path.expandvars(cfg["SOURCE_DIR"]) if cfg["SOURCE_DIR"] else ""
@@ -220,7 +220,7 @@ WM_ALLIGNMENT = cfg.get("WM_ALLIGNMENT", cfg.get("WM_ALIGNMENT", "center")).spli
 EXCLUDED: set[str] = {
     x.lower() for x in (
         set(cfg["EXCLUDED"]) |
-        {PICTURES_DIR_NAME, THUMBS_DIR_NAME, "pictures", "slides", "thumbs", "slides_dir", "thumbs_dir", "pictures_dir"}
+        {PICTURES_DIR_NAME, THUMBS_DIR_NAME, "pictures", "_pictures", "slides", "thumbs", "_thumbs", "slides_dir", "thumbs_dir", "pictures_dir"}
     )
 }
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif"}

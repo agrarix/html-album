@@ -43,8 +43,8 @@ Alle instellingen worden gelezen uit `html-album.rc`:
 | `SOURCE_DIR` | Bronmap met originele foto's en submappen | `""` |
 | `OUTPUT_DIR` | Uitvoerlocatie voor de gegenereerde website | `""` |
 | `INDEX_FILE` | Bestandsnaam van de gegenereerde indexpagina's | `index.html` |
-| `PICTURES_DIR` | Naam van de submap voor individuele slidepagina's | `pictures` |
-| `THUMBS_DIR` | Naam van de submap voor de thumbnails | `thumbs` |
+| `PICTURES_DIR` | Naam van de submap voor individuele slidepagina's | `_pictures` |
+| `THUMBS_DIR` | Naam van de submap voor de thumbnails | `_thumbs` |
 | `THUMBNAIL` | Grootte van thumbnails (notatie: `breedtexhoogte`) | `140x140` |
 | `PICTURE` | Maximale grootte van slide-afbeeldingen (leeg = originele grootte) | `""` |
 | `LOG_FILE` | Pad/naam van het logbestand (relatief aan script-dir) | `html-album.log` |
@@ -65,8 +65,8 @@ Alle instellingen worden gelezen uit `html-album.rc`:
 ### Voorbeeld `html-album.rc`
 
 ```shell
-PICTURES_DIR="pictures"
-THUMBS_DIR="thumbs"
+PICTURES_DIR="_pictures"
+THUMBS_DIR="_thumbs"
 EXCLUDED="res"
 THUMBNAIL="140x140"
 SOURCE_DIR="Z:/WWW/domains/alm.agrarix.net/pages"
@@ -146,12 +146,12 @@ WM_ALLIGNMENT="center"
 ## 🔧 Wat doet the generator?
 
 1. **Leest configuratie**: Laadt de paden uit `html-album.rc`.
-2. **Genereert bestandsstructuur**: Maakt de mappen `pictures/` (of de geconfigureerde `PICTURES_DIR`) en `thumbs/` aan in de `OUTPUT_DIR` (recursief per submap).
+2. **Genereert bestandsstructuur**: Maakt de mappen `_pictures/` (of de geconfigureerde `PICTURES_DIR`) en `_thumbs/` aan in de `OUTPUT_DIR` (recursief per submap).
 3. **Kopieert & Schaalt**:
    - Kopieert de originele foto naar de uitvoermap (indien bronmap en uitvoermap verschillen, en deze nog niet bestaat).
-   - Indien `PICTURE` is ingesteld, wordt de afbeelding verkleind naar deze maximale afmetingen, optioneel voorzien van een watermerk (indien `WATERMARK` is ingesteld), en opgeslagen in de map `pictures/` (bijv. `pictures/foto1.jpg`). De slide HTML verwijst hier direct naar.
+   - Indien `PICTURE` is ingesteld, wordt de afbeelding verkleind naar deze maximale afmetingen, optioneel voorzien van een watermerk (indien `WATERMARK` is ingesteld), en opgeslagen in de map `_pictures/` (bijv. `_pictures/foto1.jpg`). De slide HTML verwijst hier direct naar.
    - Indien `PICTURE` leeg is, wordt er geen verkleinde versie gegenereerd en verwijst de slide HTML naar de originele foto in de bovenliggende map.
-   - Genereert een thumbnail in de map `thumbs/` die past binnen de geconfigureerde `THUMBNAIL` afmetingen met behoud van de originele beeldverhouding.
+   - Genereert een thumbnail in de map `_thumbs/` die past binnen de geconfigureerde `THUMBNAIL` afmetingen met behoud van de originele beeldverhouding.
 4. **Bouwt slides**: Genereert individuele HTML-slidepagina's per afbeelding met inline CSS, JavaScript voor keyboardnavigatie, en een downloadknop voor de originele foto.
 5. **Bouwt index**: Genereert een modern responsive thumbnailgrid. Submappen krijgen een preview-thumbnail van de eerste foto uit die map.
 6. **Schrijft logs**: Houdt live de voortgang bij in het logbestand (`LOG_FILE`).

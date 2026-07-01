@@ -26,8 +26,8 @@ html-album/
 | `SOURCE_DIR`    | Bronmap met originele foto's                              | `Z:\WWW\domains\alm.agrarix.net\pages`         |
 | `OUTPUT_DIR`    | Outputmap voor gegenereerd album                          | `D:\TEMP\html-album\output`                 |
 | `INDEX_FILE`    | Bestandsnaam van de hoofdpagina                           | `index.html`                                   |
-| `PICTURES_DIR`  | Submap voor individuele slidepagina's                     | `pictures`                                     |
-| `THUMBS_DIR`    | Submap voor thumbnails                                    | `thumbs`                                       |
+| `PICTURES_DIR`  | Submap voor individuele slidepagina's                     | `_pictures`                                    |
+| `THUMBS_DIR`    | Submap voor thumbnails                                    | `_thumbs`                                      |
 | `THUMBNAIL`     | Formaat van directory-thumbnails (ImageMagick-notatie)    | `140x140`                                      |
 | `EXCLUDED`      | Mappen die overgeslagen worden                            | `["res"]`                                      |
 | `WATERMARK`     | Tekst van het watermerk op slide-foto's                   | `""`                                           |

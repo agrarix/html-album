@@ -1,5 +1,5 @@
-PICTURES_DIR="pictures"
-THUMBS_DIR="thumbs"
+PICTURES_DIR="_pictures"
+THUMBS_DIR="_thumbs"
 EXCLUDED="res"
 THUMBNAIL="450x450"
 PICTURE="900x900"
