@@ -726,10 +726,9 @@ def generate_index_html(
         thumb_rel   = f"{THUMBS_DIR_NAME}/{name_no_ext}_thumb.jpg"
         slide_rel   = f"{PICTURES_DIR_NAME}/{name_no_ext}.html"
         
-        is_map_foto = (i == 0)
-        cell_class = "thumb-cell map-foto" if is_map_foto else "thumb-cell"
-        title_text = f"{fname} [folder cover]" if is_map_foto else fname
-        label_text = f"\U0001f4c1 {fname}" if is_map_foto else fname
+        cell_class = "thumb-cell"
+        title_text = fname
+        label_text = fname
         
         img_cells.append(
             f'        <div class="{cell_class}">\n'
@@ -946,11 +945,10 @@ def process_dir(
             slide_css_href,
         )
         
-        is_map_foto = " [folder cover]" if i == 0 else ""
         if actions:
-            log_bericht(f"    ✓ {fname} ({', '.join(actions)}){is_map_foto}")
+            log_bericht(f"    ✓ {fname} ({', '.join(actions)})")
         else:
-            log_bericht(f"    ✓ {fname} (unchanged){is_map_foto}")
+            log_bericht(f"    ✓ {fname} (unchanged)")
 
     generate_index_html(
         out_dir / INDEX_FILE_NAME,
