@@ -639,6 +639,9 @@ def generate_slide_html(
     if next_slide:
         next_btn = f'<a href="{next_slide}" class="nav-btn next-btn" title="Next picture (&#8594;)">{svg_right}</a>'
 
+    svg_download = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>'
+    dl_btn = f'<a href="../{img_fname}" download="{img_fname}" class="nav-btn dl-btn" title="Download picture (DL)">{svg_download}</a>'
+
     exif_str = get_formatted_exif(src_img_path)
     exif_html = f'<div class="slide-exif">{exif_str}</div>' if exif_str else ""
 
@@ -661,6 +664,7 @@ def generate_slide_html(
         <a href="{index_href}" class="nav-btn up-btn" title="Back to album (Esc)">{svg_up}</a>
         <span class="header-title">{slide_breadcrumb_html}</span>
         <div class="header-nav">
+            {dl_btn}
             {prev_btn}
             {next_btn}
         </div>
