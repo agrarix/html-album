@@ -46,6 +46,7 @@ html-album/
 - Ondersteunde afbeeldingen: `.jpg` / `.jpeg` (hoofdletterongevoelig)
 - Thumbnails worden bij voorkeur gegenereerd via **Pillow** (`PIL`) in Python, of anders via **ImageMagick** in Bash
 - Slide-pagina's tonen geformatteerde EXIF-metadata (camera model, opnamedatum, sluitertijd, diafragma, ISO, brandpuntsafstand) indien beschikbaar
+- Slide-pagina's tonen een gele/goudkleurige downloadknop met een download-icoon om de originele, hoge-resolutie foto direct te downloaden (geplaatst direct links van de vorige-foto knop)
 - Submappen krijgen een foldertegel met voorbeeldafbeelding (eerste foto uit submap)
 - Recursieve verwerking van submappen (elk krijgt eigen `index.html` en navigatie)
 - Op Linux-systemen worden relatieve configuratiebestanden (.rc) standaard gezocht in `$HOME/etc/` in plaats van de scriptdirectory (voor dual OS ondersteuning)

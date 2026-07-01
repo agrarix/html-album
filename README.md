@@ -152,7 +152,7 @@ WM_ALLIGNMENT="center"
    - Indien `PICTURE` is ingesteld, wordt de afbeelding verkleind naar deze maximale afmetingen, optioneel voorzien van een watermerk (indien `WATERMARK` is ingesteld), en opgeslagen in de map `pictures/` (bijv. `pictures/foto1.jpg`). De slide HTML verwijst hier direct naar.
    - Indien `PICTURE` leeg is, wordt er geen verkleinde versie gegenereerd en verwijst de slide HTML naar de originele foto in de bovenliggende map.
    - Genereert een thumbnail in de map `thumbs/` die past binnen de geconfigureerde `THUMBNAIL` afmetingen met behoud van de originele beeldverhouding.
-4. **Bouwt slides**: Genereert individuele HTML-slidepagina's per afbeelding met inline CSS en JavaScript voor keyboardnavigatie.
+4. **Bouwt slides**: Genereert individuele HTML-slidepagina's per afbeelding met inline CSS, JavaScript voor keyboardnavigatie, en een downloadknop voor de originele foto.
 5. **Bouwt index**: Genereert een modern responsive thumbnailgrid. Submappen krijgen een preview-thumbnail van de eerste foto uit die map.
 6. **Schrijft logs**: Houdt live de voortgang bij in het logbestand (`LOG_FILE`).
 
