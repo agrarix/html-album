@@ -18,3 +18,7 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 .DS_Store
+
+# Alle configuratiebestanden negeren, behalve het standaardbestand
+*.rc
+!html-album.rc

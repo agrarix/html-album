@@ -1,8 +1,0 @@
-PICTURES_DIR="_pictures"
-THUMBS_DIR="_thumbs"
-EXCLUDED="res"
-THUMBNAIL="150x150"
-SOURCE_DIR="Z:/WWW/domains/album.agrarix.net/pages/TEST"
-OUTPUT_DIR="Z:/WWW/domains/album.agrarix.net/pages/TEST"
-INDEX_FILE="index.html"
-LOG_FILE="html-album.log"
