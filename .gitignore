@@ -18,3 +18,7 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 .DS_Store
+
+# Legacy Bash scripts negeren
+_OLD-album.sh
+__html-album.sh
