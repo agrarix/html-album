@@ -87,6 +87,10 @@ WM_ALLIGNMENT="center"
 ```
 *Tip: Gebruik forward slashes (`/`) in paden, ook op Windows.*
 
+> [!NOTE]
+> - Regels in het `.rc`-bestand die beginnen met een `#` (al dan niet voorafgegaan door spaties) worden gezien als commentaar en overgeslagen.
+> - Wanneer een variabele ontbreekt of is uitgecommentarieerd in het `.rc`-bestand, valt de generator automatisch terug op de gedefinieerde standaardwaarde (zoals `_pictures` voor `PICTURES_DIR` en `_thumbs` voor `THUMBS_DIR`).
+
 ---
 
 ## 🚀 Gebruik
