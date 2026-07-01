@@ -81,4 +81,7 @@ html-album/
 - Configuratie altijd via `html-album.rc`, nooit hardcoded in het script
 - Stel geen tussentijdse verduidelijkingsvragen; voer wijzigingen direct autonoom door.
 - Alle Git-handelingen (add, commit, push, etc.) mogen zonder bevestiging vooraf worden uitgevoerd.
+- Configureer bij de start van een sessie altijd de juiste Git-auteursgegevens:
+  - `git config user.name "Maarten de Boer"`
+  - `git config user.email "maarten@agrarix.nl"`
 - Maak geen implementatieplannen (zoals `implementation_plan.md`) en vraag niet om goedkeuring vooraf; ga direct over tot de uitvoering.
