@@ -9,7 +9,7 @@ Dit project biedt een actieve **Python-versie** (`html-album.py`, aanbevolen voo
 ## Features
 
 - **Recursief**: Verwerkt automatisch alle submappen en genereert in elke map een eigen `index.html`.
-- **Navigatie & Toetsenbord**: Slide-pagina's ondersteunen `←` (vorige), `→` (volgende) en `Esc` / `Backspace` (terug naar overzicht) via het toetsenbord.
+- **Navigatie & Toetsenbord**: Slide-pagina's ondersteunen `←` (vorige), `→` (volgende) en `Esc` / `Backspace` (terug naar overzicht) via het toetsenbord. Wanneer men aan het begin of het einde van het album is, wordt de niet-beschikbare navigatiepijl vervangen door een actieve, blauwe omhoog-knop om direct terug te keren naar het overzicht.
 - **Downloadknop**: Slide-pagina's bevatten optioneel een downloadknop met icoon om de originele foto in volledige resolutie rechtstreeks te downloaden (configureerbaar via `DOWNLOAD`).
 - **EXIF-metadata**: Leest en toont automatisch camera-instellingen (cameramodel, opnamedatum, sluitertijd, diafragma, ISO en brandpuntsafstand) op de slide-pagina's indien beschikbaar.
 - **Gescheiden mappen**: Originele foto's blijven onaangetast; de complete website wordt gegenereerd in de geconfigureerde `OUTPUT_DIR`.
