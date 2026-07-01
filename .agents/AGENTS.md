@@ -30,6 +30,7 @@ html-album/
 | `THUMBS_DIR`    | Submap voor thumbnails                                    | `_thumbs`                                      |
 | `THUMBNAIL`     | Formaat van directory-thumbnails (ImageMagick-notatie)    | `140x140`                                      |
 | `EXCLUDED`      | Mappen die overgeslagen worden                            | `["res"]`                                      |
+| `DOWNLOAD`      | Downloadknop tonen op slide-pagina's (`yes` / `no`)       | `"no"`                                         |
 | `WATERMARK`     | Tekst van het watermerk op slide-foto's                   | `""`                                           |
 | `WM_FONT`       | Lettertype voor het watermerk                             | `"Verdana"`                                    |
 | `WM_SIZE`       | Lettergrootte van het watermerk in pixels                 | `12`                                           |
@@ -46,7 +47,7 @@ html-album/
 - Ondersteunde afbeeldingen: `.jpg` / `.jpeg` (hoofdletterongevoelig)
 - Thumbnails worden bij voorkeur gegenereerd via **Pillow** (`PIL`) in Python, of anders via **ImageMagick** in Bash
 - Slide-pagina's tonen geformatteerde EXIF-metadata (camera model, opnamedatum, sluitertijd, diafragma, ISO, brandpuntsafstand) indien beschikbaar
-- Slide-pagina's tonen een gele/goudkleurige downloadknop met een download-icoon om de originele, hoge-resolutie foto direct te downloaden (geplaatst direct links van de vorige-foto knop)
+- Slide-pagina's tonen indien geconfigureerd (`DOWNLOAD=yes`) een gele/goudkleurige downloadknop met een download-icoon om de originele, hoge-resolutie foto direct te downloaden (geplaatst direct links van de vorige-foto knop)
 - Submappen krijgen een foldertegel met voorbeeldafbeelding (eerste foto uit submap)
 - Recursieve verwerking van submappen (elk krijgt eigen `index.html` en navigatie)
 - Op Linux-systemen worden relatieve configuratiebestanden (.rc) standaard gezocht in `$HOME/etc/` in plaats van de scriptdirectory (voor dual OS ondersteuning)
