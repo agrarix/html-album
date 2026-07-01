@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (01-07-2026 14:11)"
+VERSION = "2.0 (01-07-2026 13:56)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -633,17 +633,13 @@ def generate_slide_html(
 
     svg_left = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>'
     svg_right = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>'
-    svg_up = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>'
 
+    prev_btn = f'<span class="nav-btn prev-btn disabled" title="No previous picture">{svg_left}</span>'
+    next_btn = f'<span class="nav-btn next-btn disabled" title="No next picture">{svg_right}</span>'
     if prev_slide:
         prev_btn = f'<a href="{prev_slide}" class="nav-btn prev-btn" title="Previous picture (&#8592;)">{svg_left}</a>'
-    else:
-        prev_btn = f'<a href="{index_href}" class="nav-btn up-btn" title="Back to album (Esc)">{svg_up}</a>'
-
     if next_slide:
         next_btn = f'<a href="{next_slide}" class="nav-btn next-btn" title="Next picture (&#8594;)">{svg_right}</a>'
-    else:
-        next_btn = f'<a href="{index_href}" class="nav-btn up-btn" title="Back to album (Esc)">{svg_up}</a>'
 
     if DOWNLOAD_PICTURES:
         svg_download = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>'
@@ -655,6 +651,8 @@ def generate_slide_html(
     exif_html = f'<div class="slide-exif">{exif_str}</div>' if exif_str else ""
 
     img_src = img_fname if PICTURE_SIZE else f"../{img_fname}"
+
+    svg_up = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>'
 
     html = f"""\
 <!DOCTYPE html>
