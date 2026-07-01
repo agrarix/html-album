@@ -86,12 +86,13 @@ a:hover { color: #000; text-decoration: underline; }
     color: #000;
 }
 .nav-btn.dl-btn {
-    background: linear-gradient(to bottom, #f5f5f5, #cccccc);
-    border: 1px solid #aaaaaa;
-    color: #333;
+    background: linear-gradient(to bottom, #ffe893, #f1c40f);
+    border: 1px solid #d4ac0d;
+    color: #000;
+    font-weight: bold;
 }
 .nav-btn.dl-btn:hover {
-    background: linear-gradient(to bottom, #e0e0e0, #b5b5b5);
+    background: linear-gradient(to bottom, #ffd861, #d4ac0d);
     color: #000;
     text-decoration: none;
 }
