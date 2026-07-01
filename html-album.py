@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (01-07-2026 13:56)"
+VERSION = "2.0 (01-07-2026 14:22)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -945,7 +945,7 @@ def process_dir(
             prev_slide,
             next_slide,
             f"../{INDEX_FILE_NAME}",
-            slide_breadcrumb_html,
+            f"{slide_breadcrumb_html} ({i + 1}/{len(mapped_images)})",
             img,
             slide_css_href,
         )
