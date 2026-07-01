@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (30-06-2026 11:40)"
+VERSION = "2.0 (01-07-2026 09:50)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
