@@ -86,3 +86,5 @@ html-album/
   - `git config user.name "Maarten de Boer"`
   - `git config user.email "maarten@agrarix.nl"`
 - Maak geen implementatieplannen (zoals `implementation_plan.md`) en vraag niet om goedkeuring vooraf; ga direct over tot de uitvoering.
+- Werk bij elke aanpassing (wijziging aan de code) de constante `VERSION` in `html-album.py` bij met de huidige datum en tijd in het formaat: `2.0 (DD-MM-YYYY HH:MM)`.
+
