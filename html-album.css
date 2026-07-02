@@ -56,13 +56,13 @@ a:hover { color: #000; text-decoration: underline; }
     text-decoration: none;
 }
 .nav-btn.up-btn {
-    background: linear-gradient(to bottom, #a0c4ff, #4387f3);
-    border: 1px solid #2b6ad4;
+    background: linear-gradient(to bottom, #ffe893, #f1c40f);
+    border: 1px solid #d4ac0d;
     color: #000;
     font-weight: bold;
 }
 .nav-btn.up-btn:hover {
-    background: linear-gradient(to bottom, #85b3ff, #2974eb);
+    background: linear-gradient(to bottom, #ffd861, #d4ac0d);
     color: #000;
 }
 .nav-btn.prev-btn {
@@ -86,13 +86,13 @@ a:hover { color: #000; text-decoration: underline; }
     color: #000;
 }
 .nav-btn.dl-btn {
-    background: linear-gradient(to bottom, #ffe893, #f1c40f);
-    border: 1px solid #d4ac0d;
+    background: linear-gradient(to bottom, #a0c4ff, #4387f3);
+    border: 1px solid #2b6ad4;
     color: #000;
     font-weight: bold;
 }
 .nav-btn.dl-btn:hover {
-    background: linear-gradient(to bottom, #ffd861, #d4ac0d);
+    background: linear-gradient(to bottom, #85b3ff, #2974eb);
     color: #000;
     text-decoration: none;
 }

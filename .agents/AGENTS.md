@@ -48,7 +48,7 @@ html-album/
 - Ondersteunde afbeeldingen: `.jpg` / `.jpeg` (hoofdletterongevoelig)
 - Thumbnails worden bij voorkeur gegenereerd via **Pillow** (`PIL`) in Python, of anders via **ImageMagick** in Bash
 - Slide-pagina's tonen geformatteerde EXIF-metadata (camera model, opnamedatum, sluitertijd, diafragma, ISO, brandpuntsafstand) indien beschikbaar
-- Slide-pagina's tonen indien geconfigureerd (`DOWNLOAD=yes`) een gele/goudkleurige downloadknop met een download-icoon om de originele, hoge-resolutie foto direct te downloaden (geplaatst direct links van de vorige-foto knop)
+- Slide-pagina's tonen indien geconfigureerd (`DOWNLOAD=yes`) een blauwe downloadknop met een download-icoon om de originele, hoge-resolutie foto direct te downloaden (geplaatst direct links van de vorige-foto knop)
 - Slide-pagina's tonen het volgnummer en het totale aantal foto's in de map in het formaat `(volgnummer/aantal)` (bijv. `(2/10)`) direct achter de mapnaam (breadcrumb)
 - Submappen krijgen een foldertegel met voorbeeldafbeelding (eerste foto uit submap)
 - Recursieve verwerking van submappen (elk krijgt eigen `index.html` en navigatie)
