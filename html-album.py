@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-07-2026 08:01)"
+VERSION = "2.0 (02-07-2026 08:05)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -700,10 +700,9 @@ if (slideImg) {{
         var rect = this.getBoundingClientRect();
         var x = e.clientX - rect.left;
         var y = e.clientY - rect.top;
-        if (y < rect.height / 2) {{
-            this.style.cursor = 'n-resize';
-            this.title = 'Back to album (↑)';
-        }} else if (x < rect.width / 2) {{
+        var w = rect.width;
+        var h = rect.height;
+        if (x < w / 3) {{
             if (prevSlide) {{
                 this.style.cursor = 'w-resize';
                 this.title = 'Previous picture (←)';
@@ -711,7 +710,7 @@ if (slideImg) {{
                 this.style.cursor = 'default';
                 this.title = '';
             }}
-        }} else {{
+        }} else if (x > (2 * w) / 3) {{
             if (nextSlide) {{
                 this.style.cursor = 'e-resize';
                 this.title = 'Next picture (→)';
@@ -719,18 +718,26 @@ if (slideImg) {{
                 this.style.cursor = 'default';
                 this.title = '';
             }}
+        }} else if (y < h * 0.3) {{
+            this.style.cursor = 'n-resize';
+            this.title = 'Back to album (↑)';
+        }} else {{
+            this.style.cursor = 'default';
+            this.title = '';
         }}
     }});
     slideImg.addEventListener('click', function(e) {{
         var rect = this.getBoundingClientRect();
         var x = e.clientX - rect.left;
         var y = e.clientY - rect.top;
-        if (y < rect.height / 2) {{
-            window.location = '{index_href}';
-        }} else if (x < rect.width / 2) {{
+        var w = rect.width;
+        var h = rect.height;
+        if (x < w / 3) {{
             if (prevSlide) window.location = prevSlide;
-        }} else {{
+        }} else if (x > (2 * w) / 3) {{
             if (nextSlide) window.location = nextSlide;
+        }} else if (y < h * 0.3) {{
+            window.location = '{index_href}';
         }}
     }});
 }}
