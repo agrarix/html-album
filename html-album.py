@@ -693,6 +693,40 @@ document.addEventListener('keydown', function(e) {{
             window.location = '{index_href}'; break;
     }}
 }});
+
+var slideImg = document.querySelector('.slide-image');
+if (slideImg) {{
+    slideImg.addEventListener('mousemove', function(e) {{
+        var rect = this.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        if (x < rect.width / 2) {{
+            if (prevSlide) {{
+                this.style.cursor = 'w-resize';
+                this.title = 'Previous picture (←)';
+            }} else {{
+                this.style.cursor = 'default';
+                this.title = '';
+            }}
+        }} else {{
+            if (nextSlide) {{
+                this.style.cursor = 'e-resize';
+                this.title = 'Next picture (→)';
+            }} else {{
+                this.style.cursor = 'default';
+                this.title = '';
+            }}
+        }}
+    }});
+    slideImg.addEventListener('click', function(e) {{
+        var rect = this.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        if (x < rect.width / 2) {{
+            if (prevSlide) window.location = prevSlide;
+        }} else {{
+            if (nextSlide) window.location = nextSlide;
+        }}
+    }});
+}}
 </script>
 </body>
 </html>
