@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-07-2026 07:59)"
+VERSION = "2.0 (02-07-2026 08:00)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -666,7 +666,7 @@ def generate_slide_html(
 <body>
 <div class="page-wrap">
     <div class="album-header">
-        <a href="{index_href}" class="nav-btn up-btn" title="Back to album (Esc)">{svg_up}</a>
+        <a href="{index_href}" class="nav-btn up-btn" title="Back to album (Up)">{svg_up}</a>
         <span class="header-title">{slide_breadcrumb_html}</span>
         <div class="header-nav">
             {dl_btn}
@@ -702,7 +702,7 @@ if (slideImg) {{
         var y = e.clientY - rect.top;
         if (y < rect.height / 2) {{
             this.style.cursor = 'n-resize';
-            this.title = 'Back to album (Esc)';
+            this.title = 'Back to album (Up)';
         }} else if (x < rect.width / 2) {{
             if (prevSlide) {{
                 this.style.cursor = 'w-resize';
