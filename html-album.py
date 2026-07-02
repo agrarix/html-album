@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-07-2026 09:44)"
+VERSION = "2.0 (02-07-2026 09:47)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -866,6 +866,17 @@ def generate_index_html(
     footer_text = footer_text.replace("${DATE}", date_str).replace("{date_str}", date_str)
     footer_text = footer_text.replace("${TIME}", time_str).replace("{time_str}", time_str)
 
+    up_script = ""
+    if up_href:
+        up_script = f"""<script>
+document.addEventListener('keydown', function(e) {{
+    if (e.key === 'Backspace' || e.key === 'Escape') {{
+        window.location = '{up_href}';
+    }}
+}});
+</script>
+"""
+
     html = f"""\
 <!DOCTYPE html>
 <html lang="en">
@@ -887,7 +898,7 @@ def generate_index_html(
     </div>
     <div class="footer">{footer_text}</div>
 </div>
-</body>
+{up_script}</body>
 </html>
 """
     index_file.write_text(html, encoding="utf-8")
