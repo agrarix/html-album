@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-07-2026 09:47)"
+VERSION = "2.0 (02-07-2026 17:15)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -661,12 +661,20 @@ def generate_slide_html(
 
     svg_up = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>'
 
+    out_dir = out_file.parent.parent
+    rel_parts = [p for p in out_dir.relative_to(OUTPUT_DIR).parts if p not in ('.', '/')]
+    relative_path_to_root = "../" * len(rel_parts)
+    favicon_tag = ""
+    pingu_icon_path = OUTPUT_DIR / "Agrarix-Pingu_2017.jpg"
+    if pingu_icon_path.exists():
+        favicon_tag = f'\n    <link rel="icon" type="image/jpeg" href="../{relative_path_to_root}Agrarix-Pingu_2017.jpg">'
+
     html = f"""\
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">{favicon_tag}
     <title>{img_fname}</title>
     <link rel="stylesheet" href="{css_href}">
 </head>
@@ -827,6 +835,9 @@ def generate_index_html(
             None,
         )
 
+        rel_parts = [p for p in out_dir.relative_to(OUTPUT_DIR).parts if p not in ('.', '/')]
+        relative_path_to_root = "../" * len(rel_parts)
+
         if first_img:
             first_img_stem = Path(get_new_filename(first_img)).stem
             folder_thumb_dst = out_dir / THUMBS_DIR_NAME / f"folder_{dname}_{first_img_stem}_thumb.jpg"
@@ -838,8 +849,13 @@ def generate_index_html(
             thumb_tag = f'<img src="{THUMBS_DIR_NAME}/folder_{dname}_{first_img_stem}_thumb.jpg" alt="{dname}" loading="lazy">'
             label = f"\U0001f4c1 {dname}"
         else:
-            thumb_tag = '<div class="folder-icon">\U0001f4c1</div>'
-            label     = dname
+            pingu_icon_path = OUTPUT_DIR / "Agrarix-Pingu_2017.jpg"
+            if pingu_icon_path.exists():
+                thumb_tag = f'<img src="{relative_path_to_root}Agrarix-Pingu_2017.jpg" alt="{dname}" loading="lazy">'
+                label     = f"\U0001f4c1 {dname}"
+            else:
+                thumb_tag = '<div class="folder-icon">\U0001f4c1</div>'
+                label     = dname
 
         dir_cells.append(
             f'        <div class="thumb-cell folder">\n'
@@ -877,13 +893,20 @@ document.addEventListener('keydown', function(e) {{
 </script>
 """
 
+    rel_parts = [p for p in out_dir.relative_to(OUTPUT_DIR).parts if p not in ('.', '/')]
+    relative_path_to_root = "../" * len(rel_parts)
+    favicon_tag = ""
+    pingu_icon_path = OUTPUT_DIR / "Agrarix-Pingu_2017.jpg"
+    if pingu_icon_path.exists():
+        favicon_tag = f'\n    <link rel="icon" type="image/jpeg" href="{relative_path_to_root}Agrarix-Pingu_2017.jpg">'
+
     html = f"""\
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="keywords" content="photoalbum,gallery,photo,online">
+    <meta name="keywords" content="photoalbum,gallery,photo,online">{favicon_tag}
     <title>{title}</title>
     <link rel="stylesheet" href="{css_href}">
 </head>
@@ -1133,6 +1156,16 @@ def main() -> None:
         log_bericht(f"CSS       : ✓ html-album.css updated in {OUTPUT_DIR}")
     except Exception as exc:
         log_bericht(f"CSS       : ✗ Error writing html-album.css: {exc}")
+
+    # Kopieer Agrarix-Pingu_2017.jpg als het bestaat naar de output directory
+    pingu_src = SCRIPT_DIR / "Agrarix-Pingu_2017.jpg"
+    if pingu_src.exists():
+        try:
+            safe_copy(pingu_src, OUTPUT_DIR / "Agrarix-Pingu_2017.jpg")
+            log_bericht(f"Icoon     : ✓ Agrarix-Pingu_2017.jpg copied to {OUTPUT_DIR}")
+        except Exception as exc:
+            log_bericht(f"Icoon     : ✗ Error copying Agrarix-Pingu_2017.jpg: {exc}")
+
     log_bericht("─" * 36)
 
     root_title = SOURCE_DIR.name
