@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-07-2026 09:38)"
+VERSION = "2.0 (02-07-2026 09:44)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -693,11 +693,11 @@ var nextSlide = {next_js};
 var dlFilename = {dl_js};
 document.addEventListener('keydown', function(e) {{
     switch (e.key) {{
-        case 'ArrowLeft':  case 'a': case 'A':
+        case 'ArrowLeft':
             if (prevSlide) window.location = prevSlide; break;
-        case 'ArrowRight': case 'd': case 'D': case ' ':
+        case 'ArrowRight': case ' ':
             if (nextSlide) window.location = nextSlide; break;
-        case 'Backspace':  case 'Escape': case 'u': case 'U':
+        case 'Backspace':  case 'Escape':
             window.location = '{index_href}'; break;
     }}
 }});
