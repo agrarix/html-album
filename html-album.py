@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-07-2026 08:05)"
+VERSION = "2.0 (02-07-2026 08:20)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -630,6 +630,7 @@ def generate_slide_html(
 ) -> None:
     prev_js = f'"{prev_slide}"' if prev_slide else "null"
     next_js = f'"{next_slide}"' if next_slide else "null"
+    dl_js = f'"{img_fname}"' if DOWNLOAD_PICTURES else "null"
 
     svg_left = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>'
     svg_right = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>'
@@ -683,6 +684,7 @@ def generate_slide_html(
 <script>
 var prevSlide = {prev_js};
 var nextSlide = {next_js};
+var dlFilename = {dl_js};
 document.addEventListener('keydown', function(e) {{
     switch (e.key) {{
         case 'ArrowLeft':  case 'a': case 'A':
@@ -721,6 +723,9 @@ if (slideImg) {{
         }} else if (y < h * 0.3) {{
             this.style.cursor = 'n-resize';
             this.title = 'Back to album (↑)';
+        }} else if (dlFilename) {{
+            this.style.cursor = 's-resize';
+            this.title = 'Download picture (↓)';
         }} else {{
             this.style.cursor = 'default';
             this.title = '';
@@ -738,6 +743,13 @@ if (slideImg) {{
             if (nextSlide) window.location = nextSlide;
         }} else if (y < h * 0.3) {{
             window.location = '{index_href}';
+        }} else if (dlFilename) {{
+            var link = document.createElement('a');
+            link.href = '../' + dlFilename;
+            link.download = dlFilename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }}
     }});
 }}
