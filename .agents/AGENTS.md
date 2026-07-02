@@ -31,6 +31,7 @@ html-album/
 | `THUMBNAIL`     | Formaat van directory-thumbnails (ImageMagick-notatie)    | `140x140`                                      |
 | `EXCLUDED`      | Mappen die overgeslagen worden                            | `["res"]`                                      |
 | `DOWNLOAD`      | Downloadknop tonen op slide-pagina's (`yes` / `no`)       | `"no"`                                         |
+| `REVERSE`       | Volgorde van mappen en foto's omkeren (`yes` / `no`)       | `"no"`                                         |
 | `WATERMARK`     | Tekst van het watermerk op slide-foto's                   | `""`                                           |
 | `WM_FONT`       | Lettertype voor het watermerk                             | `"Verdana"`                                    |
 | `WM_SIZE`       | Lettergrootte van het watermerk in pixels                 | `12`                                           |
