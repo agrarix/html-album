@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-07-2026 09:11)"
+VERSION = "2.0 (02-07-2026 09:15)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -141,6 +141,10 @@ def _laad_config(pad: Path) -> dict:
                     key, val = line.split("=", 1)
                     key = key.strip()
                     val = val.strip()
+                    if "#" in val:
+                        parts = val.split("#", 1)
+                        if parts[0].count('"') % 2 == 0 and parts[0].count("'") % 2 == 0:
+                            val = parts[0].strip()
                     if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
                         val = val[1:-1]
                     if key == "EXCLUDED":
