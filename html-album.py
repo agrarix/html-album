@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-07-2026 09:08)"
+VERSION = "2.0 (02-07-2026 09:11)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -1079,30 +1079,30 @@ def main() -> None:
 
     log_bericht("HTML Photo Album Generator")
     log_bericht("─" * 36)
-    log_bericht(f"Source    : {SOURCE_DIR}")
-    log_bericht(f"Output    : {OUTPUT_DIR}")
-    log_bericht(f"Log file  : {LOG_FILE_PATH}")
-    log_bericht(f"Thumbnail : {THUMB_SIZE[0]}x{THUMB_SIZE[1]}")
-    if FORCE_ALL:
-        log_bericht("Mode      : Force regeneration of all (--all)")
-    else:
-        log_bericht("Mode      : Only new/modified files")
-    if REVERSE_ORDER:
-        log_bericht("Order     : Reversed (reverse)")
-    if RENAME_FILES:
-        log_bericht("Rename    : Yes, to YYMMDD_HHMMSS-<orig-name>")
-    else:
-        log_bericht("Rename    : No")
-    if PICTURE_SIZE:
-        log_bericht(f"Image     : {PICTURE_SIZE[0]}x{PICTURE_SIZE[1]}")
-    else:
-        log_bericht("Image     : Original size")
-    log_bericht(f"Exclude   : {', '.join(sorted(EXCLUDED))}")
+    log_bericht(f"SOURCE_DIR    : {SOURCE_DIR}")
+    log_bericht(f"OUTPUT_DIR    : {OUTPUT_DIR}")
+    log_bericht(f"LOG_FILE      : {cfg.get('LOG_FILE')} (Path: {LOG_FILE_PATH})")
+    log_bericht(f"INDEX_FILE    : {INDEX_FILE_NAME}")
+    log_bericht(f"PICTURES_DIR  : {PICTURES_DIR_NAME}")
+    log_bericht(f"THUMBS_DIR    : {THUMBS_DIR_NAME}")
+    log_bericht(f"THUMBNAIL     : {cfg.get('THUMBNAIL')}")
+    log_bericht(f"PICTURE       : {cfg.get('PICTURE') if cfg.get('PICTURE') else 'Original size (not resized)'}")
+    log_bericht(f"EXCLUDED      : {cfg.get('EXCLUDED')}")
+    log_bericht(f"RENAME        : {RENAME_FILES} (RC: {cfg.get('RENAME')})")
+    log_bericht(f"DOWNLOAD      : {DOWNLOAD_PICTURES} (RC: {cfg.get('DOWNLOAD')})")
+    log_bericht(f"REVERSE       : {REVERSE_ORDER} (RC: {cfg.get('REVERSE')})")
+    log_bericht(f"COLUMNS       : {cfg.get('COLUMNS')}")
+    log_bericht(f"ROWS          : {cfg.get('ROWS')}")
+    log_bericht(f"WATERMARK     : '{WATERMARK}'")
     if WATERMARK:
-        log_bericht(f"Watermark : '{WATERMARK}' (Font: {WM_FONT}, Size: {WM_SIZE}, Icon Size: {WM_ICON_SIZE}, Alignment: {WM_ALLIGNMENT}, Transparency: {WM_TRANSPARANCY * 100:.0f}%, Location: {WM_LOCATION}%)")
-    else:
-        log_bericht("Watermark : None")
-    log_bericht(f"Footer    : {footer_preview}")
+        log_bericht(f"  WM_FONT       : {WM_FONT}")
+        log_bericht(f"  WM_SIZE       : {WM_SIZE}")
+        log_bericht(f"  WM_ICON_SIZE  : {WM_ICON_SIZE}")
+        log_bericht(f"  WM_TRANSPARANCY: {cfg.get('WM_TRANSPARANCY')}")
+        log_bericht(f"  WM_LOCATION   : {cfg.get('WM_LOCATION')}")
+        log_bericht(f"  WM_ALLIGNMENT : {cfg.get('WM_ALLIGNMENT')}")
+    log_bericht(f"FOOTER        : '{cfg.get('FOOTER')}'")
+    log_bericht(f"  (Preview)   : {footer_preview}")
     if HAS_PIL:
         try:
             from PIL import __version__ as pil_ver
