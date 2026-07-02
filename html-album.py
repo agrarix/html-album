@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-07-2026 07:56)"
+VERSION = "2.0 (02-07-2026 07:59)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -699,7 +699,11 @@ if (slideImg) {{
     slideImg.addEventListener('mousemove', function(e) {{
         var rect = this.getBoundingClientRect();
         var x = e.clientX - rect.left;
-        if (x < rect.width / 2) {{
+        var y = e.clientY - rect.top;
+        if (y < rect.height / 2) {{
+            this.style.cursor = 'n-resize';
+            this.title = 'Back to album (Esc)';
+        }} else if (x < rect.width / 2) {{
             if (prevSlide) {{
                 this.style.cursor = 'w-resize';
                 this.title = 'Previous picture (←)';
@@ -720,7 +724,10 @@ if (slideImg) {{
     slideImg.addEventListener('click', function(e) {{
         var rect = this.getBoundingClientRect();
         var x = e.clientX - rect.left;
-        if (x < rect.width / 2) {{
+        var y = e.clientY - rect.top;
+        if (y < rect.height / 2) {{
+            window.location = '{index_href}';
+        }} else if (x < rect.width / 2) {{
             if (prevSlide) window.location = prevSlide;
         }} else {{
             if (nextSlide) window.location = nextSlide;
