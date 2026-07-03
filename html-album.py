@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-07-2026 17:15)"
+VERSION = "2.0 (03-07-2026 08:51)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -170,10 +170,18 @@ REVERSE_ORDER = CLI_REVERSE or cfg.get("REVERSE", "no").lower() in ("true", "1",
 PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "_pictures"))
 THUMBS_DIR_NAME: str = cfg["THUMBS_DIR"]
 INDEX_FILE_NAME: str = cfg["INDEX_FILE"]
-SOURCE_DIR_RAW = os.path.expandvars(cfg["SOURCE_DIR"]) if cfg["SOURCE_DIR"] else ""
-OUTPUT_DIR_RAW = os.path.expandvars(cfg["OUTPUT_DIR"]) if cfg["OUTPUT_DIR"] else ""
-SOURCE_DIR = Path(SOURCE_DIR_RAW.replace("\\", "/")) if SOURCE_DIR_RAW else Path()
-OUTPUT_DIR = Path(OUTPUT_DIR_RAW.replace("\\", "/")) if OUTPUT_DIR_RAW else Path()
+SOURCE_DIR_RAW = os.path.expandvars(cfg.get("SOURCE_DIR", "")).strip()
+OUTPUT_DIR_RAW = os.path.expandvars(cfg.get("OUTPUT_DIR", "")).strip()
+
+if not SOURCE_DIR_RAW or SOURCE_DIR_RAW == ".":
+    SOURCE_DIR = Path.cwd()
+else:
+    SOURCE_DIR = Path(SOURCE_DIR_RAW.replace("\\", "/")).resolve()
+
+if not OUTPUT_DIR_RAW or OUTPUT_DIR_RAW == ".":
+    OUTPUT_DIR = Path.cwd()
+else:
+    OUTPUT_DIR = Path(OUTPUT_DIR_RAW.replace("\\", "/")).resolve()
 
 try:
     _w, _h = map(int, cfg["THUMBNAIL"].lower().split("x"))
@@ -1089,8 +1097,8 @@ def main() -> None:
         print("   Adjust SOURCE_DIR in html-album.rc")
         sys.exit(1)
 
-    if not OUTPUT_DIR or str(OUTPUT_DIR) in ("", "."):
-        print("\n❌ OUTPUT_DIR is not set in html-album.rc")
+    if not OUTPUT_DIR:
+        print("\n❌ OUTPUT_DIR is not set")
         sys.exit(1)
         
     # Maak output directory alvast aan voor logbestand
