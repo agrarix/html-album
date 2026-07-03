@@ -71,7 +71,7 @@ html-album/
 - De Bash-versie (`__html-album.sh`) is verouderd (legacy) en hoeft niet meer bijgewerkt te worden.
 - De gebruiker werkt hoofdzakelijk op **Windows**, maar het script is tevens geschikt voor **Linux** (dual OS), specifiek voor installatie op de server **xynix** (`192.168.178.8`) in de directory `scripts/`. De server is bereikbaar via SSH/SCP met de gebruiker `maarten` (de SSH-sleutels zijn geconfigureerd op de Windows-machine van de gebruiker).
 - Bij aanpassingen altijd `README.md` updaten als de functionaliteit wijzigt.
-- De assistent voert code-aanpassingen, commits en pushes volledig zelfstandig uit. De generatie (`python html-album.py`) wordt door de gebruiker zelf handmatig gestart.
+- De assistent voert code-aanpassingen, commits en pushes volledig zelfstandig uit. De assistent mag het script (`python html-album.py`) NOOIT zelf runnen; de generatie wordt door de gebruiker zelf handmatig gestart.
 
 ---
 
