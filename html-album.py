@@ -28,7 +28,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (03-07-2026 10:23)"
+VERSION = "2.0 (03-07-2026 10:41)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -1134,6 +1134,7 @@ def main() -> None:
     log_bericht(f"OUTPUT_DIR    : {OUTPUT_DIR}")
     log_bericht(f"LOG_FILE      : {cfg.get('LOG_FILE')} (Path: {LOG_FILE_PATH})")
     log_bericht(f"INDEX_FILE    : {INDEX_FILE_NAME}")
+    log_bericht(f"ICON          : {ICON_FILE_NAME}")
     log_bericht(f"PICTURES_DIR  : {PICTURES_DIR_NAME}")
     log_bericht(f"THUMBS_DIR    : {THUMBS_DIR_NAME}")
     log_bericht(f"THUMBNAIL     : {cfg.get('THUMBNAIL')}")
