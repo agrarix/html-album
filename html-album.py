@@ -18,6 +18,7 @@ import os
 import re
 import shutil
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -27,7 +28,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (03-07-2026 10:22)"
+VERSION = "2.0 (03-07-2026 10:23)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -1179,6 +1180,7 @@ def main() -> None:
             log_bericht(f"Icoon     : ✗ Error copying {ICON_FILE_NAME}: {exc}")
 
     log_bericht("─" * 36)
+    time.sleep(1)
 
     root_title = SOURCE_DIR.name
     process_dir(SOURCE_DIR, OUTPUT_DIR, "", root_title)
