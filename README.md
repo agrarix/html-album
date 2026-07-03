@@ -41,8 +41,8 @@ Alle instellingen worden gelezen uit `html-album.rc`:
 
 | Sleutel | Beschrijving | Standaardwaarde |
 |---|---|---|
-| `SOURCE_DIR` | Bronmap met originele foto's en submappen | `""` |
-| `OUTPUT_DIR` | Uitvoerlocatie voor de gegenereerde website | `""` |
+| `SOURCE_DIR` | Bronmap met originele foto's en submappen (leeg of `.` = huidige werkmap) | `""` |
+| `OUTPUT_DIR` | Uitvoerlocatie voor de gegenereerde website (leeg of `.` = huidige werkmap) | `""` |
 | `INDEX_FILE` | Bestandsnaam van de gegenereerde indexpagina's | `index.html` |
 | `PICTURES_DIR` | Naam van de submap voor individuele slidepagina's | `_pictures` |
 | `THUMBS_DIR` | Naam van de submap voor de thumbnails | `_thumbs` |
