@@ -139,6 +139,10 @@ WM_ALLIGNMENT="center"
 
    # Hernoem bestandsnamen naar YYMMDD_HHMMSS-<orig-name> in de output
    python html-album.py --rename
+
+   # Toon een downloadknop op slide-pagina's
+   python html-album.py -d
+   # of: python html-album.py --download
    ```
 
 *Zonder Pillow worden de originele bestanden direct als thumbnail gelinkt.*
@@ -193,3 +197,4 @@ Hier staan de openstaande punten en ideeën voor de HTML Fotoalbum Generator.
 - [x] Een watermerk met bijvoorbeeld `"(c) Fam. de Boer - Wennink"` (configureerbaar via de configuratie) onderin de foto zetten.
 - [x] Foto's hernoemen op basis van de EXIF datum & tijd (`YYMMDD_HHMMSS-<orig-name>`) via de `--rename` optie.
 - [x] `html-album.py` geschikt maken voor Linux (dual OS).
+- [x] Downloadknop tonen op slide-pagina's via `DOWNLOAD` in RC of via de CLI optie `-d` / `--download`.
