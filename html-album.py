@@ -28,7 +28,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (03-07-2026 10:41)"
+VERSION = "2.0 (03-07-2026 10:52)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -88,12 +88,18 @@ parser.add_argument(
     action="store_true",
     help="Rename picture filenames to YYMMDD_HHMMSS-<orig-name> in output"
 )
+parser.add_argument(
+    "-d", "--download",
+    action="store_true",
+    help="Show a download button on slide pages"
+)
 
 args = parser.parse_args()
 config_naam = args.config_file
 FORCE_ALL = args.all
 CLI_REVERSE = args.reverse
 CLI_RENAME = args.rename
+CLI_DOWNLOAD = args.download
 
 CONFIG_FILE = Path(config_naam)
 if not CONFIG_FILE.is_absolute():
@@ -166,7 +172,7 @@ else:
     cfg = DEFAULTS
 
 RENAME_FILES = CLI_RENAME or cfg.get("RENAME", "false").lower() in ("true", "1", "yes")
-DOWNLOAD_PICTURES = cfg.get("DOWNLOAD", "no").lower() in ("true", "1", "yes")
+DOWNLOAD_PICTURES = CLI_DOWNLOAD or cfg.get("DOWNLOAD", "no").lower() in ("true", "1", "yes")
 REVERSE_ORDER = CLI_REVERSE or cfg.get("REVERSE", "no").lower() in ("true", "1", "yes")
 
 PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "_pictures"))
