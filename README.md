@@ -48,7 +48,7 @@ Alle instellingen worden gelezen uit `html-album.rc`:
 | `THUMBS_DIR` | Naam van de submap voor de thumbnails | `_thumbs` |
 | `THUMBNAIL` | Grootte van thumbnails (notatie: `breedtexhoogte`) | `140x140` |
 | `PICTURE` | Maximale grootte van slide-afbeeldingen (leeg = originele grootte) | `""` |
-| `LOG_FILE` | Pad/naam van het logbestand (relatief aan script-dir) | `html-album.log` |
+| `LOG_FILE` | Pad/naam van het logbestand (relatief aan script-dir, of $HOME/log op Linux) | `html-album.log` |
 | `EXCLUDED` | Mapnamen die volledig genegeerd moeten worden | `["res"]` |
 | `COLUMNS` | Vaste hoeveelheid kolommen in het raster (0 = auto-responsive flex) | `0` |
 | `ROWS` | Hoeveelheid rijen (momenteel niet actief gebruikt, 0 = oneindig) | `0` |

@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (03-07-2026 08:51)"
+VERSION = "2.0 (03-07-2026 10:20)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -241,10 +241,12 @@ EXCLUDED: set[str] = {
 }
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif"}
 
-# Bepaal het logbestand-pad. Als het een relatieve bestandsnaam is, zet het in SCRIPT_DIR (applicatie-root).
+# Bepaal het logbestand-pad. Als het een relatieve bestandsnaam is, zet het in SCRIPT_DIR (of $HOME/log op Linux).
 cfg_log_file = os.path.expandvars(cfg.get("LOG_FILE", "html-album.log"))
 if Path(cfg_log_file).is_absolute():
     LOG_FILE_PATH = Path(cfg_log_file.replace("\\", "/"))
+elif sys.platform.startswith("linux"):
+    LOG_FILE_PATH = Path.home() / "log" / cfg_log_file
 else:
     LOG_FILE_PATH = SCRIPT_DIR / cfg_log_file
 
