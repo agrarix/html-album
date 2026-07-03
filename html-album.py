@@ -27,7 +27,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (03-07-2026 10:20)"
+VERSION = "2.0 (03-07-2026 10:22)"
 
 def safe_copy(src: Path, dst: Path) -> None:
     """Kopieert een bestand. Probeert metadata te behouden (copy2), maar valt terug op copyfile bij OS-fouten (zoals op netwerkshares)."""
@@ -125,6 +125,7 @@ DEFAULTS = {
     "WM_TRANSPARANCY": "80%",
     "WM_LOCATION": "90",
     "WM_ALLIGNMENT": "center",
+    "ICON": "Agrarix-Pingu_2017.jpg",
 }
 
 
@@ -170,6 +171,7 @@ REVERSE_ORDER = CLI_REVERSE or cfg.get("REVERSE", "no").lower() in ("true", "1",
 PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "_pictures"))
 THUMBS_DIR_NAME: str = cfg["THUMBS_DIR"]
 INDEX_FILE_NAME: str = cfg["INDEX_FILE"]
+ICON_FILE_NAME: str = cfg.get("ICON", "Agrarix-Pingu_2017.jpg").strip()
 SOURCE_DIR_RAW = os.path.expandvars(cfg.get("SOURCE_DIR", "")).strip()
 OUTPUT_DIR_RAW = os.path.expandvars(cfg.get("OUTPUT_DIR", "")).strip()
 
@@ -675,9 +677,9 @@ def generate_slide_html(
     rel_parts = [p for p in out_dir.relative_to(OUTPUT_DIR).parts if p not in ('.', '/')]
     relative_path_to_root = "../" * len(rel_parts)
     favicon_tag = ""
-    pingu_icon_path = OUTPUT_DIR / "Agrarix-Pingu_2017.jpg"
+    pingu_icon_path = OUTPUT_DIR / ICON_FILE_NAME
     if pingu_icon_path.exists():
-        favicon_tag = f'\n    <link rel="icon" type="image/jpeg" href="../{relative_path_to_root}Agrarix-Pingu_2017.jpg">'
+        favicon_tag = f'\n    <link rel="icon" href="../{relative_path_to_root}{ICON_FILE_NAME}">'
 
     html = f"""\
 <!DOCTYPE html>
@@ -803,7 +805,7 @@ def generate_index_html(
         up_btn = f'<a href="{up_href}" class="nav-btn up-btn" title="Up to parent directory">{svg_up}</a>'
 
     images = sorted(
-        [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS],
+        [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS and f.name != ICON_FILE_NAME],
         key=lambda f: f.name.lower(),
         reverse=REVERSE_ORDER,
     )
@@ -841,7 +843,7 @@ def generate_index_html(
         dname            = subdir.name
 
         first_img = next(
-            (f for f in sorted(subdir.iterdir(), key=lambda x: x.name.lower(), reverse=REVERSE_ORDER) if f.is_file() and f.suffix.lower() in IMAGE_EXTS),
+            (f for f in sorted(subdir.iterdir(), key=lambda x: x.name.lower(), reverse=REVERSE_ORDER) if f.is_file() and f.suffix.lower() in IMAGE_EXTS and f.name != ICON_FILE_NAME),
             None,
         )
 
@@ -859,9 +861,9 @@ def generate_index_html(
             thumb_tag = f'<img src="{THUMBS_DIR_NAME}/folder_{dname}_{first_img_stem}_thumb.jpg" alt="{dname}" loading="lazy">'
             label = f"\U0001f4c1 {dname}"
         else:
-            pingu_icon_path = OUTPUT_DIR / "Agrarix-Pingu_2017.jpg"
+            pingu_icon_path = OUTPUT_DIR / ICON_FILE_NAME
             if pingu_icon_path.exists():
-                thumb_tag = f'<img src="{relative_path_to_root}Agrarix-Pingu_2017.jpg" alt="{dname}" loading="lazy">'
+                thumb_tag = f'<img src="{relative_path_to_root}{ICON_FILE_NAME}" alt="{dname}" loading="lazy">'
                 label     = f"\U0001f4c1 {dname}"
             else:
                 thumb_tag = '<div class="folder-icon">\U0001f4c1</div>'
@@ -906,9 +908,9 @@ document.addEventListener('keydown', function(e) {{
     rel_parts = [p for p in out_dir.relative_to(OUTPUT_DIR).parts if p not in ('.', '/')]
     relative_path_to_root = "../" * len(rel_parts)
     favicon_tag = ""
-    pingu_icon_path = OUTPUT_DIR / "Agrarix-Pingu_2017.jpg"
+    pingu_icon_path = OUTPUT_DIR / ICON_FILE_NAME
     if pingu_icon_path.exists():
-        favicon_tag = f'\n    <link rel="icon" type="image/jpeg" href="{relative_path_to_root}Agrarix-Pingu_2017.jpg">'
+        favicon_tag = f'\n    <link rel="icon" href="{relative_path_to_root}{ICON_FILE_NAME}">'
 
     html = f"""\
 <!DOCTYPE html>
@@ -954,7 +956,7 @@ def process_dir(
     (out_dir / THUMBS_DIR_NAME).mkdir(exist_ok=True)
 
     images = sorted(
-        [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS],
+        [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS and f.name != ICON_FILE_NAME],
         key=lambda f: f.name.lower(),
         reverse=REVERSE_ORDER,
     )
@@ -1167,14 +1169,14 @@ def main() -> None:
     except Exception as exc:
         log_bericht(f"CSS       : ✗ Error writing html-album.css: {exc}")
 
-    # Kopieer Agrarix-Pingu_2017.jpg als het bestaat naar de output directory
-    pingu_src = SCRIPT_DIR / "Agrarix-Pingu_2017.jpg"
+    # Kopieer het icoon als het bestaat naar de output directory
+    pingu_src = SCRIPT_DIR / ICON_FILE_NAME
     if pingu_src.exists():
         try:
-            safe_copy(pingu_src, OUTPUT_DIR / "Agrarix-Pingu_2017.jpg")
-            log_bericht(f"Icoon     : ✓ Agrarix-Pingu_2017.jpg copied to {OUTPUT_DIR}")
+            safe_copy(pingu_src, OUTPUT_DIR / ICON_FILE_NAME)
+            log_bericht(f"Icoon     : ✓ {ICON_FILE_NAME} copied to {OUTPUT_DIR}")
         except Exception as exc:
-            log_bericht(f"Icoon     : ✗ Error copying Agrarix-Pingu_2017.jpg: {exc}")
+            log_bericht(f"Icoon     : ✗ Error copying {ICON_FILE_NAME}: {exc}")
 
     log_bericht("─" * 36)
 

@@ -30,6 +30,7 @@ html-album/
 | `THUMBS_DIR`    | Submap voor thumbnails                                    | `_thumbs`                                      |
 | `THUMBNAIL`     | Formaat van directory-thumbnails (ImageMagick-notatie)    | `140x140`                                      |
 | `EXCLUDED`      | Mappen die overgeslagen worden                            | `["res"]`                                      |
+| `ICON`          | Bestandsnaam van het albumicoon / favicon                | `"Agrarix-Pingu_2017.jpg"`                     |
 | `DOWNLOAD`      | Downloadknop tonen op slide-pagina's (`yes` / `no`)       | `"no"`                                         |
 | `REVERSE`       | Volgorde van mappen en foto's omkeren (`yes` / `no`)       | `"no"`                                         |
 | `WATERMARK`     | Tekst van het watermerk op slide-foto's                   | `""`                                           |
