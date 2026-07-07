@@ -165,7 +165,9 @@ a:hover { color: #000; text-decoration: underline; }
 
 .thumb-cell.folder { background: #dce8f0; border-color: #a8c4d8; }
 .thumb-cell.folder:hover { border-color: #5588aa; }
-.thumb-cell.folder .thumb-label { font-weight: bold; font-size: 12px; }
+.thumb-cell.folder a { color: #0000ee; }
+.thumb-cell.folder a:visited { color: #551a8b; }
+.thumb-cell.folder .thumb-label { font-weight: bold; font-size: 12px; text-decoration: underline; }
 .folder-icon { font-size: 120px; line-height: 450px; }
 
 /* Map-foto aanduiding */
