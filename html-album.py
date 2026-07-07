@@ -30,11 +30,11 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "(07-07-2026 09:31)"
+VERSION = "(07-07-2026 09:33)"
 
 # Bepaal OS en hostname voor de footer
 try:
-    _hostname = socket.gethostname()
+    _hostname = socket.gethostname().split(".")[0]
 except Exception:
     _hostname = ""
 _os_naam = "Windows" if sys.platform == "win32" else "Linux"
