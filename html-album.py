@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "(07-07-2026 09:16)"
+VERSION = "(07-07-2026 09:21)"
 
 # Bepaal OS en hostname voor de footer
 try:
@@ -179,9 +179,10 @@ def _laad_config(pad: Path) -> dict:
         sys.exit(1)
 
 if CONFIG_FILE.exists():
+    print(f"Configuratie geladen van: {CONFIG_FILE.resolve()}")
     cfg = {**DEFAULTS, **_laad_config(CONFIG_FILE)}
 else:
-    print(f"{CONFIG_FILE.name} not found, using default values.")
+    print(f"Configuratiebestand {CONFIG_FILE.name} niet gevonden ({CONFIG_FILE.resolve()}), standaardwaarden worden gebruikt.")
     cfg = DEFAULTS
 
 RENAME_FILES = CLI_RENAME or cfg.get("RENAME", "false").lower() in ("true", "1", "yes")
@@ -1153,6 +1154,7 @@ def main() -> None:
 
     log_bericht("HTML Photo Album Generator")
     log_bericht("─" * 36)
+    log_bericht(f"CONFIG_FILE   : {CONFIG_FILE} (Path: {CONFIG_FILE.resolve()})")
     log_bericht(f"SOURCE_DIR    : {SOURCE_DIR}")
     log_bericht(f"OUTPUT_DIR    : {OUTPUT_DIR}")
     log_bericht(f"LOG_FILE      : {cfg.get('LOG_FILE')} (Path: {LOG_FILE_PATH})")
