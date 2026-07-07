@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "(07-07-2026 09:25)"
+VERSION = "(07-07-2026 09:31)"
 
 # Bepaal OS en hostname voor de footer
 try:
@@ -916,6 +916,8 @@ def generate_index_html(
     footer_text = footer_text.replace("${TIME}", time_str).replace("{time_str}", time_str)
     if sys.platform != "win32":
         footer_text = footer_text.replace("(${OS})", f"(Linux) at {_hostname}").replace("({OS})", f"(Linux) at {_hostname}")
+        if f"(Linux) at" not in footer_text:
+            footer_text = footer_text.replace("(Linux)", f"(Linux) at {_hostname}")
     footer_text = footer_text.replace("${OS}", _os_naam).replace("{OS}", _os_naam)
     footer_text = footer_text.replace("${HOSTNAME}", _hostname).replace("{HOSTNAME}", _hostname)
 
@@ -1153,6 +1155,8 @@ def main() -> None:
     footer_preview = footer_preview.replace("${TIME}", time_str).replace("{time_str}", time_str)
     if sys.platform != "win32":
         footer_preview = footer_preview.replace("(${OS})", f"(Linux) at {_hostname}").replace("({OS})", f"(Linux) at {_hostname}")
+        if f"(Linux) at" not in footer_preview:
+            footer_preview = footer_preview.replace("(Linux)", f"(Linux) at {_hostname}")
     footer_preview = footer_preview.replace("${OS}", _os_naam).replace("{OS}", _os_naam)
     footer_preview = footer_preview.replace("${HOSTNAME}", _hostname).replace("{HOSTNAME}", _hostname)
 
