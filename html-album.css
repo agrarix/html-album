@@ -12,7 +12,7 @@ a { color: #444; text-decoration: none; }
 a:hover { color: #000; text-decoration: underline; }
 
 .page-wrap {
-    max-width: 880px;
+    max-width: 960px;
     margin: 0 auto;
     padding: 10px 10px 20px;
 }
@@ -123,7 +123,7 @@ a:hover { color: #000; text-decoration: underline; }
     justify-content: center;
 }
 .thumb-cell {
-    width: 148px;
+    width: 460px;
     background: #e8e8e8;
     border: 1px solid #bbbbbb;
     border-radius: 3px;
@@ -136,8 +136,8 @@ a:hover { color: #000; text-decoration: underline; }
 .thumb-cell a:hover { text-decoration: none; }
 
 .thumb-img-wrap {
-    width: 138px;
-    height: 112px;
+    width: 450px;
+    height: 450px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -146,8 +146,8 @@ a:hover { color: #000; text-decoration: underline; }
     background: #d4d4d4;
 }
 .thumb-cell img {
-    max-width: 138px;
-    max-height: 112px;
+    max-width: 450px;
+    max-height: 450px;
     width: auto;
     height: auto;
     display: block;
@@ -159,14 +159,14 @@ a:hover { color: #000; text-decoration: underline; }
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 138px;
+    max-width: 450px;
     padding: 0 2px;
 }
 
 .thumb-cell.folder { background: #dce8f0; border-color: #a8c4d8; }
 .thumb-cell.folder:hover { border-color: #5588aa; }
 .thumb-cell.folder .thumb-label { font-weight: bold; font-size: 12px; }
-.folder-icon { font-size: 64px; line-height: 112px; }
+.folder-icon { font-size: 120px; line-height: 450px; }
 
 /* Map-foto aanduiding */
 .thumb-cell.map-foto { border-color: #4b86db; background: #f0f4fc; }
@@ -185,6 +185,8 @@ a:hover { color: #000; text-decoration: underline; }
 
 /* Voettekst */
 .footer { margin-top: 14px; font-size: 10px; color: #888; text-align: center; }
+.footer a { color: #0000ee; text-decoration: underline; }
+.footer a:visited { color: #551a8b; }
 
 /* Mobiele stijlen */
 @media (max-width: 600px) {
@@ -242,3 +244,17 @@ a:hover { color: #000; text-decoration: underline; }
     }
 }
 
+
+@media (max-width: 600px) {
+    .thumb-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 460px);
+    }
+}
+
+@media (max-width: 600px) {
+    .thumb-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 460px);
+    }
+}
