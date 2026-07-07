@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "(07-07-2026 10:25)"
+VERSION = "(07-07-2026 10:29)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -963,7 +963,9 @@ document.addEventListener('keydown', function(e) {{
     <div class="thumb-grid">
 {all_cells}
     </div>
+    <center>
     <div class="footer">{footer_text}</div>
+    </center>
 </div>
 {up_script}</body>
 </html>
