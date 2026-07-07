@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "(07-07-2026 09:33)"
+VERSION = "(07-07-2026 09:35)"
 
 # Bepaal OS en hostname voor de footer
 try:
@@ -910,7 +910,8 @@ def generate_index_html(
 
     footer_tmpl = cfg.get("FOOTER", _default_footer)
     footer_text = footer_tmpl
-    footer_text = footer_text.replace("${PGM}", PGM).replace("{PGM}", PGM)
+    pgm_link = f'<a href="https://github.com/agrarix/{PGM}">{PGM}</a>'
+    footer_text = footer_text.replace("${PGM}", pgm_link).replace("{PGM}", pgm_link)
     footer_text = footer_text.replace("${VER}", VERSION).replace("{VER}", VERSION).replace("{VERSION}", VERSION)
     footer_text = footer_text.replace("${DATE}", date_str).replace("{date_str}", date_str)
     footer_text = footer_text.replace("${TIME}", time_str).replace("{time_str}", time_str)
@@ -1149,7 +1150,8 @@ def main() -> None:
     time_str = now.strftime("%H:%M")
     footer_tmpl = cfg.get("FOOTER", _default_footer)
     footer_preview = footer_tmpl
-    footer_preview = footer_preview.replace("${PGM}", PGM).replace("{PGM}", PGM)
+    pgm_link = f'<a href="https://github.com/agrarix/{PGM}">{PGM}</a>'
+    footer_preview = footer_preview.replace("${PGM}", pgm_link).replace("{PGM}", pgm_link)
     footer_preview = footer_preview.replace("${VER}", VERSION).replace("{VER}", VERSION).replace("{VERSION}", VERSION)
     footer_preview = footer_preview.replace("${DATE}", date_str).replace("{date_str}", date_str)
     footer_preview = footer_preview.replace("${TIME}", time_str).replace("{time_str}", time_str)
