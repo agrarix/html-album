@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "(07-07-2026 10:29)"
+VERSION = "2.0 (26-07-2026 09:22)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -420,9 +420,9 @@ def needs_image_regeneration(dst_path: Path, src_path: Path) -> bool:
 # ---------------------------------------------------------------------------
 # Grote afbeelding kopiëren/schalen met Pillow
 # ---------------------------------------------------------------------------
-def apply_watermark(img: Image.Image, font_size: int) -> Image.Image:
+def apply_watermark(img: "Image.Image", font_size: int) -> "Image.Image":
     """Voegt een semi-transparant watermerk toe aan de afbeelding met de opgegeven lettergrootte."""
-    if not WATERMARK or font_size <= 0:
+    if not HAS_PIL or not WATERMARK or font_size <= 0:
         return img
         
     try:
