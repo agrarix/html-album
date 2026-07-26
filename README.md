@@ -94,6 +94,8 @@ WM_ALLIGNMENT="center"
 > [!NOTE]
 > - Regels in het `.rc`-bestand die beginnen met een `#` (al dan niet voorafgegaan door spaties) worden gezien als commentaar en overgeslagen.
 > - Wanneer een variabele ontbreekt of is uitgecommentarieerd in het `.rc`-bestand, valt de generator automatisch terug op de gedefinieerde standaardwaarde (zoals `_pictures` voor `PICTURES_DIR` en `_thumbs` voor `THUMBS_DIR`).
+> - Een configuratiebestand mag ook opgegeven worden zonder `.rc` extensie (bijv. `html-album huis`). Het script zoekt dan automatisch eerst naar `huis` en vervolgens naar `huis.rc`.
+> - Als een opgegeven configuratiebestand niet wordt gevonden, toont het script een waarschuwing (`WARNING: Configuratiebestand <naam> niet gevonden.`), wacht 1 seconde, en valt daarna automatisch terug op het standaard `html-album.rc` configuratiebestand.
 
 ---
 
@@ -120,8 +122,8 @@ WM_ALLIGNMENT="center"
      ```
    *Tip: Je kunt optioneel een specifiek configuratiebestand als argument opgeven, of help- en versie-informatie opvragen:*
    ```cmd
-   # Gebruik een specifiek configuratiebestand in plaats van html-album.rc
-   python html-album.py test.rc
+   # Gebruik een specifiek configuratiebestand (mag ook zonder .rc extensie)
+   python html-album.py huis
 
    # Toon de help-informatie (werkt ook met -h, /help of /?)
    python html-album.py --help
@@ -205,3 +207,4 @@ Hier staan de openstaande punten en ideeën voor de HTML Fotoalbum Generator.
 - [x] `html-album.py` geschikt maken voor Linux (dual OS).
 - [x] Downloadknop tonen op slide-pagina's via `DOWNLOAD` in RC of via de CLI optie `-D` / `--download`.
 - [x] Specifieke (sub)directory verwerken via de CLI optie `-d` / `--directory`.
+- [x] Automatische `.rc` extensie fallback en terugval naar `html-album.rc` bij ontbrekende configuratiebestanden.
