@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (26-07-2026 09:41)"
+VERSION = "2.0 (26-07-2026 09:42)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -200,7 +200,7 @@ if CONFIG_FILE.exists():
     print(f"Configuratie geladen van: {CONFIG_FILE.resolve()}")
     cfg = {**DEFAULTS, **_laad_config(CONFIG_FILE)}
 else:
-    print(f"WARNING: Configuratiebestand {config_naam} niet gevonden....")
+    print(f"WARNING: Configuratiebestand {config_naam} niet gevonden.")
     time.sleep(1)
     default_config_file = _bepaal_config_pad("html-album.rc")
     if config_naam != "html-album.rc" and default_config_file.exists():
