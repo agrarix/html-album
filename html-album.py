@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (26-07-2026 09:22)"
+VERSION = "2.0 (26-07-2026 09:29)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -104,9 +104,14 @@ parser.add_argument(
     help="Rename picture filenames to YYMMDD_HHMMSS-<orig-name> in output"
 )
 parser.add_argument(
-    "-d", "--download",
+    "-D", "--download",
     action="store_true",
     help="Show a download button on slide pages"
+)
+parser.add_argument(
+    "-d", "--directory",
+    metavar="DIR",
+    help="Process only a specific (sub)directory"
 )
 
 args = parser.parse_args()
@@ -115,6 +120,7 @@ FORCE_ALL = args.all
 CLI_REVERSE = args.reverse
 CLI_RENAME = args.rename
 CLI_DOWNLOAD = args.download
+CLI_DIRECTORY = args.directory
 
 CONFIG_FILE = Path(config_naam)
 if not CONFIG_FILE.is_absolute():
@@ -1224,8 +1230,44 @@ def main() -> None:
     log_bericht("─" * 36)
     time.sleep(1)
 
+    target_src_dir = SOURCE_DIR
+    target_out_dir = OUTPUT_DIR
+    parent_index = ""
     root_title = SOURCE_DIR.name
-    process_dir(SOURCE_DIR, OUTPUT_DIR, "", root_title)
+
+    if CLI_DIRECTORY:
+        dir_path = Path(CLI_DIRECTORY)
+        if dir_path.is_absolute():
+            candidate = dir_path.resolve()
+        else:
+            candidate = (SOURCE_DIR / dir_path).resolve()
+            if not candidate.exists():
+                matching = [d for d in SOURCE_DIR.rglob("*") if d.is_dir() and d.name.lower() == CLI_DIRECTORY.lower()]
+                if matching:
+                    candidate = matching[0].resolve()
+
+        if not candidate.exists() or not candidate.is_dir():
+            log_bericht(f"❌ Directory not found: {CLI_DIRECTORY}")
+            sys.exit(1)
+
+        target_src_dir = candidate
+        try:
+            rel_path = target_src_dir.relative_to(SOURCE_DIR)
+        except ValueError:
+            rel_path = Path('.')
+
+        if rel_path == Path('.'):
+            target_out_dir = OUTPUT_DIR
+            parent_index = ""
+            root_title = target_src_dir.name
+        else:
+            target_out_dir = OUTPUT_DIR / rel_path
+            parent_index = "../" * len(rel_path.parts) + INDEX_FILE_NAME
+            root_title = target_src_dir.name
+
+        log_bericht(f"TARGET_DIR    : {target_src_dir} (relative: {rel_path})")
+
+    process_dir(target_src_dir, target_out_dir, parent_index, root_title)
 
     log_bericht("\n" + "═" * 36)
     log_bericht("✅  Album generated!")
