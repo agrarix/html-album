@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (26-07-2026 09:29)"
+VERSION = "2.0 (26-07-2026 09:39)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -122,12 +122,22 @@ CLI_RENAME = args.rename
 CLI_DOWNLOAD = args.download
 CLI_DIRECTORY = args.directory
 
-CONFIG_FILE = Path(config_naam)
-if not CONFIG_FILE.is_absolute():
+def _bepaal_config_pad(naam: str) -> Path:
+    p = Path(naam)
+    if p.is_absolute():
+        return p
     if sys.platform != "win32":
-        CONFIG_FILE = Path.home() / "etc" / config_naam
+        return Path.home() / "etc" / naam
     else:
-        CONFIG_FILE = SCRIPT_DIR / CONFIG_FILE
+        return SCRIPT_DIR / p
+
+CONFIG_FILE = _bepaal_config_pad(config_naam)
+if not CONFIG_FILE.exists() and not config_naam.lower().endswith(".rc"):
+    config_naam_rc = f"{config_naam}.rc"
+    cf_rc = _bepaal_config_pad(config_naam_rc)
+    if cf_rc.exists():
+        CONFIG_FILE = cf_rc
+        config_naam = config_naam_rc
 
 
 DEFAULTS = {
@@ -190,7 +200,8 @@ if CONFIG_FILE.exists():
     print(f"Configuratie geladen van: {CONFIG_FILE.resolve()}")
     cfg = {**DEFAULTS, **_laad_config(CONFIG_FILE)}
 else:
-    print(f"Configuratiebestand {CONFIG_FILE.name} niet gevonden ({CONFIG_FILE.resolve()}), standaardwaarden worden gebruikt.")
+    print(f"WARNING: Configuratiebestand {config_naam} niet gevonden....")
+    time.sleep(1)
     cfg = DEFAULTS
 
 RENAME_FILES = CLI_RENAME or cfg.get("RENAME", "false").lower() in ("true", "1", "yes")
