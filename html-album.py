@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (26-07-2026 09:55)"
+VERSION = "2.0 (26-07-2026 15:55)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1008,8 +1008,15 @@ def process_dir(
     log_bericht(f"    output : {out_dir}")
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / PICTURES_DIR_NAME).mkdir(exist_ok=True)
-    (out_dir / THUMBS_DIR_NAME).mkdir(exist_ok=True)
+    pics_dir = out_dir / PICTURES_DIR_NAME
+    if pics_dir.exists() and not pics_dir.is_dir():
+        pics_dir.unlink()
+    pics_dir.mkdir(exist_ok=True)
+
+    thumbs_dir = out_dir / THUMBS_DIR_NAME
+    if thumbs_dir.exists() and not thumbs_dir.is_dir():
+        thumbs_dir.unlink()
+    thumbs_dir.mkdir(exist_ok=True)
 
     images = sorted(
         [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS and f.name != ICON_FILE_NAME],
