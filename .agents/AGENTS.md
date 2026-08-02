@@ -78,7 +78,8 @@ html-album/
 
 - De Python-versie (`html-album.py`) is het primaire script en wordt actief onderhouden.
 - De Bash-versie (`__html-album.sh`) is verouderd (legacy) en hoeft niet meer bijgewerkt te worden.
-- De gebruiker werkt hoofdzakelijk op **Windows**, maar het script is tevens geschikt voor **Linux** (dual OS), specifiek voor installatie op de server **xynix** (`192.168.178.8`) in de directory `scripts/`. De server is bereikbaar via SSH/SCP met de gebruiker `maarten` (de SSH-sleutels zijn geconfigureerd op de Windows-machine van de gebruiker).
+- De gebruiker werkt hoofdzakelijk op **Windows**, maar het script is tevens geschikt voor **Linux** (dual OS), specifiek voor installatie op de server **reservix** (`192.168.178.7`) in de directory `scripts/`. De server is bereikbaar via SSH/SCP met de gebruiker `maarten` (de SSH-sleutels zijn geconfigureerd op de Windows-machine van de gebruiker).
+- Het script op de server `reservix` is een symlink van `~/html-album/html-album.py` naar `~/scripts/html-album.py`. updates worden doorgevoerd via Git deployment flow: `PC => GIT => reservix` (door `git pull` uit te voeren in `/home/maarten/html-album/` op de server).
 - Bij aanpassingen altijd `README.md` updaten als de functionaliteit wijzigt.
 - De assistent voert code-aanpassingen, commits en pushes volledig zelfstandig uit. De assistent mag het script (`python html-album.py`) NOOIT zelf runnen; de generatie wordt door de gebruiker zelf handmatig gestart.
 
