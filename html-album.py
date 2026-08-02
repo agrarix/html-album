@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-08-2026 09:31)"
+VERSION = "2.0 (02-08-2026 09:37)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -636,63 +636,6 @@ def get_formatted_exif(img_path: Path) -> str:
         except Exception:
             parts.append(f"📅 {str(dt_orig).strip()}")
             
-    # Belichtingsinstellingen (Aperture, Shutter, ISO, Focal Length)
-    settings = []
-    
-    # Brandpuntsafstand
-    focal = raw_exif.get("FocalLength")
-    if focal is not None:
-        try:
-            if isinstance(focal, tuple) and len(focal) == 2:
-                f_val = focal[0] / focal[1]
-            else:
-                f_val = float(focal)
-            settings.append(f"{f_val:.0f}mm")
-        except Exception:
-            pass
-            
-    # Diafragma
-    fnum = raw_exif.get("FNumber")
-    if fnum is not None:
-        try:
-            if isinstance(fnum, tuple) and len(fnum) == 2:
-                fn_val = fnum[0] / fnum[1]
-            else:
-                fn_val = float(fnum)
-            settings.append(f"f/{fn_val:.1f}" if fn_val % 1 != 0 else f"f/{fn_val:.0f}")
-        except Exception:
-            pass
-            
-    # Sluitertijd
-    exp = raw_exif.get("ExposureTime")
-    if exp is not None:
-        try:
-            if isinstance(exp, tuple) and len(exp) == 2:
-                num, den = exp
-                if num == 1:
-                    settings.append(f"1/{den}s")
-                elif num > 1:
-                    settings.append(f"{num/den:.1f}s")
-                else:
-                    settings.append(f"{num}/{den}s")
-            else:
-                exp_val = float(exp)
-                if exp_val < 1.0:
-                    recip = round(1.0 / exp_val)
-                    settings.append(f"1/{recip}s")
-                else:
-                    settings.append(f"{exp_val:.1f}s")
-        except Exception:
-            pass
-            
-    # ISO
-    iso = raw_exif.get("ISOSpeedRatings")
-    if iso is not None:
-        settings.append(f"ISO {iso}")
-        
-    if settings:
-        parts.append("⚙️ " + " | ".join(settings))
-        
     return "  •  ".join(parts)
 
 def get_rename_prefix(img_path: Path) -> str:
