@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-08-2026 09:17)"
+VERSION = "2.0 (02-08-2026 09:31)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -56,11 +56,54 @@ def safe_copy(src: Path, dst: Path) -> None:
 # ---------------------------------------------------------------------------
 # Pillow (voor thumbnails)
 # ---------------------------------------------------------------------------
+from contextlib import contextmanager
+import tempfile
+
 try:
     from PIL import Image, ExifTags, ImageOps
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
+
+@contextmanager
+def safe_image_open(img_path: Path):
+    """Context manager die een afbeelding opent. Kopieert naar een lokaal temp-bestand als direct openen faalt (bijv. door CIFS memory issues)."""
+    temp_path = None
+    try:
+        img = Image.open(img_path)
+        img.load()
+        img.close()
+        img = Image.open(img_path)
+        try:
+            yield img
+        finally:
+            img.close()
+    except Exception as e:
+        try:
+            temp_dir = Path("/tmp") if Path("/tmp").exists() else Path(tempfile.gettempdir())
+            with tempfile.NamedTemporaryFile(dir=temp_dir, suffix=img_path.suffix, delete=False) as tmp:
+                temp_path = Path(tmp.name)
+            
+            shutil.copy2(img_path, temp_path)
+            
+            img = Image.open(temp_path)
+            img.load()
+            try:
+                yield img
+            finally:
+                img.close()
+                try:
+                    temp_path.unlink()
+                except Exception:
+                    pass
+        except Exception:
+            if temp_path and temp_path.exists():
+                try:
+                    temp_path.unlink()
+                except Exception:
+                    pass
+            raise e
+
 
 # ---------------------------------------------------------------------------
 # Argumenten en configuratie inlezen
@@ -378,7 +421,7 @@ def needs_thumbnail_regeneration(thumb_path: Path, src_path: Path) -> bool:
         with Image.open(thumb_path) as img:
             # Als de thumbnail kleiner is dan de ingestelde THUMB_SIZE,
             # maar de bronfoto groter is dan de thumbnail, moet hij opnieuw
-            with Image.open(src_path) as src_img:
+            with safe_image_open(src_path) as src_img:
                 if (img.width < tw and img.height < th) and (src_img.width > img.width or src_img.height > img.height):
                     return True
             return not (img.width == tw or img.height == th or (img.width < tw and img.height < th))
@@ -396,7 +439,7 @@ def make_thumbnail(src: Path, dst: Path) -> None:
             log_bericht(f"    ⚠  Could not copy file as thumbnail fallback: {e}")
         return
     try:
-        with Image.open(src) as img:
+        with safe_image_open(src) as img:
             img = ImageOps.exif_transpose(img)
             img = img.convert("RGB")
             img.thumbnail(THUMB_SIZE, Image.LANCZOS)
@@ -532,7 +575,7 @@ def make_resized_image(src: Path, dst: Path) -> None:
             log_bericht(f"    ⚠  Could not copy file: {e}")
         return
     try:
-        with Image.open(src) as img:
+        with safe_image_open(src) as img:
             img = ImageOps.exif_transpose(img)
             img = img.convert("RGB")
             img.thumbnail(PICTURE_SIZE, Image.LANCZOS)
@@ -554,7 +597,7 @@ def get_exif_data(img_path: Path) -> dict:
     if not HAS_PIL:
         return {}
     try:
-        with Image.open(img_path) as img:
+        with safe_image_open(img_path) as img:
             exif = img._getexif()
             if not exif:
                 return {}
