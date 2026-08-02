@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (26-07-2026 15:55)"
+VERSION = "2.0 (02-08-2026 09:17)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
