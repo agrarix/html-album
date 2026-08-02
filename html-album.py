@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-08-2026 09:37)"
+VERSION = "2.0 (02-08-2026 09:39)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -156,6 +156,12 @@ parser.add_argument(
     metavar="DIR",
     help="Process only a specific (sub)directory"
 )
+parser.add_argument(
+    "--no-exif", "--noexif", "--noEXIF", "--noEFIX",
+    dest="no_exif",
+    action="store_true",
+    help="Disable EXIF metadata loading entirely"
+)
 
 args = parser.parse_args()
 config_naam = args.config_file
@@ -164,6 +170,8 @@ CLI_REVERSE = args.reverse
 CLI_RENAME = args.rename
 CLI_DOWNLOAD = args.download
 CLI_DIRECTORY = args.directory
+CLI_NO_EXIF = args.no_exif
+
 
 def _bepaal_config_pad(naam: str) -> Path:
     p = Path(naam)
@@ -207,6 +215,7 @@ DEFAULTS = {
     "WM_LOCATION": "90",
     "WM_ALLIGNMENT": "center",
     "ICON": "Agrarix-Pingu_2017.jpg",
+    "NO_EXIF": "false",
 }
 
 
@@ -255,6 +264,8 @@ else:
 RENAME_FILES = CLI_RENAME or cfg.get("RENAME", "false").lower() in ("true", "1", "yes")
 DOWNLOAD_PICTURES = CLI_DOWNLOAD or cfg.get("DOWNLOAD", "no").lower() in ("true", "1", "yes")
 REVERSE_ORDER = CLI_REVERSE or cfg.get("REVERSE", "no").lower() in ("true", "1", "yes")
+DISABLE_EXIF = CLI_NO_EXIF or cfg.get("NO_EXIF", "false").lower() in ("true", "1", "yes")
+
 
 PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "_pictures"))
 THUMBS_DIR_NAME: str = cfg["THUMBS_DIR"]
@@ -594,7 +605,7 @@ def make_resized_image(src: Path, dst: Path) -> None:
             pass
 
 def get_exif_data(img_path: Path) -> dict:
-    if not HAS_PIL:
+    if DISABLE_EXIF or not HAS_PIL:
         return {}
     try:
         with safe_image_open(img_path) as img:
@@ -1199,6 +1210,7 @@ def main() -> None:
     log_bericht(f"RENAME        : {RENAME_FILES} (RC: {cfg.get('RENAME')})")
     log_bericht(f"DOWNLOAD      : {DOWNLOAD_PICTURES} (RC: {cfg.get('DOWNLOAD')})")
     log_bericht(f"REVERSE       : {REVERSE_ORDER} (RC: {cfg.get('REVERSE')})")
+    log_bericht(f"DISABLE_EXIF  : {DISABLE_EXIF} (RC: {cfg.get('NO_EXIF')})")
     log_bericht(f"COLUMNS       : {cfg.get('COLUMNS')}")
     log_bericht(f"ROWS          : {cfg.get('ROWS')}")
     log_bericht(f"WATERMARK     : '{WATERMARK}'")
