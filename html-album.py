@@ -30,7 +30,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "2.0 (02-08-2026 09:39)"
+VERSION = "2.0 (25-08-2026 05:27)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -51,6 +51,25 @@ def safe_copy(src: Path, dst: Path) -> None:
         shutil.copy2(src, dst)
     except OSError:
         shutil.copyfile(src, dst)
+
+def is_file_writable(path: Path) -> bool:
+    """Controleert of een bestand herschrijfbaar is (niet ReadOnly / schrijfbeveiligd)."""
+    if path.exists():
+        if not os.access(path, os.W_OK):
+            return False
+        try:
+            with open(path, "a", encoding="utf-8"):
+                pass
+            return True
+        except (PermissionError, OSError):
+            return False
+    else:
+        # Als het bestand nog niet bestaat, controleer of de bovenliggende map beschrijfbaar is
+        parent = path.parent
+        while not parent.exists() and parent != parent.parent:
+            parent = parent.parent
+        return os.access(parent, os.W_OK)
+
 
 
 # ---------------------------------------------------------------------------
@@ -989,7 +1008,11 @@ document.addEventListener('keydown', function(e) {{
 {up_script}</body>
 </html>
 """
-    index_file.write_text(html, encoding="utf-8")
+    try:
+        index_file.write_text(html, encoding="utf-8")
+    except PermissionError as pe:
+        log_bericht(f"\n❌ Error: Kon {index_file.name} niet schrijven (ReadOnly of geen toegang): {pe}")
+        sys.exit(1)
 
 # ---------------------------------------------------------------------------
 # Recursieve mapverwerking
@@ -1194,11 +1217,63 @@ def main() -> None:
     footer_preview = footer_preview.replace("${OS}", _os_naam).replace("{OS}", _os_naam)
     footer_preview = footer_preview.replace("${HOSTNAME}", _hostname).replace("{HOSTNAME}", _hostname)
 
+    target_src_dir = SOURCE_DIR
+    target_out_dir = OUTPUT_DIR
+    parent_index = ""
+    root_title = SOURCE_DIR.name
+    rel_path = Path('.')
+
+    if CLI_DIRECTORY:
+        dir_path = Path(CLI_DIRECTORY)
+        if dir_path.is_absolute():
+            candidate = dir_path.resolve()
+        else:
+            candidate = (SOURCE_DIR / dir_path).resolve()
+            if not candidate.exists():
+                matching = [d for d in SOURCE_DIR.rglob("*") if d.is_dir() and d.name.lower() == CLI_DIRECTORY.lower()]
+                if matching:
+                    candidate = matching[0].resolve()
+
+        if not candidate.exists() or not candidate.is_dir():
+            log_bericht(f"❌ Directory not found: {CLI_DIRECTORY}")
+            sys.exit(1)
+
+        target_src_dir = candidate
+        try:
+            rel_path = target_src_dir.relative_to(SOURCE_DIR)
+        except ValueError:
+            rel_path = Path('.')
+
+        if rel_path == Path('.'):
+            target_out_dir = OUTPUT_DIR
+            parent_index = ""
+            root_title = target_src_dir.name
+        else:
+            target_out_dir = OUTPUT_DIR / rel_path
+            parent_index = "../" * len(rel_path.parts) + INDEX_FILE_NAME
+            root_title = target_src_dir.name
+
+    # Controleer bij de start of INDEX_FILE herschrijfbaar is (niet ReadOnly)
+    target_index_file = target_out_dir / INDEX_FILE_NAME
+    if not is_file_writable(target_index_file):
+        log_bericht(f"\n❌ Error: INDEX_FILE '{INDEX_FILE_NAME}' is ReadOnly of niet herschrijfbaar: {target_index_file}")
+        log_bericht("   Generatie afgebroken.")
+        sys.exit(1)
+
+    if target_out_dir != OUTPUT_DIR:
+        root_index_file = OUTPUT_DIR / INDEX_FILE_NAME
+        if root_index_file.exists() and not is_file_writable(root_index_file):
+            log_bericht(f"\n❌ Error: INDEX_FILE '{INDEX_FILE_NAME}' is ReadOnly of niet herschrijfbaar: {root_index_file}")
+            log_bericht("   Generatie afgebroken.")
+            sys.exit(1)
+
     log_bericht("HTML Photo Album Generator")
     log_bericht("─" * 36)
     log_bericht(f"CONFIG_FILE   : {CONFIG_FILE} (Path: {CONFIG_FILE.resolve()})")
     log_bericht(f"SOURCE_DIR    : {SOURCE_DIR}")
     log_bericht(f"OUTPUT_DIR    : {OUTPUT_DIR}")
+    if CLI_DIRECTORY:
+        log_bericht(f"TARGET_DIR    : {target_src_dir} (relative: {rel_path})")
     log_bericht(f"LOG_FILE      : {cfg.get('LOG_FILE')} (Path: {LOG_FILE_PATH})")
     log_bericht(f"INDEX_FILE    : {INDEX_FILE_NAME}")
     log_bericht(f"ICON          : {ICON_FILE_NAME}")
@@ -1250,43 +1325,6 @@ def main() -> None:
 
     log_bericht("─" * 36)
     time.sleep(1)
-
-    target_src_dir = SOURCE_DIR
-    target_out_dir = OUTPUT_DIR
-    parent_index = ""
-    root_title = SOURCE_DIR.name
-
-    if CLI_DIRECTORY:
-        dir_path = Path(CLI_DIRECTORY)
-        if dir_path.is_absolute():
-            candidate = dir_path.resolve()
-        else:
-            candidate = (SOURCE_DIR / dir_path).resolve()
-            if not candidate.exists():
-                matching = [d for d in SOURCE_DIR.rglob("*") if d.is_dir() and d.name.lower() == CLI_DIRECTORY.lower()]
-                if matching:
-                    candidate = matching[0].resolve()
-
-        if not candidate.exists() or not candidate.is_dir():
-            log_bericht(f"❌ Directory not found: {CLI_DIRECTORY}")
-            sys.exit(1)
-
-        target_src_dir = candidate
-        try:
-            rel_path = target_src_dir.relative_to(SOURCE_DIR)
-        except ValueError:
-            rel_path = Path('.')
-
-        if rel_path == Path('.'):
-            target_out_dir = OUTPUT_DIR
-            parent_index = ""
-            root_title = target_src_dir.name
-        else:
-            target_out_dir = OUTPUT_DIR / rel_path
-            parent_index = "../" * len(rel_path.parts) + INDEX_FILE_NAME
-            root_title = target_src_dir.name
-
-        log_bericht(f"TARGET_DIR    : {target_src_dir} (relative: {rel_path})")
 
     process_dir(target_src_dir, target_out_dir, parent_index, root_title)
 

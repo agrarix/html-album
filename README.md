@@ -17,6 +17,7 @@ Dit project biedt een actieve **Python-versie** (`html-album.py`, aanbevolen voo
 - **Preview thumbnails**: Submappen worden op de hoofdpagina getoond met de eerste foto uit die submap als preview.
 - **Mobielvriendelijk**: Volledige viewport-ondersteuning voor correcte schaling op mobiel, grotere tikbare navigatieknoppen, en een raster dat op mobiel automatisch schaalt naar 2 flexibele kolommen. Tevens zijn de breadcrumbs geoptimaliseerd voor kleine schermen door het weglaten van "Foto album :" op subpagina's en het toestaan van automatische tekstterugloop (wrapping) op afbreekstreepjes en slashes.
 - **Logbestand**: Schrijft gedetailleerde logboeken naar een configureerbaar logbestand voor eenvoudige monitoring.
+- **Schrijfbeveiligingscontrole**: Controleert bij de start automatisch of `INDEX_FILE` herschrijfbaar is; breekt direct af met een duidelijke foutmelding op de console en in het logbestand als het bestand ReadOnly / niet beschrijfbaar is.
 - **Configureerbare voettekst**: De footer onderaan de indexpagina is volledig aan te passen via de configuratie en ondersteunt dynamische variabelen. De geformatteerde versie wordt tijdens het starten getoond in de console en meegeschreven in het logbestand.
 - **Watermerk**: Ondersteunt een configureerbaar, semi-transparant watermerk (tekst) op slide-foto's via Pillow.
 
@@ -208,3 +209,4 @@ Hier staan de openstaande punten en ideeën voor de HTML Fotoalbum Generator.
 - [x] Downloadknop tonen op slide-pagina's via `DOWNLOAD` in RC of via de CLI optie `-D` / `--download`.
 - [x] Specifieke (sub)directory verwerken via de CLI optie `-d` / `--directory`.
 - [x] Automatische `.rc` extensie fallback en terugval naar `html-album.rc` bij ontbrekende configuratiebestanden.
+- [x] Bij het opstarten controleren of `INDEX_FILE` herschrijfbaar is en stoppen bij ReadOnly (met melding op console & logbestand).
