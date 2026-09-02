@@ -23,6 +23,7 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
+from typing import Union
 
 # Forceer UTF-8 output zodat cmd/PowerShell niet crasht op speciale tekens
 if hasattr(sys.stdout, "reconfigure"):
@@ -30,7 +31,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (25-08-2026 05:26)"
+VERSION = "v2 (02-09-2026 19:30)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -289,7 +290,7 @@ DISABLE_EXIF = CLI_NO_EXIF or cfg.get("NO_EXIF", "false").lower() in ("true", "1
 PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "_pictures"))
 THUMBS_DIR_NAME: str = cfg["THUMBS_DIR"]
 INDEX_FILE_NAME: str = cfg["INDEX_FILE"]
-ICON_FILE_NAME: str = cfg.get("ICON", "Agrarix-Pingu_2017.jpg").strip()
+ICON_FILE_NAME: str = Path(cfg.get("ICON", "Agrarix-Pingu_2017.jpg").strip()).name
 SOURCE_DIR_RAW = os.path.expandvars(cfg.get("SOURCE_DIR", "")).strip()
 OUTPUT_DIR_RAW = os.path.expandvars(cfg.get("OUTPUT_DIR", "")).strip()
 
@@ -360,6 +361,37 @@ EXCLUDED: set[str] = {
     )
 }
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif"}
+
+
+def is_icon_file(path_or_name: Union[str, Path, None]) -> bool:
+    """Controleert of een bestand of bestandsnaam het geconfigureerde albumicoon is.
+    
+    Vergelijkt hoofdletterongevoelig en herkent ook bestanden die eventueel
+    eerder per ongeluk zijn hernoemd met een datum-tijd prefix (YYMMDD_HHMMSS-).
+    """
+    if not path_or_name or not ICON_FILE_NAME:
+        return False
+    name = Path(path_or_name).name.strip().lower()
+    icon_name = Path(ICON_FILE_NAME).name.strip().lower()
+    if not icon_name:
+        return False
+    if name == icon_name:
+        return True
+    stripped = re.sub(r"^\d{6}_\d{6}-", "", name)
+    return stripped == icon_name
+
+
+def is_icon_stem(stem_or_name: Union[str, Path, None]) -> bool:
+    """Controleert of een (afgeleide) bestandsnaam of stem bij het icoon hoort."""
+    if not stem_or_name or not ICON_FILE_NAME:
+        return False
+    stem = Path(stem_or_name).stem.strip().lower()
+    icon_stem = Path(ICON_FILE_NAME).stem.strip().lower()
+    if not icon_stem:
+        return False
+    clean_stem = re.sub(r"^\d{6}_\d{6}-", "", stem)
+    clean_stem = re.sub(r"_thumb$", "", clean_stem)
+    return clean_stem == icon_stem
 
 # Bepaal het logbestand-pad. Als het een relatieve bestandsnaam is, zet het in SCRIPT_DIR (of $HOME/log op Linux).
 cfg_log_file = os.path.expandvars(cfg.get("LOG_FILE", "html-album.log"))
@@ -687,6 +719,8 @@ def get_rename_prefix(img_path: Path) -> str:
 
 def get_new_filename(img_path: Path) -> str:
     orig_name = img_path.name
+    if is_icon_file(orig_name):
+        return Path(ICON_FILE_NAME).name
     if not RENAME_FILES:
         return orig_name
     if re.match(r"^\d{6}_\d{6}-", orig_name):
@@ -866,7 +900,7 @@ def generate_index_html(
         up_btn = f'<a href="{up_href}" class="nav-btn up-btn" title="Up to parent directory">{svg_up}</a>'
 
     images = sorted(
-        [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS and f.name != ICON_FILE_NAME],
+        [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS and not is_icon_file(f)],
         key=lambda f: f.name.lower(),
         reverse=REVERSE_ORDER,
     )
@@ -904,7 +938,7 @@ def generate_index_html(
         dname            = subdir.name
 
         first_img = next(
-            (f for f in sorted(subdir.iterdir(), key=lambda x: x.name.lower(), reverse=REVERSE_ORDER) if f.is_file() and f.suffix.lower() in IMAGE_EXTS and f.name != ICON_FILE_NAME),
+            (f for f in sorted(subdir.iterdir(), key=lambda x: x.name.lower(), reverse=REVERSE_ORDER) if f.is_file() and f.suffix.lower() in IMAGE_EXTS and not is_icon_file(f)),
             None,
         )
 
@@ -1039,8 +1073,42 @@ def process_dir(
         thumbs_dir.unlink()
     thumbs_dir.mkdir(exist_ok=True)
 
+    # Herstel eventueel per ongeluk hernoemd icoonbestand in src_dir terug naar originele ICON_FILE_NAME
+    target_icon_name = Path(ICON_FILE_NAME).name
+    for f in list(src_dir.iterdir()):
+        if f.is_file() and is_icon_file(f) and f.name.lower() != target_icon_name.lower():
+            target_file = src_dir / target_icon_name
+            if not target_file.exists():
+                try:
+                    f.rename(target_file)
+                    log_bericht(f"    ✓ Icoon hersteld: '{f.name}' -> '{target_icon_name}'")
+                except Exception as exc:
+                    log_bericht(f"    ⚠ Kon hernoemd icoon niet herstellen: {exc}")
+            else:
+                try:
+                    f.unlink()
+                    log_bericht(f"    🧹 Dubbel hernoemd icoon verwijderd: '{f.name}'")
+                except Exception:
+                    pass
+
+    # Verwijder eventuele oude gegenereerde slide/thumb van het icoon als die nog aanwezig zijn
+    for old_slide in pics_dir.glob("*"):
+        if is_icon_stem(old_slide.name):
+            try:
+                old_slide.unlink()
+                log_bericht(f"    🧹 Oude slide van icoon verwijderd: {old_slide.name}")
+            except Exception:
+                pass
+    for old_thumb in thumbs_dir.glob("*"):
+        if is_icon_stem(old_thumb.name):
+            try:
+                old_thumb.unlink()
+                log_bericht(f"    🧹 Oude thumbnail van icoon verwijderd: {old_thumb.name}")
+            except Exception:
+                pass
+
     images = sorted(
-        [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS and f.name != ICON_FILE_NAME],
+        [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS and not is_icon_file(f)],
         key=lambda f: f.name.lower(),
         reverse=REVERSE_ORDER,
     )
@@ -1317,13 +1385,35 @@ def main() -> None:
         log_bericht(f"CSS       : ✗ Error writing html-album.css: {exc}")
 
     # Kopieer het icoon als het bestaat naar de output directory
-    pingu_src = SCRIPT_DIR / ICON_FILE_NAME
+    target_icon_name = Path(ICON_FILE_NAME).name
+    pingu_src = SCRIPT_DIR / target_icon_name
+    if not pingu_src.exists():
+        for f in SCRIPT_DIR.iterdir():
+            if f.is_file() and is_icon_file(f):
+                pingu_src = f
+                break
+    if not pingu_src.exists() and SOURCE_DIR and SOURCE_DIR.exists():
+        pingu_src = SOURCE_DIR / target_icon_name
+        if not pingu_src.exists():
+            for f in SOURCE_DIR.iterdir():
+                if f.is_file() and is_icon_file(f):
+                    pingu_src = f
+                    break
+
     if pingu_src.exists():
+        if pingu_src.name != target_icon_name and not (pingu_src.parent / target_icon_name).exists():
+            try:
+                restored = pingu_src.parent / target_icon_name
+                pingu_src.rename(restored)
+                pingu_src = restored
+                log_bericht(f"Icoon     : ✓ Hersteld naar {target_icon_name}")
+            except Exception:
+                pass
         try:
-            safe_copy(pingu_src, OUTPUT_DIR / ICON_FILE_NAME)
-            log_bericht(f"Icoon     : ✓ {ICON_FILE_NAME} copied to {OUTPUT_DIR}")
+            safe_copy(pingu_src, OUTPUT_DIR / target_icon_name)
+            log_bericht(f"Icoon     : ✓ {target_icon_name} copied to {OUTPUT_DIR}")
         except Exception as exc:
-            log_bericht(f"Icoon     : ✗ Error copying {ICON_FILE_NAME}: {exc}")
+            log_bericht(f"Icoon     : ✗ Error copying {target_icon_name}: {exc}")
 
     log_bericht("─" * 36)
     time.sleep(1)
