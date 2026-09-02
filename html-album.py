@@ -31,7 +31,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (02-09-2026 19:30)"
+VERSION = "v2 (02-09-2026 22:58)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -290,7 +290,8 @@ DISABLE_EXIF = CLI_NO_EXIF or cfg.get("NO_EXIF", "false").lower() in ("true", "1
 PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "_pictures"))
 THUMBS_DIR_NAME: str = cfg["THUMBS_DIR"]
 INDEX_FILE_NAME: str = cfg["INDEX_FILE"]
-ICON_FILE_NAME: str = Path(cfg.get("ICON", "Agrarix-Pingu_2017.jpg").strip()).name
+_raw_icon = cfg.get("ICON", "Agrarix-Pingu_2017.jpg").strip().strip('"').strip("'")
+ICON_FILE_NAME: str = Path(_raw_icon).name
 SOURCE_DIR_RAW = os.path.expandvars(cfg.get("SOURCE_DIR", "")).strip()
 OUTPUT_DIR_RAW = os.path.expandvars(cfg.get("OUTPUT_DIR", "")).strip()
 
@@ -363,35 +364,39 @@ EXCLUDED: set[str] = {
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif"}
 
 
+KNOWN_ICON_NAMES = {
+    "agrarix-pingu_2017.jpg",
+    "new_pingu_agrarix_klompen.jpg",
+}
+
+
 def is_icon_file(path_or_name: Union[str, Path, None]) -> bool:
-    """Controleert of een bestand of bestandsnaam het geconfigureerde albumicoon is.
+    """Controleert of een bestand of bestandsnaam het albumicoon is.
     
     Vergelijkt hoofdletterongevoelig en herkent ook bestanden die eventueel
     eerder per ongeluk zijn hernoemd met een datum-tijd prefix (YYMMDD_HHMMSS-).
     """
-    if not path_or_name or not ICON_FILE_NAME:
+    if not path_or_name:
         return False
     name = Path(path_or_name).name.strip().lower()
-    icon_name = Path(ICON_FILE_NAME).name.strip().lower()
-    if not icon_name:
-        return False
-    if name == icon_name:
+    icon_name = Path(ICON_FILE_NAME).name.strip().lower() if ICON_FILE_NAME else ""
+    target_names = ({icon_name} | KNOWN_ICON_NAMES) if icon_name else KNOWN_ICON_NAMES
+    if name in target_names:
         return True
     stripped = re.sub(r"^\d{6}_\d{6}-", "", name)
-    return stripped == icon_name
+    return stripped in target_names
 
 
 def is_icon_stem(stem_or_name: Union[str, Path, None]) -> bool:
-    """Controleert of een (afgeleide) bestandsnaam of stem bij het icoon hoort."""
-    if not stem_or_name or not ICON_FILE_NAME:
+    """Controleert of een (afgeleide) bestandsnaam of stem bij een icoon hoort."""
+    if not stem_or_name:
         return False
     stem = Path(stem_or_name).stem.strip().lower()
-    icon_stem = Path(ICON_FILE_NAME).stem.strip().lower()
-    if not icon_stem:
-        return False
+    target_names = ({ICON_FILE_NAME} if ICON_FILE_NAME else set()) | KNOWN_ICON_NAMES
+    icon_stems = {Path(x).stem.lower() for x in target_names if x}
     clean_stem = re.sub(r"^\d{6}_\d{6}-", "", stem)
     clean_stem = re.sub(r"_thumb$", "", clean_stem)
-    return clean_stem == icon_stem
+    return clean_stem in icon_stems
 
 # Bepaal het logbestand-pad. Als het een relatieve bestandsnaam is, zet het in SCRIPT_DIR (of $HOME/log op Linux).
 cfg_log_file = os.path.expandvars(cfg.get("LOG_FILE", "html-album.log"))
@@ -1080,12 +1085,23 @@ def process_dir(
             target_file = src_dir / target_icon_name
             if not target_file.exists():
                 try:
-                    f.rename(target_file)
+                    try:
+                        os.chmod(f, 0o666)
+                    except Exception:
+                        pass
+                    try:
+                        f.rename(target_file)
+                    except Exception:
+                        shutil.move(str(f), str(target_file))
                     log_bericht(f"    ✓ Icoon hersteld: '{f.name}' -> '{target_icon_name}'")
                 except Exception as exc:
                     log_bericht(f"    ⚠ Kon hernoemd icoon niet herstellen: {exc}")
             else:
                 try:
+                    try:
+                        os.chmod(f, 0o666)
+                    except Exception:
+                        pass
                     f.unlink()
                     log_bericht(f"    🧹 Dubbel hernoemd icoon verwijderd: '{f.name}'")
                 except Exception:
