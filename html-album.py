@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (06-09-2026 16:52)"
+VERSION = "v2 (06-09-2026 16:54)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1314,6 +1314,7 @@ def main() -> None:
         try:
             cmd = [
                 "rclone", "sync", rclone_src, rclone_dst,
+                "-P",
                 "--exclude", f"{PICTURES_DIR_NAME}/**",
                 "--exclude", f"{THUMBS_DIR_NAME}/**",
                 "--exclude", "html-album.css",
@@ -1337,13 +1338,18 @@ def main() -> None:
         print("✓ rclone sync succesvol voltooid.\n")
 
         dst_path = Path(dst_clean).resolve()
-        try:
-            dst_path.relative_to(SOURCE_DIR)
-        except ValueError:
-            SOURCE_DIR = dst_path.parent
-
-        if not CLI_DIRECTORY:
-            CLI_DIRECTORY = dst_name
+        if SOURCE_DIR.resolve() == dst_path:
+            # SOURCE_DIR is al exact de doelmap zelf, geen submap filter nodig
+            pass
+        else:
+            try:
+                dst_rel = dst_path.relative_to(SOURCE_DIR)
+                if not CLI_DIRECTORY:
+                    CLI_DIRECTORY = str(dst_rel)
+            except ValueError:
+                SOURCE_DIR = dst_path.parent
+                if not CLI_DIRECTORY:
+                    CLI_DIRECTORY = dst_name
 
     if not SOURCE_DIR or not SOURCE_DIR.exists():
         print(f"\n❌ Source directory not found: {SOURCE_DIR}")
