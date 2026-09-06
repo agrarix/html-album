@@ -234,11 +234,12 @@ Met de `--rclone` optie kan de generator foto's direct ophalen vanaf cloudopslag
      rclone config
      ```
   2. Kies `Google Drive` of `OneDrive`.
-  3. Op een headless Linux-server (zonder grafische browser) vraag je het autorisatietoken eenmalig op via een machine met browser (bijv. Windows) met het commando:
+  3. Op een headless Linux-server (zonder grafische browser) geeft rclone het exacte commando dat je op een machine met browser (bijv. Windows) moet draaien, inclusief scope-parameter:
      ```cmd
-     rclone authorize "drive"
+     rclone authorize "drive" "<scope-string>"
+     # bijv: rclone authorize "drive" "eyJzY29wZSI6ImRyaXZlIn0"
      ```
-     Kopieer en plak het resulterende JSON-token in de wizard op de server.
+     Kopieer en plak het resulterende JSON-token (`{"access_token": ...}`) in de wizard op de server.
   4. Rclone bewaart het token in `~/.config/rclone/rclone.conf` en ververst dit voortaan geheel automatisch op de achtergrond.
 
 ---
