@@ -22,3 +22,7 @@ Desktop.ini
 # Legacy Bash scripts negeren
 _OLD-album.sh
 __html-album.sh
+
+# Configuratiebestanden
+*.rc
+*.rc~
