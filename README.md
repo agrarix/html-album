@@ -212,35 +212,96 @@ Met de `--rclone` optie kan de generator foto's direct ophalen vanaf cloudopslag
   ```
   *(of gewoon `python html-album.py` als `RCLONE="yes"` in `.rc` staat)*
 
-### Rclone installeren
+### 📦 Installatie van Rclone
 - **Windows**:
-  Installeer `rclone` via de package manager:
+  Installeer `rclone` eenmalig via Windows Package Manager:
   ```cmd
   winget install Rclone.Rclone
   ```
-  *(Herstart het terminalvenster na installatie zodat `rclone` in het PATH staat)*
+  *(Of download de ZIP vanaf [rclone.org](https://rclone.org) en zet `rclone.exe` in een map in je PATH).*
 - **Linux** (bijv. op server `fabrix`):
   ```bash
   sudo apt install rclone
   ```
 
-### Credentials & Authenticatie
-- **Windows met Google Drive desktop-app**:
-  Als Google Drive draait op Windows (bijvoorbeeld gekoppeld als virtuele schijfletter `G:\`), is Google Drive al lokaal geauthenticeerd. `rclone sync` leest de bestanden rechtstreeks van de schijf en heeft **geen** extra API-sleutels, OAuth-tokens of `rclone authorize` nodig.
-- **Linux (`fabrix`) of directe Cloud API verbinding**:
-  Als er op Linux direct verbinding gemaakt moet worden met een cloudremote (zoals `gdrive:Album/...`), moet rclone eenmalig geconfigureerd worden:
-  1. Start de wizard op de server:
-     ```bash
-     rclone config
-     ```
-  2. Kies `Google Drive` of `OneDrive`.
-  3. Op een headless Linux-server (zonder grafische browser) geeft rclone het exacte commando dat je op een machine met browser (bijv. Windows) moet draaien, inclusief scope-parameter:
-     ```cmd
-     rclone authorize "drive" "<scope-string>"
-     # bijv: rclone authorize "drive" "eyJzY29wZSI6ImRyaXZlIn0"
-     ```
-     Kopieer en plak het resulterende JSON-token (`{"access_token": ...}`) in de wizard op de server.
-  4. Rclone bewaart het token in `~/.config/rclone/rclone.conf` en ververst dit voortaan geheel automatisch op de achtergrond.
+---
+
+### 🔑 Exacte Stappen: Google Drive koppelen op headless Linux (`fabrix`)
+
+Omdat de Linux-server geen grafische webbrowser heeft, gebruikt `rclone` een autorisatietoken dat je eenmalig ophaalt via je Windows-pc.
+
+#### Stap 1: Start de wizard op Linux (`fabrix`)
+Voer uit op de Linux server:
+```bash
+rclone config
+```
+Volg de vragen:
+1. `n/s/q> ` -> Toets **`n`** (New remote) en druk op Enter.
+2. `name> ` -> Typ **`gdrive`** en druk op Enter.
+3. `Storage> ` -> Typ **`drive`** (of het nummer voor *Google Drive*) en druk op Enter.
+4. `client_id> ` -> Druk direct op **Enter** (leeg laten voor standaard).
+5. `client_secret> ` -> Druk direct op **Enter** (leeg laten voor standaard).
+6. `scope> ` -> Typ **`1`** (Full access to all files) en druk op Enter.
+7. `root_folder_id> ` -> Druk direct op **Enter** (leeg laten).
+8. `service_account_file> ` -> Druk direct op **Enter** (leeg laten).
+9. `Edit advanced config? ` -> Typ **`n`** (No) en druk op Enter.
+10. `Use web browser to automatically authenticate? ` -> Typ **`n`** (No, want de server is headless/remote!) en druk op Enter.
+
+De Linux-server toont nu een regel vergelijkbaar met:
+```text
+Execute the following on the machine with the web browser:
+    rclone authorize "drive" "eyJzY29wZSI6ImRyaXZlIn0"
+Then paste the result.
+config_token>
+```
+*Laat dit Linux-scherm zo openstaan.*
+
+#### Stap 2: Token genereren op Windows
+1. Open op je Windows-pc een **Opdrachtprompt (CMD)**.
+2. Plak en voer het commando uit dat Linux je zojuist gaf:
+   ```cmd
+   rclone authorize "drive" "eyJzY29wZSI6ImRyaXZlIn0"
+   ```
+3. Je standaardbrowser opent automatisch met het Google inlogscherm.
+4. Kies je gewenste Google/Gmail-account en klik op **Toestaan** (Allow).
+5. Ga terug naar je Windows CMD-scherm. Daar staat nu een JSON-tekst:
+   ```json
+   {"access_token":"ya29...","token_type":"Bearer","refresh_token":"1//...","expiry":"..."}
+   ```
+6. **Kopieer deze volledige regel** (vanaf de openingsaccolade `{` tot en met de sluitaccolade `}`).
+
+#### Stap 3: Token invoeren op Linux
+1. Ga terug naar je Linux-terminal waar `config_token>` staat.
+2. Plak de gekopieerde JSON-tekst (via rechtermuisklik of `Shift + Insert`) en druk op **Enter**.
+3. `Configure this as a Shared Drive (Team Drive)? ` -> Typ **`n`** (No, tenzij het om een zakelijke Google Workspace Team Drive gaat) en druk op Enter.
+4. `Keep this "gdrive" remote? ` -> Typ **`y`** (Yes) en druk op Enter.
+5. `e/n/d/r/c/s/q> ` -> Typ **`q`** (Quit config) om de wizard af te sluiten.
+
+De configuratie staat nu permanent en veilig opgeslagen in `~/.config/rclone/rclone.conf`. Rclone ververst het authenticatietoken automatisch op de achtergrond; je hoeft dit nooit meer opnieuw te doen.
+
+---
+
+### ✅ Verbinding testen op Linux
+Controleer of Linux nu rechtstreeks je Google Drive kan lezen:
+```bash
+rclone lsd gdrive:
+```
+Dit commando toont direct de hoofdmappen in je Google Drive (zoals `Albums`, `Vakantie`, etc.).
+
+---
+
+### 🚀 Gebruik met het album generator script
+In je configuratiebestand (bijv. `assisi.rc` of `html-album.rc`):
+```shell
+RCLONE="yes"
+RCLONE_SRC="gdrive:Albums/2026_Assisi"
+RCLONE_DST="/var/www/albums.agrarix.net/pages/2026_Assisi"
+```
+Of direct via de commandline:
+```bash
+python3 html-album.py --rclone "gdrive:Albums/2026_Assisi" "/var/www/albums.agrarix.net/pages/2026_Assisi"
+```
+*Het script synchroniseert automatisch de nieuwste foto's vanuit Google Drive naar de lokale doeldirectory en bouwt aansluitend meteen het web-album.*
 
 ---
 
