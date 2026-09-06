@@ -20,6 +20,7 @@ Dit project biedt een actieve **Python-versie** (`html-album.py`, aanbevolen voo
 - **Schrijfbeveiligingscontrole**: Controleert bij de start automatisch of `INDEX_FILE` herschrijfbaar is; breekt direct af met een duidelijke foutmelding op de console en in het logbestand als het bestand ReadOnly / niet beschrijfbaar is.
 - **Configureerbare voettekst**: De footer onderaan de indexpagina is volledig aan te passen via de configuratie en ondersteunt dynamische variabelen. De geformatteerde versie wordt tijdens het starten getoond in de console en meegeschreven in het logbestand.
 - **Watermerk**: Ondersteunt een configureerbaar, semi-transparant watermerk (tekst) op slide-foto's via Pillow.
+- **Automatische HEIC naar JPEG conversie**: Ondersteunt `.heic` en `.heif` (o.a. iPhone/Apple foto's). Converteert deze automatisch naar `.jpg` met behoud van alle EXIF-metadata (oriëntatie, opnamedatum, camera-instellingen) via `pillow-heif`.
 - **Rclone synchronisatie**: Ondersteunt automatische synchronisatie van foto's vanuit cloudopslag (Google Drive, OneDrive) of lokale mappen via `rclone sync`. Verifieert vooraf dat de submappen exact overeenkomen en genereert na synchronisatie direct automatisch het album voor de betreffende map.
 
 ---
@@ -332,6 +333,7 @@ Hier staan de openstaande punten en ideeën voor de HTML Fotoalbum Generator.
 - [ ] Webhook trigger op fabrix: Knop/webhook op server fabrix om na de synchronisatie het album automatisch opnieuw te genereren.
 
 ### Voltooide taken
+- [x] Automatische conversie van `.HEIC` en `.heif` (o.a. iPhone) naar `.JPG` met behoud van EXIF-metadata via `pillow-heif`.
 - [x] Synchronisatie via `rclone sync` (cloud/lokaal) vóór generatie via `--rclone` en submapcontrole.
 - [x] Een watermerk met bijvoorbeeld `"(c) Fam. de Boer - Wennink"` (configureerbaar via de configuratie) onderin de foto zetten.
 - [x] Foto's hernoemen op basis van de EXIF datum & tijd (`YYMMDD_HHMMSS-<orig-name>`) via de `--rename` optie.

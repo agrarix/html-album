@@ -57,8 +57,9 @@ html-album/
 ## Technische details
 
 - Taal van gegenereerde HTML: Engels (`lang="en"`)
-- Ondersteunde afbeeldingen: `.jpg` / `.jpeg` (hoofdletterongevoelig)
+- Ondersteunde afbeeldingen: `.jpg` / `.jpeg` en `.heic` / `.heif` (hoofdletterongevoelig; HEIC/HEIF wordt automatisch geconverteerd naar JPEG met behoud van EXIF-metadata)
 - Thumbnails worden bij voorkeur gegenereerd via **Pillow** (`PIL`) in Python, of anders via **ImageMagick** in Bash
+- HEIC-conversie gebeurt via **pillow-heif** (`pillow_heif`), met fallback naar externe tools (`heif-convert`, `convert`, `magick`)
 - Slide-pagina's tonen geformatteerde EXIF-metadata (camera model, opnamedatum, sluitertijd, diafragma, ISO, brandpuntsafstand) indien beschikbaar
 - Slide-pagina's tonen indien geconfigureerd (`DOWNLOAD=yes`) een blauwe downloadknop met een download-icoon om de originele, hoge-resolutie foto direct te downloaden (geplaatst direct links van de vorige-foto knop)
 - Slide-pagina's tonen het volgnummer en het totale aantal foto's in de map in het formaat `(volgnummer/aantal)` (bijv. `(2/10)`) direct achter de mapnaam (breadcrumb)
@@ -71,7 +72,7 @@ html-album/
 ## Vereisten
 
 - **Bash** (voor `__html-album.sh`)
-- **Python** (voor `html-album.py`)
+- **Python** (voor `html-album.py` met `Pillow` en `pillow-heif`)
 - **ImageMagick** (`convert`, `identify`)
 - Unix-tools: `find`, `sort`
 

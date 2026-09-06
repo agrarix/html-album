@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (06-09-2026 16:59)"
+VERSION = "v2 (06-09-2026 18:47)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -85,6 +85,13 @@ try:
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
+
+try:
+    import pillow_heif
+    pillow_heif.register_heif_opener()
+    HAS_HEIF = True
+except ImportError:
+    HAS_HEIF = False
 
 @contextmanager
 def safe_image_open(img_path: Path):
@@ -373,7 +380,7 @@ EXCLUDED: set[str] = {
         {PICTURES_DIR_NAME, THUMBS_DIR_NAME, "pictures", "_pictures", "slides", "thumbs", "_thumbs", "slides_dir", "thumbs_dir", "pictures_dir"}
     )
 }
-IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif"}
+IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".heic", ".heif"}
 
 
 KNOWN_ICON_NAMES = {
@@ -646,6 +653,35 @@ def apply_watermark(img: "Image.Image", font_size: int) -> "Image.Image":
         log_bericht(f"    ⚠  Fout bij toepassen watermerk: {e}")
         return img
 
+def convert_heic_to_jpeg(src_path: Path, dst_path: Path) -> None:
+    """Converteert een HEIC/HEIF afbeelding naar JPEG met behoud van EXIF-metadata."""
+    if HAS_HEIF:
+        with safe_image_open(src_path) as im:
+            im = ImageOps.exif_transpose(im)
+            exif_bytes = im.info.get("exif")
+            if im.mode not in ("RGB", "L"):
+                im = im.convert("RGB")
+            if exif_bytes:
+                im.save(dst_path, "JPEG", quality=95, optimize=True, exif=exif_bytes)
+            else:
+                im.save(dst_path, "JPEG", quality=95, optimize=True)
+        return
+
+    # Fallback via externe command-line tools indien beschikbaar
+    for cmd in (
+        ["heif-convert", str(src_path), str(dst_path)],
+        ["convert", str(src_path), str(dst_path)],
+        ["magick", str(src_path), str(dst_path)],
+    ):
+        try:
+            res = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if res.returncode == 0 and dst_path.exists():
+                return
+        except Exception:
+            continue
+
+    raise RuntimeError("Geen HEIC converter beschikbaar (installeer 'pillow-heif': pip install pillow-heif)")
+
 def make_resized_image(src: Path, dst: Path) -> None:
     if not HAS_PIL or not PICTURE_SIZE:
         try:
@@ -677,7 +713,11 @@ def get_exif_data(img_path: Path) -> dict:
         return {}
     try:
         with safe_image_open(img_path) as img:
-            exif = img._getexif()
+            exif = None
+            if hasattr(img, "_getexif"):
+                exif = img._getexif()
+            if not exif and hasattr(img, "getexif"):
+                exif = img.getexif()
             if not exif:
                 return {}
             data = {}
@@ -738,12 +778,14 @@ def get_new_filename(img_path: Path) -> str:
     orig_name = img_path.name
     if is_icon_file(orig_name):
         return Path(ICON_FILE_NAME).name
+    is_heic = img_path.suffix.lower() in (".heic", ".heif")
+    base_name = f"{img_path.stem}.jpg" if is_heic else orig_name
     if not RENAME_FILES:
-        return orig_name
+        return base_name
     if re.match(r"^\d{6}_\d{6}-", orig_name):
-        return orig_name
+        return f"{img_path.stem}.jpg" if is_heic else orig_name
     prefix = get_rename_prefix(img_path)
-    return f"{prefix}{orig_name}"
+    return f"{prefix}{base_name}"
 
 # ---------------------------------------------------------------------------
 # Genereer HTML voor één slide-pagina
@@ -1190,10 +1232,26 @@ def process_dir(
     for i, (img, fname, name_no_ext) in enumerate(mapped_images):
         actions     = []
 
-        # Kopieer of hernoem het origineel naar de uitvoermap
+        # Kopieer of hernoem het origineel naar de uitvoermap (en converteer HEIC/HEIF naar JPEG)
+        is_heic = img.suffix.lower() in (".heic", ".heif")
         dst_img = out_dir / fname
-        if dst_img != img:
-            if img.parent == dst_img.parent:
+        if dst_img != img or is_heic:
+            if is_heic:
+                if not dst_img.exists() or FORCE_ALL:
+                    try:
+                        convert_heic_to_jpeg(img, dst_img)
+                        actions.append("heic->jpg")
+                        if img.parent == dst_img.parent and img.exists() and img != dst_img:
+                            try:
+                                img.unlink()
+                            except Exception:
+                                pass
+                        img = dst_img
+                    except Exception as e:
+                        log_bericht(f"    ⚠  Fout bij converteren HEIC '{img.name}' naar '{fname}': {e}")
+                else:
+                    img = dst_img
+            elif img.parent == dst_img.parent:
                 # Bron- en doelmap zijn hetzelfde: fysiek hernoemen
                 if not dst_img.exists():
                     try:
@@ -1484,6 +1542,14 @@ def main() -> None:
             log_bericht(f"Pillow    : ✓ (v{pil_ver})")
         except Exception:
             log_bericht("Pillow    : ✓")
+        if HAS_HEIF:
+            try:
+                import pillow_heif
+                log_bericht(f"HEIC/HEIF : ✓ (pillow-heif v{pillow_heif.__version__})")
+            except Exception:
+                log_bericht("HEIC/HEIF : ✓")
+        else:
+            log_bericht("HEIC/HEIF : ✗ not found — install with: pip install pillow-heif")
     else:
         log_bericht("Pillow    : ✗ not found — install with: pip install Pillow")
         log_bericht("            Without Pillow, original files will be used as thumbnails.")
