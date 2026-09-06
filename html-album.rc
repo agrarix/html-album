@@ -1,0 +1,34 @@
+# html-album.rc — Voorbeeld configuratiebestand
+
+PICTURES_DIR="_pictures"
+THUMBS_DIR="_thumbs"
+EXCLUDED="res"
+THUMBNAIL="140x140"
+PICTURE=""
+ICON="Agrarix-Pingu_2017.jpg"
+
+# Paden (leeg of . = huidige werkmap)
+SOURCE_DIR=""  # bijv. "Z:/WWW/domains/alm.agrarix.net/pages"
+OUTPUT_DIR=""  # bijv. "D:/TEMP/html-album/output"
+
+INDEX_FILE="index.html"
+LOG_FILE="html-album.log"
+COLUMNS="0"    # 0 = responsive flex
+ROWS="0"
+RENAME="false"
+DOWNLOAD="no"  # Download pictures : yes | no
+REVERSE="no"   # Volgorde omkeren : yes | no
+
+# Watermerk instellingen
+WATERMARK=""   # bijv. "(c) Agrarix"
+WM_FONT="Verdana"
+WM_SIZE=12
+WM_ICON_SIZE=0  # grootte voor thumbnails, 0 = uitgeschakeld
+WM_TRANSPARANCY="80%"
+WM_LOCATION=90  # percentage vanaf bovenkant (100 = onderkant)
+WM_ALLIGNMENT="center"  # left, center of right
+
+# Rclone synchronisatie
+RCLONE="no"  # Synchroniseer via rclone sync vóór albumgeneratie: yes | no
+RCLONE_SRC=""  # bijv. "G:/Mijn Drive/Album/2026_Assisi"
+RCLONE_DST=""  # bijv. "W:/domains/albums.agrarix.net/pages/2026_Assisi"

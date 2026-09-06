@@ -23,6 +23,7 @@ Desktop.ini
 _OLD-album.sh
 __html-album.sh
 
-# Configuratiebestanden
+# Configuratiebestanden (alleen standaard voorbeeld html-album.rc toestaan)
 *.rc
 *.rc~
+!html-album.rc
