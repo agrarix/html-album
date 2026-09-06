@@ -19,6 +19,7 @@ import platform
 import re
 import shutil
 import socket
+import subprocess
 import sys
 import time
 from datetime import datetime
@@ -31,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (02-09-2026 22:58)"
+VERSION = "v2 (06-09-2026 08:57)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -182,6 +183,12 @@ parser.add_argument(
     action="store_true",
     help="Disable EXIF metadata loading entirely"
 )
+parser.add_argument(
+    "--rclone",
+    nargs="*",
+    metavar=("SRC", "DST"),
+    help="Synchroniseer via 'rclone sync <SRC> <DST>' en verwerk aansluitend het album"
+)
 
 args = parser.parse_args()
 config_naam = args.config_file
@@ -191,6 +198,7 @@ CLI_RENAME = args.rename
 CLI_DOWNLOAD = args.download
 CLI_DIRECTORY = args.directory
 CLI_NO_EXIF = args.no_exif
+CLI_RCLONE = args.rclone
 
 
 def _bepaal_config_pad(naam: str) -> Path:
@@ -236,6 +244,9 @@ DEFAULTS = {
     "WM_ALLIGNMENT": "center",
     "ICON": "Agrarix-Pingu_2017.jpg",
     "NO_EXIF": "false",
+    "RCLONE": "no",
+    "RCLONE_SRC": "",
+    "RCLONE_DST": "",
 }
 
 
@@ -285,6 +296,7 @@ RENAME_FILES = CLI_RENAME or cfg.get("RENAME", "false").lower() in ("true", "1",
 DOWNLOAD_PICTURES = CLI_DOWNLOAD or cfg.get("DOWNLOAD", "no").lower() in ("true", "1", "yes")
 REVERSE_ORDER = CLI_REVERSE or cfg.get("REVERSE", "no").lower() in ("true", "1", "yes")
 DISABLE_EXIF = CLI_NO_EXIF or cfg.get("NO_EXIF", "false").lower() in ("true", "1", "yes")
+DO_RCLONE = (CLI_RCLONE is not None) or cfg.get("RCLONE", "no").lower() in ("true", "1", "yes")
 
 
 PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "_pictures"))
@@ -1262,8 +1274,70 @@ def process_dir(
 # Startpunt
 # ---------------------------------------------------------------------------
 def main() -> None:
-    global LOG_FILE_PATH
+    global LOG_FILE_PATH, SOURCE_DIR, CLI_DIRECTORY
     
+    rclone_src = ""
+    rclone_dst = ""
+    if DO_RCLONE:
+        if CLI_RCLONE and len(CLI_RCLONE) == 2:
+            rclone_src = CLI_RCLONE[0].strip()
+            rclone_dst = CLI_RCLONE[1].strip()
+        elif CLI_RCLONE and len(CLI_RCLONE) not in (0, 2):
+            print("\n❌ Error: --rclone vereist 2 argumenten: BRON en DOEL (of 0 indien geconfigureerd in .rc).")
+            sys.exit(1)
+        else:
+            rclone_src = cfg.get("RCLONE_SRC", "").strip()
+            rclone_dst = cfg.get("RCLONE_DST", "").strip()
+
+        if not rclone_src or not rclone_dst:
+            print("\n❌ Error: RCLONE is geactiveerd, maar RCLONE_SRC en/of RCLONE_DST ontbreken.")
+            print("   Geef argumenten mee via --rclone <BRON> <DOEL> of stel in via html-album.rc.")
+            sys.exit(1)
+
+        src_clean = rclone_src.rstrip("/\\")
+        dst_clean = rclone_dst.rstrip("/\\")
+        src_name = Path(src_clean).name
+        dst_name = Path(dst_clean).name
+
+        if not src_name or not dst_name or src_name != dst_name:
+            print(f"\n❌ Fout: Laatste sub-mappen van bron en doel moeten exact gelijk zijn:")
+            print(f"   Bron sub-map : '{src_name}' ({rclone_src})")
+            print(f"   Doel sub-map : '{dst_name}' ({rclone_dst})")
+            print("   Synchronisatie en albumgeneratie afgebroken.")
+            sys.exit(1)
+
+        print("═" * 50)
+        print("🚀 Start rclone sync:")
+        print(f"   Bron : {rclone_src}")
+        print(f"   Doel : {rclone_dst}")
+        print("═" * 50)
+        try:
+            cmd = ["rclone", "sync", rclone_src, rclone_dst]
+            res = subprocess.run(cmd)
+            if res.returncode != 0:
+                print(f"\n❌ Fout: rclone sync mislukt (exit code {res.returncode})")
+                print("   Albumgeneratie afgebroken.")
+                sys.exit(res.returncode)
+        except FileNotFoundError:
+            print("\n❌ Fout: 'rclone' commando niet gevonden. Controleer installatie en PATH.")
+            print("   Albumgeneratie afgebroken.")
+            sys.exit(1)
+        except Exception as exc:
+            print(f"\n❌ Fout tijdens rclone sync: {exc}")
+            print("   Albumgeneratie afgebroken.")
+            sys.exit(1)
+
+        print("✓ rclone sync succesvol voltooid.\n")
+
+        dst_path = Path(dst_clean).resolve()
+        try:
+            dst_path.relative_to(SOURCE_DIR)
+        except ValueError:
+            SOURCE_DIR = dst_path.parent
+
+        if not CLI_DIRECTORY:
+            CLI_DIRECTORY = dst_name
+
     if not SOURCE_DIR or not SOURCE_DIR.exists():
         print(f"\n❌ Source directory not found: {SOURCE_DIR}")
         print("   Adjust SOURCE_DIR in html-album.rc")
@@ -1372,6 +1446,10 @@ def main() -> None:
     log_bericht(f"DOWNLOAD      : {DOWNLOAD_PICTURES} (RC: {cfg.get('DOWNLOAD')})")
     log_bericht(f"REVERSE       : {REVERSE_ORDER} (RC: {cfg.get('REVERSE')})")
     log_bericht(f"DISABLE_EXIF  : {DISABLE_EXIF} (RC: {cfg.get('NO_EXIF')})")
+    log_bericht(f"RCLONE        : {DO_RCLONE} (RC: {cfg.get('RCLONE')})")
+    if DO_RCLONE and rclone_src:
+        log_bericht(f"  RCLONE_SRC  : {rclone_src}")
+        log_bericht(f"  RCLONE_DST  : {rclone_dst}")
     log_bericht(f"COLUMNS       : {cfg.get('COLUMNS')}")
     log_bericht(f"ROWS          : {cfg.get('ROWS')}")
     log_bericht(f"WATERMARK     : '{WATERMARK}'")

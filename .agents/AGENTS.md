@@ -48,6 +48,9 @@ html-album/
 | `WM_TRANSPARANCY`| Transparantie van het watermerk (bijv. `80%` of `0.80`)  | `"80%"`                                        |
 | `WM_LOCATION`   | Verticale positie van het watermerk (percentage)          | `90`                                           |
 | `WM_ALLIGNMENT`  | Horizontale uitlijning van het watermerk (`left`, `center`, `right`) | `"center"`                                    |
+| `RCLONE`         | Synchroniseer via `rclone sync` vóór generatie (`yes` / `no`) | `"no"`                                         |
+| `RCLONE_SRC`     | Bronlocatie voor `rclone sync` (bijv. cloud/lokale map)    | `""`                                           |
+| `RCLONE_DST`     | Doellocatie voor `rclone sync` (submap moet gelijk zijn)   | `""`                                           |
 
 ---
 

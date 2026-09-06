@@ -65,6 +65,9 @@ Alle instellingen worden gelezen uit `html-album.rc`:
 | `WM_TRANSPARANCY` | Transparantiegraad van het watermerk (bijv. `80%` of `0.80`) | `"80%"` |
 | `WM_LOCATION` | Verticale positie van het watermerk als percentage vanaf de bovenkant (bijv. `90` voor 90%) | `90` |
 | `WM_ALLIGNMENT` | Horizontale uitlijning van het watermerk (`left`, `center`, `right`) | `"center"` |
+| `RCLONE` | Bestanden synchroniseren via `rclone sync` vóór generatie (`yes` / `no`) | `no` |
+| `RCLONE_SRC` | Bronlocatie voor `rclone sync` (bijv. Google Drive/OneDrive pad) | `""` |
+| `RCLONE_DST` | Doellocatie voor `rclone sync` (laatste submap moet exact gelijk zijn aan bron) | `""` |
 
 
 ### Voorbeeld `html-album.rc`
@@ -146,10 +149,15 @@ WM_ALLIGNMENT="center"
     python html-album.py -D
     # of: python html-album.py --download
 
-    # Genereer alleen een specifieke (sub)directory
-    python html-album.py -d 2024/vakantie
-    # of: python html-album.py --directory 2024/vakantie
-    ```
+     # Genereer alleen een specifieke (sub)directory
+     python html-album.py -d 2024/vakantie
+     # of: python html-album.py --directory 2024/vakantie
+
+     # Synchroniseer via rclone sync en genereer aansluitend de gesynchroniseerde map
+     python html-album.py --rclone "G:\Mijn Drive\Album\2026_Assisi" "W:\domains\albums.agrarix.net\pages\2026_Assisi"
+     # of (indien RCLONE_SRC en RCLONE_DST in .rc geconfigureerd zijn):
+     python html-album.py --rclone
+     ```
 
 *Zonder Pillow worden de originele bestanden direct als thumbnail gelinkt.*
 
