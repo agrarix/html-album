@@ -267,8 +267,10 @@ Bij het starten van de generator wordt er tevens een voorbeeld van de geformatte
 Hier staan de openstaande punten en ideeën voor de HTML Fotoalbum Generator.
 
 ### Openstaande taken
+- [ ] Webhook trigger op fabrix: Knop/webhook op server fabrix om na de synchronisatie het album automatisch opnieuw te genereren.
 
 ### Voltooide taken
+- [x] Synchronisatie via `rclone sync` (cloud/lokaal) vóór generatie via `--rclone` en submapcontrole.
 - [x] Een watermerk met bijvoorbeeld `"(c) Fam. de Boer - Wennink"` (configureerbaar via de configuratie) onderin de foto zetten.
 - [x] Foto's hernoemen op basis van de EXIF datum & tijd (`YYMMDD_HHMMSS-<orig-name>`) via de `--rename` optie.
 - [x] `html-album.py` geschikt maken voor Linux (dual OS).
