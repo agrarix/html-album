@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (06-09-2026 16:54)"
+VERSION = "v2 (06-09-2026 16:59)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1306,15 +1306,17 @@ def main() -> None:
             print("   Synchronisatie en albumgeneratie afgebroken.")
             sys.exit(1)
 
-        print("═" * 50)
-        print("🚀 Start rclone sync:")
-        print(f"   Bron : {rclone_src}")
-        print(f"   Doel : {rclone_dst}")
-        print("═" * 50)
+        print("═" * 50, flush=True)
+        print("🚀 Start rclone sync:", flush=True)
+        print(f"   Bron : {rclone_src}", flush=True)
+        print(f"   Doel : {rclone_dst}", flush=True)
+        print("═" * 50, flush=True)
+        sys.stdout.flush()
         try:
             cmd = [
                 "rclone", "sync", rclone_src, rclone_dst,
-                "-P",
+                "-v",
+                "--stats-one-line",
                 "--exclude", f"{PICTURES_DIR_NAME}/**",
                 "--exclude", f"{THUMBS_DIR_NAME}/**",
                 "--exclude", "html-album.css",
@@ -1323,19 +1325,20 @@ def main() -> None:
             ]
             res = subprocess.run(cmd)
             if res.returncode != 0:
-                print(f"\n❌ Fout: rclone sync mislukt (exit code {res.returncode})")
-                print("   Albumgeneratie afgebroken.")
+                print(f"\n❌ Fout: rclone sync mislukt (exit code {res.returncode})", flush=True)
+                print("   Albumgeneratie afgebroken.", flush=True)
                 sys.exit(res.returncode)
         except FileNotFoundError:
-            print("\n❌ Fout: 'rclone' commando niet gevonden. Controleer installatie en PATH.")
-            print("   Albumgeneratie afgebroken.")
+            print("\n❌ Fout: 'rclone' commando niet gevonden. Controleer installatie en PATH.", flush=True)
+            print("   Albumgeneratie afgebroken.", flush=True)
             sys.exit(1)
         except Exception as exc:
-            print(f"\n❌ Fout tijdens rclone sync: {exc}")
-            print("   Albumgeneratie afgebroken.")
+            print(f"\n❌ Fout tijdens rclone sync: {exc}", flush=True)
+            print("   Albumgeneratie afgebroken.", flush=True)
             sys.exit(1)
 
-        print("✓ rclone sync succesvol voltooid.\n")
+        print("✓ rclone sync succesvol voltooid.\n", flush=True)
+        sys.stdout.flush()
 
         dst_path = Path(dst_clean).resolve()
         if SOURCE_DIR.resolve() == dst_path:
