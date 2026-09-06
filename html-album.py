@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (06-09-2026 08:57)"
+VERSION = "v2 (06-09-2026 16:52)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1312,7 +1312,14 @@ def main() -> None:
         print(f"   Doel : {rclone_dst}")
         print("═" * 50)
         try:
-            cmd = ["rclone", "sync", rclone_src, rclone_dst]
+            cmd = [
+                "rclone", "sync", rclone_src, rclone_dst,
+                "--exclude", f"{PICTURES_DIR_NAME}/**",
+                "--exclude", f"{THUMBS_DIR_NAME}/**",
+                "--exclude", "html-album.css",
+                "--exclude", f"{INDEX_FILE_NAME}",
+                "--exclude", "*.log",
+            ]
             res = subprocess.run(cmd)
             if res.returncode != 0:
                 print(f"\n❌ Fout: rclone sync mislukt (exit code {res.returncode})")
