@@ -20,6 +20,7 @@ Dit project biedt een actieve **Python-versie** (`html-album.py`, aanbevolen voo
 - **Schrijfbeveiligingscontrole**: Controleert bij de start automatisch of `INDEX_FILE` herschrijfbaar is; breekt direct af met een duidelijke foutmelding op de console en in het logbestand als het bestand ReadOnly / niet beschrijfbaar is.
 - **Configureerbare voettekst**: De footer onderaan de indexpagina is volledig aan te passen via de configuratie en ondersteunt dynamische variabelen. De geformatteerde versie wordt tijdens het starten getoond in de console en meegeschreven in het logbestand.
 - **Watermerk**: Ondersteunt een configureerbaar, semi-transparant watermerk (tekst) op slide-foto's via Pillow.
+- **Rclone synchronisatie**: Ondersteunt automatische synchronisatie van foto's vanuit cloudopslag (Google Drive, OneDrive) of lokale mappen via `rclone sync`. Verifieert vooraf dat de submappen exact overeenkomen en genereert na synchronisatie direct automatisch het album voor de betreffende map.
 
 ---
 
@@ -182,6 +183,63 @@ WM_ALLIGNMENT="center"
 4. **Bouwt slides**: Genereert individuele HTML-slidepagina's per afbeelding met inline CSS, JavaScript voor keyboardnavigatie, en een downloadknop voor de originele foto.
 5. **Bouwt index**: Genereert een modern responsive thumbnailgrid. Submappen krijgen een preview-thumbnail van de eerste foto uit die map.
 6. **Schrijft logs**: Houdt live de voortgang bij in het logbestand (`LOG_FILE`).
+
+---
+
+## 🔄 Rclone Synchronisatie (Google Drive, OneDrive, Cloud & Lokaal)
+
+Met de `--rclone` optie kan de generator foto's direct ophalen vanaf cloudopslag of een andere map vóórdat de albumgeneratie start.
+
+### Hoe het werkt
+1. **Veiligheidscontrole**: Het script controleert of de laatste submap van de bron en het doel exact overeenkomen (bijv. `.../2026_Assisi` en `.../2026_Assisi`). Als de mapnamen verschillen, breekt het script direct af met een foutmelding om verkeerde overschrijvingen te voorkomen.
+2. **Synchronisatie**: Het script voert `rclone sync <BRON> <DOEL>` uit.
+3. **Automatische albumverwerking**: Zodra `rclone sync` succesvol is voltooid, genereert het script direct automatisch het album voor die specifieke gesynchroniseerde map.
+
+### Gebruik
+- **Via de commandline**:
+  ```cmd
+  python html-album.py --rclone "G:\Mijn Drive\Album\2026_Assisi" "W:\domains\albums.agrarix.net\pages\2026_Assisi"
+  ```
+- **Via `html-album.rc`**:
+  ```shell
+  RCLONE="yes"
+  RCLONE_SRC="G:/Mijn Drive/Album/2026_Assisi"
+  RCLONE_DST="W:/domains/albums.agrarix.net/pages/2026_Assisi"
+  ```
+  Vervolgens aanroepen met:
+  ```cmd
+  python html-album.py --rclone
+  ```
+  *(of gewoon `python html-album.py` als `RCLONE="yes"` in `.rc` staat)*
+
+### Rclone installeren
+- **Windows**:
+  Installeer `rclone` via de package manager:
+  ```cmd
+  winget install Rclone.Rclone
+  ```
+  *(Herstart het terminalvenster na installatie zodat `rclone` in het PATH staat)*
+- **Linux** (bijv. op server `fabrix`):
+  ```bash
+  sudo apt install rclone
+  ```
+
+### Credentials & Authenticatie
+- **Windows met Google Drive desktop-app**:
+  Als Google Drive draait op Windows (bijvoorbeeld gekoppeld als virtuele schijfletter `G:\`), is Google Drive al lokaal geauthenticeerd. `rclone sync` leest de bestanden rechtstreeks van de schijf en heeft **geen** extra API-sleutels, OAuth-tokens of `rclone authorize` nodig.
+- **Linux (`fabrix`) of directe Cloud API verbinding**:
+  Als er op Linux direct verbinding gemaakt moet worden met een cloudremote (zoals `gdrive:Album/...`), moet rclone eenmalig geconfigureerd worden:
+  1. Start de wizard op de server:
+     ```bash
+     rclone config
+     ```
+  2. Kies `Google Drive` of `OneDrive`.
+  3. Op een headless Linux-server (zonder grafische browser) vraag je het autorisatietoken eenmalig op via een machine met browser (bijv. Windows) met het commando:
+     ```cmd
+     rclone authorize "drive"
+     ```
+     Kopieer en plak het resulterende JSON-token in de wizard op de server.
+  4. Rclone bewaart het token in `~/.config/rclone/rclone.conf` en ververst dit voortaan geheel automatisch op de achtergrond.
 
 ---
 
