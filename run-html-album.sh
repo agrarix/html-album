@@ -9,11 +9,13 @@ set -u
 export HOME="/home/maarten"
 export USER="maarten"
 export PATH="/home/maarten/bin:/home/maarten/scripts:/usr/local/bin:/usr/bin:/bin:$PATH"
+export PYTHONUNBUFFERED=1
 
 SCRIPT="/home/maarten/scripts/html-album.py"
 LOGDIR="/home/maarten/log"
 LOGFILE="${LOGDIR}/html-album-webhook.log"
 LOCKFILE="/tmp/html-album.lock"
+PIDFILE="/tmp/html-album.pid"
 
 mkdir -p "$LOGDIR"
 
@@ -43,6 +45,9 @@ run_album() {
         return 1
     fi
 
+    echo "$$" > "$PIDFILE"
+    trap 'rm -f "$PIDFILE"' EXIT
+
     echo "==============================================================================" | tee -a "$LOGFILE"
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Start html-album via webhook" | tee -a "$LOGFILE"
     echo "Host       : $(hostname)" | tee -a "$LOGFILE"
@@ -54,7 +59,7 @@ run_album() {
     echo "==============================================================================" | tee -a "$LOGFILE"
 
     cd /home/maarten
-    /usr/bin/python3 "$SCRIPT" "$CONFIG" $EXTRA_ARGS 2>&1 | tee -a "$LOGFILE"
+    /usr/bin/python3 -u "$SCRIPT" "$CONFIG" $EXTRA_ARGS 2>&1 | tee -a "$LOGFILE"
     EXIT_CODE=${PIPESTATUS[0]}
 
     echo "------------------------------------------------------------------------------" | tee -a "$LOGFILE"
