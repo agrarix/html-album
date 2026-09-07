@@ -172,18 +172,23 @@ WM_ALLIGNMENT="center"
 
 ---
 
-## 🔧 Wat doet the generator?
+## 🔧 Verwerkingsvolgorde (Wat doet de generator?)
 
-1. **Leest configuratie**: Laadt de paden uit `html-album.rc`.
-2. **Genereert bestandsstructuur**: Maakt de mappen `_pictures/` (of de geconfigureerde `PICTURES_DIR`) en `_thumbs/` aan in de `OUTPUT_DIR` (recursief per submap).
-3. **Kopieert & Schaalt**:
-   - Kopieert de originele foto naar de uitvoermap (indien bronmap en uitvoermap verschillen, en deze nog niet bestaat).
-   - Indien `PICTURE` is ingesteld, wordt de afbeelding verkleind naar deze maximale afmetingen, optioneel voorzien van een watermerk (indien `WATERMARK` is ingesteld), en opgeslagen in de map `_pictures/` (bijv. `_pictures/foto1.jpg`). De slide HTML verwijst hier direct naar.
-   - Indien `PICTURE` leeg is, wordt er geen verkleinde versie gegenereerd en verwijst de slide HTML naar de originele foto in de bovenliggende map.
-   - Genereert een thumbnail in de map `_thumbs/` die past binnen de geconfigureerde `THUMBNAIL` afmetingen met behoud van de originele beeldverhouding.
-4. **Bouwt slides**: Genereert individuele HTML-slidepagina's per afbeelding met inline CSS, JavaScript voor keyboardnavigatie, en een downloadknop voor de originele foto.
-5. **Bouwt index**: Genereert een modern responsive thumbnailgrid. Submappen krijgen een preview-thumbnail van de eerste foto uit die map.
-6. **Schrijft logs**: Houdt live de voortgang bij in het logbestand (`LOG_FILE`).
+Wanneer het script draait (optioneel voorafgegaan door `--rclone`), verloopt de verwerking strikt in deze stappen:
+
+1. **Rclone synchronisatie (optioneel)**: Indien geconfigureerd (`RCLONE=yes` of `--rclone`), worden eerst alle bestanden gesynchroniseerd vanaf cloudopslag (bijv. Google Drive) naar de lokale doeldirectory.
+2. **Configuratie & initialisatie**: Leest `html-album.rc`, controleert schrijfrechten op `INDEX_FILE`, en initialiseert logbestand en stijlen.
+3. **Mappen scannen**: Zoekt recursief naar alle ondersteunde afbeeldingen (`.jpg`, `.jpeg`, `.heic`, `.heif`) in de bronmap.
+4. **Automatische HEIC/HEIF conversie**:
+   - Converteert elk `.heic` / `.heif` bestand naar `.jpg` met behoud van volledige EXIF-metadata en automatische oriëntatie (`exif_transpose`).
+   - Hernoemt het bestand naar `.jpg`.
+   - Verwijdert het originele `.heic` bestand in de doelmap om schijfruimte te besparen en duplicaten te voorkomen.
+5. **Thumbnails & Slide-afbeeldingen**:
+   - Genereert thumbnails in `_thumbs/` passend binnen `THUMBNAIL` afmetingen.
+   - Indien `PICTURE` is ingesteld: verkleint slide-afbeelding en plaatst deze in `_pictures/`, eventueel voorzien van een watermerk (`WATERMARK`).
+6. **Slides & Navigatie**: Genereert individuele HTML-slidepagina's per foto met EXIF-data, downloadknop en navigatie.
+7. **Index & Raster**: Genereert `index.html` met responsive thumbnailgrid en preview-tegels voor submappen.
+8. **Logging**: Rapporteert alle acties live in de console en in `LOG_FILE`.
 
 ---
 
