@@ -334,41 +334,31 @@ Bij het starten van de generator wordt er tevens een voorbeeld van de geformatte
 
 ## 🪝 Webhook & Web UI (fabrix)
 
-Op de server **fabrix** (`192.168.178.40`) is een webhook geïntegreerd via `adnanh/webhook` en Nginx, waarmee het fotoalbum op afstand kan worden geactiveerd als gebruiker `maarten@fabrix`.
+Op de server **fabrix** kan het genereren van fotoalbums op afstand worden gestart via een webpagina of via een HTTP-aanroep.
 
 ### 1. Webpagina (`/var/www/html/html-album.html`)
-Via `http://fabrix/html-album.html` (ook bereikbaar via de link *"Run html-album"* op `http://fabrix/`) is een interactieve pagina beschikbaar met:
-- Dropdown selectie van aanwezige albumconfiguraties in `~/etc/*.rc` (zoals `assisi.rc`, `huis.rc`, `html-album.rc`, `album.rc`, etc.), inclusief vrije invoer.
-- Optie om alles geforceerd opnieuw te genereren (`--all`).
-- Optie voor achtergronduitvoering (`async`).
-- Knop **"▶ Start html-album"** met live statusindicatie en uitvoerlog in een terminal-venster.
-- Testknop **"🔍 Test verbinding (-V)"** om direct te verifiëren dat de webhook reageert.
+Bereikbaar via `http://192.168.178.40/html-album.html` (of via *"Run html-album"* op de hoofdpagina van fabrix):
+- **Configuratiekeuze**: Kies een albumconfiguratie uit `~/etc/*.rc` (zoals `assisi.rc`, `huis.rc`, `html-album.rc`, etc.) of voer handmatig een configuratienaam in.
+- **Opties**: Vink optioneel *Forceer alles opnieuw genereren (`--all`)* aan.
+- **Startknop**: Start het proces; live voortgang (synchronisatie, HEIC-conversie, thumbnails en paginaopbouw) wordt in real-time getoond in het ingebouwde terminal-venster met auto-scroll.
+- **Testknop**: Direct testen of de achterliggende verbinding reageert via `-V`.
 
-### 2. HTTP Webhook Endpoint
-Het endpoint kan rechtstreeks via GET of POST worden aangeroepen door externe tools, scripts, Home Assistant of curl:
+### 2. HTTP Endpoint (curl / automatisering)
+Kan direct aangeroepen worden vanuit scripts, Home Assistant of via curl:
 
 ```bash
-# Standaard album genereren via Nginx (poort 80)
+# Standaard album genereren
 curl -X POST "http://fabrix/hooks/html-album"
 
-# Specifieke configuratie draaien (bijv. Assisi met rclone)
+# Specifieke configuratie draaien (bijv. Assisi met rclone synchronisatie)
 curl -X POST "http://fabrix/hooks/html-album?config=assisi.rc"
 
 # Geforceerd alles opnieuw genereren (--all)
 curl -X POST "http://fabrix/hooks/html-album?config=assisi.rc&all=1"
 
-# Asynchroon in de achtergrond starten (direct 200 OK)
+# Asynchroon in de achtergrond starten
 curl -X POST "http://fabrix/hooks/html-album?config=assisi.rc&async=1"
-
-# Rechtstreeks op de webhook-poort (9000)
-curl -X POST "http://fabrix:9000/hooks/html-album?config=huis.rc"
 ```
-
-### 3. Technische architectuur op fabrix
-- **Service**: `/etc/systemd/system/webhook.service` draait als `User=maarten` en `Group=maarten` op `0.0.0.0:9000`.
-- **Configuratie**: `/home/maarten/etc/webhook.conf` (gesymlinkt naar `/etc/webhook.conf`), ondersteunt `-hotreload`. Zowel `html-album` als alias `html-ablum` zijn geconfigureerd.
-- **Nginx Reverse Proxy**: `/etc/nginx/sites-available/000-default.conf` stuurt `location /hooks/` door naar `http://127.0.0.1:9000/hooks/` met een timeout van 600 seconden.
-- **Runner Script**: `/home/maarten/scripts/run-html-album.sh` (symlink naar `~/html-album/run-html-album.sh`) bewaakt gelijktijdige uitvoering via `flock` (`/tmp/html-album.lock`) en logt alle uitvoer naar `~/log/html-album-webhook.log`.
 
 ---
 
