@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (08-09-2026 20:28)"
+VERSION = "v2 (08-09-2026 20:29)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1628,18 +1628,29 @@ def main() -> None:
     # Kopieer het icoon als het bestaat naar de output directory
     target_icon_name = Path(ICON_FILE_NAME).name
     pingu_src = SCRIPT_DIR / target_icon_name
-    if not pingu_src.exists():
-        for f in SCRIPT_DIR.iterdir():
+    search_dirs = [SCRIPT_DIR, Path(__file__).resolve().parent]
+    if SOURCE_DIR and SOURCE_DIR.exists():
+        search_dirs.append(SOURCE_DIR)
+    if sys.platform != "win32":
+        search_dirs.extend([Path.home() / "html-album", Path.home() / "scripts", Path.home() / "etc"])
+
+    found_icon = None
+    for sdir in search_dirs:
+        if not sdir.exists():
+            continue
+        candidate = sdir / target_icon_name
+        if candidate.exists():
+            found_icon = candidate
+            break
+        for f in sdir.iterdir():
             if f.is_file() and is_icon_file(f):
-                pingu_src = f
+                found_icon = f
                 break
-    if not pingu_src.exists() and SOURCE_DIR and SOURCE_DIR.exists():
-        pingu_src = SOURCE_DIR / target_icon_name
-        if not pingu_src.exists():
-            for f in SOURCE_DIR.iterdir():
-                if f.is_file() and is_icon_file(f):
-                    pingu_src = f
-                    break
+        if found_icon and found_icon.exists():
+            break
+
+    if found_icon:
+        pingu_src = found_icon
 
     if pingu_src.exists():
         if pingu_src.name != target_icon_name and not (pingu_src.parent / target_icon_name).exists():
