@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (08-09-2026 20:21)"
+VERSION = "v2 (08-09-2026 20:28)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -387,6 +387,8 @@ KNOWN_ICON_NAMES = {
     "agrarix-pingu_2017.jpg",
     "new_pingu_agrarix_klompen.jpg",
     "agrarix_album_64x64.png",
+    "agrarix_album.png",
+    "agrarix_album.jpg",
 }
 
 
