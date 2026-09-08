@@ -81,6 +81,7 @@ PICTURES_DIR="_pictures"
 THUMBS_DIR="_thumbs"
 EXCLUDED="res"
 THUMBNAIL="140x140"
+ICON="Agrarix_Album_64x64.png"
 SOURCE_DIR="Z:/WWW/domains/alm.agrarix.net/pages"
 OUTPUT_DIR="G:/Mijn Drive/Antigravity/html-album/output"
 INDEX_FILE="index.html"
@@ -104,6 +105,19 @@ WM_ALLIGNMENT="center"
 > - Wanneer een variabele ontbreekt of is uitgecommentarieerd in het `.rc`-bestand, valt de generator automatisch terug op de gedefinieerde standaardwaarde (zoals `_pictures` voor `PICTURES_DIR` en `_thumbs` voor `THUMBS_DIR`).
 > - Een configuratiebestand mag ook opgegeven worden zonder `.rc` extensie (bijv. `html-album huis`). Het script zoekt dan automatisch eerst naar `huis` en vervolgens naar `huis.rc`.
 > - Als een opgegeven configuratiebestand niet wordt gevonden, toont het script een waarschuwing (`WARNING: Configuratiebestand <naam> niet gevonden.`), wacht 1 seconde, en valt daarna automatisch terug op het standaard `html-album.rc` configuratiebestand.
+
+### 🖼️ Albumicoon & Favicon (`ICON`)
+
+Via de configuratiesleutel `ICON` kan een afbeelding worden ingesteld als icoon voor het album (standaard: `"Agrarix_Album_64x64.png"`).
+
+- **Favicon**: Het icoon wordt automatisch naar de hoofdmap van het album (`OUTPUT_DIR`) gekopieerd en als `<link rel="icon">` in alle pagina's opgenomen (`index.html` en individuele slidepagina's).
+- **Fallback voor lege mappen**: Als een submap geen eigen foto's bevat om als maptegel te dienen, toont de generator dit icoon als representatieve previewafbeelding.
+- **Uitgebreide zoekpaden**: Het script zoekt het icoon achtereenvolgens in:
+  1. De map van het script (`SCRIPT_DIR`)
+  2. Het symlink-doel (bijv. `/home/maarten/html-album` wanneer gestart via `~/scripts/html-album.py`)
+  3. De fotobronmap (`SOURCE_DIR`)
+  4. Bekende Linux-mappen (`~/html-album`, `~/scripts`, `~/etc`)
+- **Bescherming & herstel**: Bekende iconen (`Agrarix_Album_64x64.png`, `Agrarix-Pingu_2017.jpg`, etc.) worden nooit hernoemd door `--rename`, worden uitgesloten van de fotogalerij en worden automatisch hersteld indien er per ongeluk een datum/tijd-prefix aan was toegevoegd.
 
 ---
 

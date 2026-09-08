@@ -69,6 +69,7 @@ html-album/
 - Rclone-uitvoer (bestandsoverdrachten, aangemaakte mappen, fouten en statistieken) wordt in real-time regel voor regel gelogd naar zowel stdout als `LOG_FILE`
 - Na rclone-synchronisatie worden vervallen doelmappen die niet (meer) in de bron bestaan automatisch opgeruimd (`shutil.rmtree`), inclusief bijbehorende preview-thumbnails (`folder_*_thumb.jpg`)
 - Op Linux-systemen worden relatieve configuratiebestanden (.rc) standaard gezocht in `$HOME/etc/` in plaats van de scriptdirectory (voor dual OS ondersteuning)
+- Albumicoon & Favicon (`ICON`): Standaard `"Agrarix_Album_64x64.png"`. Automatisch gekopieerd naar `OUTPUT_DIR`, opgenomen als `<link rel="icon">` in alle pagina's en fallback voor mappen zonder foto's. Zoekt in `SCRIPT_DIR`, symlink-bron, `SOURCE_DIR` en Linux mappen (`~/html-album`, `~/scripts`, `~/etc`). Uitgesloten van EXIF-hernoeming en fotogalerij.
 
 ---
 
