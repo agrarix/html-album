@@ -204,6 +204,18 @@ Met de `--rclone` optie kan de generator foto's direct ophalen vanaf cloudopslag
 3. **Opschonen vervallen mappen**: Mappen die wel op de doellocatie aanwezig zijn maar niet (meer) in de bron bestaan (bijv. hernoemd of verwijderd in Google Drive), worden direct automatisch verwijderd inclusief eventuele restanten van gegenereerde thumbnails en slide-pagina's.
 4. **Automatische albumverwerking**: Zodra `rclone sync` en het opschonen succesvol zijn voltooid, genereert het script direct automatisch het album voor die specifieke gesynchroniseerde map.
 
+#### Voorbeeld rclone logregels in het logbestand (`LOG_FILE` / Web UI):
+```text
+[09:42:01] 🚀 Start rclone sync:
+[09:42:01]    Bron : gdrive:Albums/2026_Assisi
+[09:42:01]    Doel : /mnt/nas/WWW/domains/albums.agrarix.net/pages/2026_Assisi
+[09:42:02]    [rclone] 10-01 San_Damiano Assisi: Made directory
+[09:42:03]    [rclone] Assisi.jpg: Copied (new)
+[09:42:04]    [rclone] Transferred: 129.220 KiB / 129.220 KiB, 100%, 3.891 KiB/s, ETA 0s
+[09:42:04] ✓ rclone sync succesvol voltooid.
+[09:42:04]    🧹 Vervallen map verwijderd (niet in bron): 01-09
+```
+
 ### Gebruik
 - **Via de commandline**:
   ```cmd

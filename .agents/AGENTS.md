@@ -65,6 +65,9 @@ html-album/
 - Slide-pagina's tonen het volgnummer en het totale aantal foto's in de map in het formaat `(volgnummer/aantal)` (bijv. `(2/10)`) direct achter de mapnaam (breadcrumb)
 - Submappen krijgen een foldertegel met voorbeeldafbeelding (eerste foto uit submap)
 - Recursieve verwerking van submappen (elk krijgt eigen `index.html` en navigatie)
+- Rclone synchronisatie (`RCLONE=yes` of `--rclone`) synchroniseert bestanden en (lege) submappen (`--create-empty-src-dirs`) vanuit cloud/lokaal naar doellocatie vóór generatie
+- Rclone-uitvoer (bestandsoverdrachten, aangemaakte mappen, fouten en statistieken) wordt in real-time regel voor regel gelogd naar zowel stdout als `LOG_FILE`
+- Na rclone-synchronisatie worden vervallen doelmappen die niet (meer) in de bron bestaan automatisch opgeruimd (`shutil.rmtree`), inclusief bijbehorende preview-thumbnails (`folder_*_thumb.jpg`)
 - Op Linux-systemen worden relatieve configuratiebestanden (.rc) standaard gezocht in `$HOME/etc/` in plaats van de scriptdirectory (voor dual OS ondersteuning)
 
 ---
