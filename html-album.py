@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (07-09-2026 22:48)"
+VERSION = "v2 (08-09-2026 09:23)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1334,6 +1334,14 @@ def process_dir(
 def main() -> None:
     global LOG_FILE_PATH, SOURCE_DIR, CLI_DIRECTORY
     
+    if LOG_FILE_PATH:
+        LOG_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with open(LOG_FILE_PATH, "w", encoding="utf-8") as lf:
+                lf.write(f"=== Album Generator Log {datetime.now().strftime('%d-%m-%Y %H:%M:%S')} ===\n")
+        except Exception as exc:
+            print(f"Kon logbestand niet maken op {LOG_FILE_PATH}: {exc}")
+
     rclone_src = ""
     rclone_dst = ""
     if DO_RCLONE:
@@ -1341,15 +1349,15 @@ def main() -> None:
             rclone_src = CLI_RCLONE[0].strip()
             rclone_dst = CLI_RCLONE[1].strip()
         elif CLI_RCLONE and len(CLI_RCLONE) not in (0, 2):
-            print("\n❌ Error: --rclone vereist 2 argumenten: BRON en DOEL (of 0 indien geconfigureerd in .rc).")
+            log_bericht("\n❌ Error: --rclone vereist 2 argumenten: BRON en DOEL (of 0 indien geconfigureerd in .rc).")
             sys.exit(1)
         else:
             rclone_src = cfg.get("RCLONE_SRC", "").strip()
             rclone_dst = cfg.get("RCLONE_DST", "").strip()
 
         if not rclone_src or not rclone_dst:
-            print("\n❌ Error: RCLONE is geactiveerd, maar RCLONE_SRC en/of RCLONE_DST ontbreken.")
-            print("   Geef argumenten mee via --rclone <BRON> <DOEL> of stel in via html-album.rc.")
+            log_bericht("\n❌ Error: RCLONE is geactiveerd, maar RCLONE_SRC en/of RCLONE_DST ontbreken.")
+            log_bericht("   Geef argumenten mee via --rclone <BRON> <DOEL> of stel in via html-album.rc.")
             sys.exit(1)
 
         src_clean = rclone_src.rstrip("/\\")
@@ -1358,45 +1366,58 @@ def main() -> None:
         dst_name = Path(dst_clean).name
 
         if not src_name or not dst_name or src_name != dst_name:
-            print(f"\n❌ Fout: Laatste sub-mappen van bron en doel moeten exact gelijk zijn:")
-            print(f"   Bron sub-map : '{src_name}' ({rclone_src})")
-            print(f"   Doel sub-map : '{dst_name}' ({rclone_dst})")
-            print("   Synchronisatie en albumgeneratie afgebroken.")
+            log_bericht(f"\n❌ Fout: Laatste sub-mappen van bron en doel moeten exact gelijk zijn:")
+            log_bericht(f"   Bron sub-map : '{src_name}' ({rclone_src})")
+            log_bericht(f"   Doel sub-map : '{dst_name}' ({rclone_dst})")
+            log_bericht("   Synchronisatie en albumgeneratie afgebroken.")
             sys.exit(1)
 
-        print("═" * 50, flush=True)
-        print("🚀 Start rclone sync:", flush=True)
-        print(f"   Bron : {rclone_src}", flush=True)
-        print(f"   Doel : {rclone_dst}", flush=True)
-        print("═" * 50, flush=True)
-        sys.stdout.flush()
+        log_bericht("═" * 50)
+        log_bericht("🚀 Start rclone sync:")
+        log_bericht(f"   Bron : {rclone_src}")
+        log_bericht(f"   Doel : {rclone_dst}")
+        log_bericht("═" * 50)
         try:
             cmd = [
                 "rclone", "sync", rclone_src, rclone_dst,
                 "-v",
-                "--stats-one-line",
-                "--exclude", f"{PICTURES_DIR_NAME}/**",
-                "--exclude", f"{THUMBS_DIR_NAME}/**",
-                "--exclude", "html-album.css",
-                "--exclude", f"{INDEX_FILE_NAME}",
-                "--exclude", "*.log",
+                "--create-empty-src-dirs",
+                "--exclude", f"**/{PICTURES_DIR_NAME}/**",
+                "--exclude", f"**/{THUMBS_DIR_NAME}/**",
+                "--exclude", "**/html-album.css",
+                "--exclude", f"**/{INDEX_FILE_NAME}",
+                "--exclude", "**/*.log",
             ]
-            res = subprocess.run(cmd)
-            if res.returncode != 0:
-                print(f"\n❌ Fout: rclone sync mislukt (exit code {res.returncode})", flush=True)
-                print("   Albumgeneratie afgebroken.", flush=True)
-                sys.exit(res.returncode)
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                universal_newlines=True,
+                encoding="utf-8",
+                errors="replace",
+            )
+            if proc.stdout:
+                for raw_line in proc.stdout:
+                    line = raw_line.strip()
+                    if line:
+                        log_bericht(f"   [rclone] {line}")
+            ret = proc.wait()
+            if ret != 0:
+                log_bericht(f"\n❌ Fout: rclone sync mislukt (exit code {ret})")
+                log_bericht("   Albumgeneratie afgebroken.")
+                sys.exit(ret)
         except FileNotFoundError:
-            print("\n❌ Fout: 'rclone' commando niet gevonden. Controleer installatie en PATH.", flush=True)
-            print("   Albumgeneratie afgebroken.", flush=True)
+            log_bericht("\n❌ Fout: 'rclone' commando niet gevonden. Controleer installatie en PATH.")
+            log_bericht("   Albumgeneratie afgebroken.")
             sys.exit(1)
         except Exception as exc:
-            print(f"\n❌ Fout tijdens rclone sync: {exc}", flush=True)
-            print("   Albumgeneratie afgebroken.", flush=True)
+            log_bericht(f"\n❌ Fout tijdens rclone sync: {exc}")
+            log_bericht("   Albumgeneratie afgebroken.")
             sys.exit(1)
 
-        print("✓ rclone sync succesvol voltooid.\n", flush=True)
-        sys.stdout.flush()
+        log_bericht("✓ rclone sync succesvol voltooid.\n")
 
         dst_path = Path(dst_clean).resolve()
         if SOURCE_DIR.resolve() == dst_path:
@@ -1421,16 +1442,8 @@ def main() -> None:
         print("\n❌ OUTPUT_DIR is not set")
         sys.exit(1)
         
-    # Maak output directory alvast aan voor logbestand
+    # Maak output directory aan indien nodig
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-    if LOG_FILE_PATH:
-        LOG_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            with open(LOG_FILE_PATH, "w", encoding="utf-8") as lf:
-                lf.write(f"=== Album Generator Log {datetime.now().strftime('%d-%m-%Y %H:%M:%S')} ===\n")
-        except Exception as exc:
-            print(f"Kon logbestand niet maken op {LOG_FILE_PATH}: {exc}")
 
     # Formateer footer preview
     now = datetime.now()
