@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (08-09-2026 09:23)"
+VERSION = "v2 (08-09-2026 09:47)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1420,6 +1420,55 @@ def main() -> None:
         log_bericht("✓ rclone sync succesvol voltooid.\n")
 
         dst_path = Path(dst_clean).resolve()
+
+        # Controleer en verwijder vervallen mappen in het doel die niet (meer) in de bron bestaan
+        if dst_path.exists():
+            try:
+                lsf_cmd = ["rclone", "lsf", "--dirs-only", "-R", rclone_src]
+                lsf_res = subprocess.run(
+                    lsf_cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
+                )
+                if lsf_res.returncode == 0:
+                    src_dirs = {
+                        line.strip().rstrip("/\\").replace("\\", "/")
+                        for line in lsf_res.stdout.splitlines()
+                        if line.strip()
+                    }
+                    # Zoek alle submappen in dst_path gesorteerd op diepte (diepste eerst)
+                    for item in sorted(dst_path.rglob("*"), key=lambda p: len(p.parts), reverse=True):
+                        if not item.exists() or not item.is_dir():
+                            continue
+                        if item.name.startswith(".") or item.name.lower() in EXCLUDED:
+                            continue
+                        if item.name == PICTURES_DIR_NAME or item.name == THUMBS_DIR_NAME:
+                            continue
+                        if any(part in (PICTURES_DIR_NAME, THUMBS_DIR_NAME) for part in item.parts):
+                            continue
+                        try:
+                            rel = item.relative_to(dst_path)
+                            rel_str = str(rel).replace("\\", "/").rstrip("/")
+                        except ValueError:
+                            continue
+
+                        if rel_str and rel_str not in src_dirs:
+                            try:
+                                # Verwijder ook bijbehorende preview-thumbnail van deze map in bovenliggende _thumbs
+                                for ft in (item.parent / THUMBS_DIR_NAME).glob(f"folder_{item.name}_*"):
+                                    try:
+                                        ft.unlink()
+                                    except Exception:
+                                        pass
+                                shutil.rmtree(item)
+                                log_bericht(f"   🧹 Vervallen map verwijderd (niet in bron): {rel_str}")
+                            except Exception as rm_err:
+                                log_bericht(f"   ⚠ Kon vervallen map niet verwijderen ({rel_str}): {rm_err}")
+            except Exception as lsf_err:
+                log_bericht(f"   ⚠ Kon bronmappen niet verifiëren via rclone lsf: {lsf_err}")
         if SOURCE_DIR.resolve() == dst_path:
             # SOURCE_DIR is al exact de doelmap zelf, geen submap filter nodig
             pass

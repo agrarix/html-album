@@ -21,7 +21,7 @@ Dit project biedt een actieve **Python-versie** (`html-album.py`, aanbevolen voo
 - **Configureerbare voettekst**: De footer onderaan de indexpagina is volledig aan te passen via de configuratie en ondersteunt dynamische variabelen. De geformatteerde versie wordt tijdens het starten getoond in de console en meegeschreven in het logbestand.
 - **Watermerk**: Ondersteunt een configureerbaar, semi-transparant watermerk (tekst) op slide-foto's via Pillow.
 - **Automatische HEIC naar JPEG conversie**: Ondersteunt `.heic` en `.heif` (o.a. iPhone/Apple foto's). Converteert deze automatisch naar `.jpg` met behoud van alle EXIF-metadata (oriëntatie, opnamedatum, camera-instellingen) via `pillow-heif`.
-- **Rclone synchronisatie**: Ondersteunt automatische synchronisatie van foto's vanuit cloudopslag (Google Drive, OneDrive) of lokale mappen via `rclone sync`. Verifieert vooraf dat de submappen exact overeenkomen, neemt ook lege submappen mee (`--create-empty-src-dirs`), logt de volledige synchronisatieuitvoer in real-time naar het geconfigureerde logbestand en genereert na synchronisatie direct automatisch het album voor de betreffende map.
+- **Rclone synchronisatie**: Ondersteunt automatische synchronisatie van foto's vanuit cloudopslag (Google Drive, OneDrive) of lokale mappen via `rclone sync`. Verifieert vooraf dat de submappen exact overeenkomen, neemt ook lege submappen mee (`--create-empty-src-dirs`), schoont automatisch vervallen doelmappen op die niet meer in de bron bestaan, logt de volledige synchronisatieuitvoer in real-time naar het geconfigureerde logbestand en genereert na synchronisatie direct automatisch het album voor de betreffende map.
 - **Webhook & Web UI integratie**: Bevat een HTTP webhook endpoint (`/hooks/html-album`) en een interactieve webpagina (`html-album.html`) op server `fabrix` om de generatie op afstand als `maarten@fabrix` te activeren (met configuratieselectie, opties voor `--all` en `async`, en live loguitvoer).
 
 ---
@@ -201,7 +201,8 @@ Met de `--rclone` optie kan de generator foto's direct ophalen vanaf cloudopslag
 ### Hoe het werkt
 1. **Veiligheidscontrole**: Het script controleert of de laatste submap van de bron en het doel exact overeenkomen (bijv. `.../2026_Assisi` en `.../2026_Assisi`). Als de mapnamen verschillen, breekt het script direct af met een foutmelding om verkeerde overschrijvingen te voorkomen.
 2. **Synchronisatie & Logging**: Het script voert `rclone sync <BRON> <DOEL>` uit met `--create-empty-src-dirs` (zodat ook nieuw aangemaakte lege submappen gesynchroniseerd worden). Alle overdrachten, aangemaakte mappen en transferstatistieken worden regel voor regel in real-time weggeschreven naar het geconfigureerde `LOG_FILE` en getoond op het scherm/de webhook interface.
-3. **Automatische albumverwerking**: Zodra `rclone sync` succesvol is voltooid, genereert het script direct automatisch het album voor die specifieke gesynchroniseerde map.
+3. **Opschonen vervallen mappen**: Mappen die wel op de doellocatie aanwezig zijn maar niet (meer) in de bron bestaan (bijv. hernoemd of verwijderd in Google Drive), worden direct automatisch verwijderd inclusief eventuele restanten van gegenereerde thumbnails en slide-pagina's.
+4. **Automatische albumverwerking**: Zodra `rclone sync` en het opschonen succesvol zijn voltooid, genereert het script direct automatisch het album voor die specifieke gesynchroniseerde map.
 
 ### Gebruik
 - **Via de commandline**:
