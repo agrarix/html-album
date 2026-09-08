@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (08-09-2026 09:47)"
+VERSION = "v2 (08-09-2026 20:21)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -249,7 +249,7 @@ DEFAULTS = {
     "WM_TRANSPARANCY": "80%",
     "WM_LOCATION": "90",
     "WM_ALLIGNMENT": "center",
-    "ICON": "Agrarix-Pingu_2017.jpg",
+    "ICON": "Agrarix_Album_64x64.png",
     "NO_EXIF": "false",
     "RCLONE": "no",
     "RCLONE_SRC": "",
@@ -309,7 +309,7 @@ DO_RCLONE = (CLI_RCLONE is not None) or cfg.get("RCLONE", "no").lower() in ("tru
 PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "_pictures"))
 THUMBS_DIR_NAME: str = cfg["THUMBS_DIR"]
 INDEX_FILE_NAME: str = cfg["INDEX_FILE"]
-_raw_icon = cfg.get("ICON", "Agrarix-Pingu_2017.jpg").strip().strip('"').strip("'")
+_raw_icon = cfg.get("ICON", "Agrarix_Album_64x64.png").strip().strip('"').strip("'")
 ICON_FILE_NAME: str = Path(_raw_icon).name
 SOURCE_DIR_RAW = os.path.expandvars(cfg.get("SOURCE_DIR", "")).strip()
 OUTPUT_DIR_RAW = os.path.expandvars(cfg.get("OUTPUT_DIR", "")).strip()
@@ -386,6 +386,7 @@ IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".heic", ".heif"}
 KNOWN_ICON_NAMES = {
     "agrarix-pingu_2017.jpg",
     "new_pingu_agrarix_klompen.jpg",
+    "agrarix_album_64x64.png",
 }
 
 

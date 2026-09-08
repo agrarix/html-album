@@ -53,7 +53,7 @@ Alle instellingen worden gelezen uit `html-album.rc`:
 | `THUMBS_DIR` | Naam van de submap voor de thumbnails | `_thumbs` |
 | `THUMBNAIL` | Grootte van thumbnails (notatie: `breedtexhoogte`) | `140x140` |
 | `PICTURE` | Maximale grootte van slide-afbeeldingen (leeg = originele grootte) | `""` |
-| `ICON` | Bestandsnaam van het albumicoon / favicon (wordt nooit hernoemd en uitgesloten van de galerij) | `"Agrarix-Pingu_2017.jpg"` |
+| `ICON` | Bestandsnaam van het albumicoon / favicon (wordt nooit hernoemd en uitgesloten van de galerij) | `"Agrarix_Album_64x64.png"` |
 | `LOG_FILE` | Pad/naam van het logbestand (relatief aan script-dir, of $HOME/log op Linux) | `html-album.log` |
 | `EXCLUDED` | Mapnamen die volledig genegeerd moeten worden | `["res"]` |
 | `COLUMNS` | Vaste hoeveelheid kolommen in het raster (0 = auto-responsive flex) | `0` |
