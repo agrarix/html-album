@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (02-10-2026 21:34)"
+VERSION = "v2 (02-10-2026 21:58)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1117,13 +1117,8 @@ def generate_index_html(
             thumb_tag = f'<img src="{THUMBS_DIR_NAME}/folder_{dname}_{first_img_stem}_thumb.jpg" alt="{dname}" loading="lazy">'
             label = f"\U0001f4c1 {dname}"
         else:
-            pingu_icon_path = OUTPUT_DIR / ICON_FILE_NAME
-            if pingu_icon_path.exists():
-                thumb_tag = f'<img src="{relative_path_to_root}{ICON_FILE_NAME}" alt="{dname}" loading="lazy">'
-                label     = f"\U0001f4c1 {dname}"
-            else:
-                thumb_tag = '<div class="folder-icon">\U0001f4c1</div>'
-                label     = dname
+            thumb_tag = '<div class="folder-icon">\U0001f4c1</div>'
+            label     = f"\U0001f4c1 {dname}"
 
         dir_cells.append(
             f'        <div class="thumb-cell folder">\n'

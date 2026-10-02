@@ -168,7 +168,7 @@ a:hover { color: #000; text-decoration: underline; }
 .thumb-cell.folder a { color: #0000ee; }
 .thumb-cell.folder a:visited { color: #551a8b; }
 .thumb-cell.folder .thumb-label { font-weight: bold; font-size: 12px; text-decoration: underline; }
-.folder-icon { font-size: 120px; line-height: 450px; }
+.folder-icon { font-size: 80px; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; line-height: normal; user-select: none; }
 
 /* Map-foto aanduiding */
 .thumb-cell.map-foto { border-color: #4b86db; background: #f0f4fc; }

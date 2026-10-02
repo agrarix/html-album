@@ -110,8 +110,7 @@ WM_ALLIGNMENT="center"
 
 Via de configuratiesleutel `ICON` kan een afbeelding worden ingesteld als icoon voor het album (standaard: `"Agrarix_Album_64x64.png"`).
 
-- **Favicon**: Het icoon wordt automatisch naar de hoofdmap van het album (`OUTPUT_DIR`) gekopieerd en als `<link rel="icon">` in alle pagina's opgenomen (`index.html` en individuele slidepagina's).
-- **Fallback voor lege mappen**: Als een submap geen eigen foto's bevat om als maptegel te dienen, toont de generator dit icoon als representatieve previewafbeelding.
+- **Favicon**: Het icoon wordt automatisch naar de hoofdmap van het album (`OUTPUT_DIR`) gekopieerd en als `<link rel="icon">` in alle pagina's opgenomen (`index.html` en individuele slidepagina's). Mappen zonder foto's tonen standaard het neutrale map-icoon (📁).
 - **Uitgebreide zoekpaden**: Het script zoekt het icoon achtereenvolgens in:
   1. De map van het script (`SCRIPT_DIR`)
   2. Het symlink-doel (bijv. `/home/maarten/html-album` wanneer gestart via `~/scripts/html-album.py`)
