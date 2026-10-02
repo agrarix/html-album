@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (02-10-2026 21:58)"
+VERSION = "v2 (02-10-2026 22:20)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1292,7 +1292,7 @@ def process_dir(
     # Bouw kruimelpad (breadcrumbs)
     rel_path = src_dir.relative_to(SOURCE_DIR)
     root_name = SOURCE_DIR.name
-    root_display = f"Photo album : {root_name}"
+    root_display = f"Album: {root_name}"
     
     if rel_path == Path('.'):
         breadcrumb_html = f'<a href="{INDEX_FILE_NAME}">{root_display}</a>'
