@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (02-10-2026 22:20)"
+VERSION = "v2 (02-10-2026 22:23)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -196,6 +196,12 @@ parser.add_argument(
     metavar=("SRC", "DST"),
     help="Synchroniseer via 'rclone sync <SRC> <DST>' en verwerk aansluitend het album"
 )
+parser.add_argument(
+    "--no-rclone", "--norclone",
+    dest="no_rclone",
+    action="store_true",
+    help="Schakel rclone synchronisatie uit (overrulet RCLONE in config)"
+)
 
 args = parser.parse_args()
 config_naam = args.config_file
@@ -206,6 +212,7 @@ CLI_DOWNLOAD = args.download
 CLI_DIRECTORY = args.directory
 CLI_NO_EXIF = args.no_exif
 CLI_RCLONE = args.rclone
+CLI_NO_RCLONE = args.no_rclone
 
 
 def _bepaal_config_pad(naam: str) -> Path:
@@ -303,7 +310,7 @@ RENAME_FILES = CLI_RENAME or cfg.get("RENAME", "false").lower() in ("true", "1",
 DOWNLOAD_PICTURES = CLI_DOWNLOAD or cfg.get("DOWNLOAD", "no").lower() in ("true", "1", "yes")
 REVERSE_ORDER = CLI_REVERSE or cfg.get("REVERSE", "no").lower() in ("true", "1", "yes")
 DISABLE_EXIF = CLI_NO_EXIF or cfg.get("NO_EXIF", "false").lower() in ("true", "1", "yes")
-DO_RCLONE = (CLI_RCLONE is not None) or cfg.get("RCLONE", "no").lower() in ("true", "1", "yes")
+DO_RCLONE = False if CLI_NO_RCLONE else ((CLI_RCLONE is not None) or cfg.get("RCLONE", "no").lower() in ("true", "1", "yes"))
 
 
 PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "_pictures"))

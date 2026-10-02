@@ -174,6 +174,9 @@ Via de configuratiesleutel `ICON` kan een afbeelding worden ingesteld als icoon 
      python html-album.py --rclone "G:\Mijn Drive\Album\2026_Assisi" "W:\domains\albums.agrarix.net\pages\2026_Assisi"
      # of (indien RCLONE_SRC en RCLONE_DST in .rc geconfigureerd zijn):
      python html-album.py --rclone
+
+     # Sla rclone synchronisatie over (overrulet RCLONE=yes in html-album.rc)
+     python html-album.py --no-rclone
      ```
 
 *Zonder Pillow worden de originele bestanden direct als thumbnail gelinkt.*
@@ -244,7 +247,7 @@ Met de `--rclone` optie kan de generator foto's direct ophalen vanaf cloudopslag
   ```cmd
   python html-album.py --rclone
   ```
-  *(of gewoon `python html-album.py` als `RCLONE="yes"` in `.rc` staat)*
+  *(of gewoon `python html-album.py` als `RCLONE="yes"` in `.rc` staat; gebruik `--no-rclone` om synchronisatie te forceren over te slaan)*
 
 ### 📦 Installatie van Rclone
 - **Windows**:
