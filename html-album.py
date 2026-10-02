@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (08-09-2026 20:33)"
+VERSION = "v2 (02-10-2026 21:34)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -660,14 +660,44 @@ def convert_heic_to_jpeg(src_path: Path, dst_path: Path) -> None:
     """Converteert een HEIC/HEIF afbeelding naar JPEG met behoud van EXIF-metadata."""
     if HAS_HEIF:
         with safe_image_open(src_path) as im:
-            im = ImageOps.exif_transpose(im)
+            exif_obj = im.getexif() if hasattr(im, "getexif") else None
             exif_bytes = im.info.get("exif")
+
+            im = ImageOps.exif_transpose(im)
             if im.mode not in ("RGB", "L"):
                 im = im.convert("RGB")
-            if exif_bytes:
-                im.save(dst_path, "JPEG", quality=95, optimize=True, exif=exif_bytes)
+
+            out_exif = im.info.get("exif") or exif_bytes or exif_obj
+            if out_exif:
+                try:
+                    im.save(dst_path, "JPEG", quality=95, optimize=True, exif=out_exif)
+                except Exception:
+                    im.save(dst_path, "JPEG", quality=95, optimize=True)
             else:
                 im.save(dst_path, "JPEG", quality=95, optimize=True)
+
+        # Behoud bestandskenmerken (mtime, atime) van het bronbestand
+        try:
+            shutil.copystat(src_path, dst_path)
+        except Exception:
+            pass
+
+        # Indien DateTimeOriginal in EXIF aanwezig is, synchroniseer mtime naar opnametijd
+        try:
+            exif_info = get_exif_data(dst_path)
+            dt_orig = exif_info.get("DateTimeOriginal") or exif_info.get("DateTimeDigitized") or exif_info.get("DateTime")
+            if dt_orig:
+                clean_dt = str(dt_orig).strip().strip("\x00")
+                for fmt in ("%Y:%m:%d %H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y/%m/%d %H:%M:%S"):
+                    try:
+                        dt = datetime.strptime(clean_dt, fmt)
+                        ts = dt.timestamp()
+                        os.utime(dst_path, (ts, ts))
+                        break
+                    except Exception:
+                        pass
+        except Exception:
+            pass
         return
 
     # Fallback via externe command-line tools indien beschikbaar
@@ -679,6 +709,10 @@ def convert_heic_to_jpeg(src_path: Path, dst_path: Path) -> None:
         try:
             res = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             if res.returncode == 0 and dst_path.exists():
+                try:
+                    shutil.copystat(src_path, dst_path)
+                except Exception:
+                    pass
                 return
         except Exception:
             continue
@@ -716,17 +750,66 @@ def get_exif_data(img_path: Path) -> dict:
         return {}
     try:
         with safe_image_open(img_path) as img:
+            data = {}
             exif = None
-            if hasattr(img, "_getexif"):
-                exif = img._getexif()
-            if not exif and hasattr(img, "getexif"):
-                exif = img.getexif()
+            if hasattr(img, "getexif"):
+                try:
+                    exif = img.getexif()
+                except Exception:
+                    exif = None
+            if not exif and hasattr(img, "_getexif"):
+                try:
+                    exif = img._getexif()
+                except Exception:
+                    exif = None
             if not exif:
                 return {}
-            data = {}
-            for tag, val in exif.items():
-                tag_name = ExifTags.TAGS.get(tag, tag)
-                data[tag_name] = val
+
+            if isinstance(exif, dict):
+                for tag, val in exif.items():
+                    tag_name = ExifTags.TAGS.get(tag, tag)
+                    data[tag_name] = val
+            else:
+                for tag, val in exif.items():
+                    tag_name = ExifTags.TAGS.get(tag, tag)
+                    data[tag_name] = val
+
+                # Lees Exif SubIFD (tag 0x8769 / ExifTags.IFD.Exif) voor o.a. DateTimeOriginal
+                try:
+                    ifd_code = getattr(ExifTags.IFD, "Exif", 0x8769)
+                    ifd_exif = exif.get_ifd(ifd_code)
+                    if ifd_exif:
+                        for tag, val in ifd_exif.items():
+                            tag_name = ExifTags.TAGS.get(tag, tag)
+                            data[tag_name] = val
+                except Exception:
+                    pass
+
+                # Lees GPS SubIFD (tag 0x8825 / ExifTags.IFD.GPSInfo)
+                try:
+                    gps_code = getattr(ExifTags.IFD, "GPSInfo", 0x8825)
+                    ifd_gps = exif.get_ifd(gps_code)
+                    if ifd_gps:
+                        gps_data = {}
+                        for tag, val in ifd_gps.items():
+                            tag_name = ExifTags.GPSTAGS.get(tag, tag)
+                            gps_data[tag_name] = val
+                        data["GPSInfo"] = gps_data
+                except Exception:
+                    pass
+
+            # Fallback via legacy _getexif() indien aanwezig en DateTimeOriginal nog ontbreekt
+            if "DateTimeOriginal" not in data and hasattr(img, "_getexif"):
+                try:
+                    legacy_exif = img._getexif()
+                    if legacy_exif:
+                        for tag, val in legacy_exif.items():
+                            tag_name = ExifTags.TAGS.get(tag, tag)
+                            if tag_name not in data:
+                                data[tag_name] = val
+                except Exception:
+                    pass
+
             return data
     except Exception:
         return {}
@@ -750,26 +833,40 @@ def get_formatted_exif(img_path: Path) -> str:
             parts.append(f"📷 {model_str}")
             
     # Datum / Tijd
-    dt_orig = raw_exif.get("DateTimeOriginal")
+    dt_orig = raw_exif.get("DateTimeOriginal") or raw_exif.get("DateTimeDigitized") or raw_exif.get("DateTime")
     if dt_orig:
-        try:
-            dt = datetime.strptime(str(dt_orig).strip(), "%Y:%m:%d %H:%M:%S")
-            parts.append(f"📅 {dt.strftime('%d-%m-%Y %H:%M')}")
-        except Exception:
-            parts.append(f"📅 {str(dt_orig).strip()}")
+        clean_dt = str(dt_orig).strip().strip("\x00")
+        formatted = None
+        for fmt in ("%Y:%m:%d %H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y/%m/%d %H:%M:%S"):
+            try:
+                dt = datetime.strptime(clean_dt, fmt)
+                formatted = f"📅 {dt.strftime('%d-%m-%Y %H:%M')}"
+                break
+            except Exception:
+                pass
+        if formatted:
+            parts.append(formatted)
+        else:
+            parts.append(f"📅 {clean_dt}")
             
     return "  •  ".join(parts)
 
 def get_rename_prefix(img_path: Path) -> str:
     """Haalt de EXIF datum-tijd (of mtime) op en returnt YYMMDD_HHMMSS-."""
     exif = get_exif_data(img_path)
-    dt_orig = exif.get("DateTimeOriginal")
+    dt_orig = exif.get("DateTimeOriginal") or exif.get("DateTimeDigitized") or exif.get("DateTime")
     if dt_orig:
-        try:
-            dt = datetime.strptime(str(dt_orig).strip(), "%Y:%m:%d %H:%M:%S")
-            return dt.strftime("%y%m%d_%H%M%S-")
-        except Exception:
-            pass
+        clean_dt = str(dt_orig).strip().strip("\x00")
+        for fmt in ("%Y:%m:%d %H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y/%m/%d %H:%M:%S"):
+            try:
+                dt = datetime.strptime(clean_dt, fmt)
+                return dt.strftime("%y%m%d_%H%M%S-")
+            except Exception:
+                pass
+    # Behoud bestaande datumprefix als die al aanwezig is en er geen EXIF beschikbaar is
+    m = re.match(r"^(\d{6}_\d{6}-)", img_path.name)
+    if m:
+        return m.group(1)
     try:
         mtime = img_path.stat().st_mtime
         dt = datetime.fromtimestamp(mtime)
@@ -782,13 +879,15 @@ def get_new_filename(img_path: Path) -> str:
     if is_icon_file(orig_name):
         return Path(ICON_FILE_NAME).name
     is_heic = img_path.suffix.lower() in (".heic", ".heif")
-    base_name = f"{img_path.stem}.jpg" if is_heic else orig_name
     if not RENAME_FILES:
-        return base_name
-    if re.match(r"^\d{6}_\d{6}-", orig_name):
         return f"{img_path.stem}.jpg" if is_heic else orig_name
+
     prefix = get_rename_prefix(img_path)
-    return f"{prefix}{base_name}"
+    clean_stem = re.sub(r"^\d{6}_\d{6}-", "", img_path.stem)
+    base_name = f"{clean_stem}.jpg" if is_heic else f"{clean_stem}{img_path.suffix}"
+    if prefix:
+        return f"{prefix}{base_name}"
+    return f"{img_path.stem}.jpg" if is_heic else orig_name
 
 # ---------------------------------------------------------------------------
 # Genereer HTML voor één slide-pagina
