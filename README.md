@@ -14,7 +14,8 @@ Dit project biedt een actieve **Python-versie** (`html-album.py`, aanbevolen voo
 - **Downloadknop**: Slide-pagina's bevatten optioneel een downloadknop met icoon om de originele foto in volledige resolutie rechtstreeks te downloaden (configureerbaar via `DOWNLOAD`).
 - **EXIF-metadata**: Leest en toont automatisch camera-instellingen (cameramodel, opnamedatum, sluitertijd, diafragma, ISO en brandpuntsafstand) op de slide-pagina's indien beschikbaar.
 - **Gescheiden mappen**: Originele foto's blijven onaangetast; de complete website wordt gegenereerd in de geconfigureerde `OUTPUT_DIR`.
-- **Preview thumbnails**: Submappen worden op de hoofdpagina getoond met de eerste foto uit die submap als preview.
+- **Preview thumbnails**: Submappen worden op de hoofdpagina getoond met de eerste foto uit die submap als preview, bepaald op basis van de definitieve (chronologische/EXIF) doelbestandsnaam. Eventuele verouderde folder-thumbnails in `_thumbs/` worden bij een wijziging automatisch opgeruimd.
+- **Synchrone sortering**: Slide-pagina's (navigatie met pijltjestoetsen `←` / `→` en foto-tellers `(1/N)`) en het raster op `index.html` gebruiken exact dezelfde consistente sorteervolgorde op doelbestandsnaam. De eerste foto in de map is gegarandeerd foto `(1/N)` en tevens de preview op de bovenliggende indexpagina.
 - **Mobielvriendelijk**: Volledige viewport-ondersteuning voor correcte schaling op mobiel, grotere tikbare navigatieknoppen, en een raster dat op mobiel automatisch schaalt naar 2 flexibele kolommen. Tevens zijn de breadcrumbs geoptimaliseerd voor kleine schermen door het weglaten van "Album:" op subpagina's en het toestaan van automatische tekstterugloop (wrapping) op afbreekstreepjes en slashes.
 - **Logbestand**: Schrijft gedetailleerde logboeken naar een configureerbaar logbestand voor eenvoudige monitoring.
 - **Schrijfbeveiligingscontrole**: Controleert bij de start automatisch of `INDEX_FILE` herschrijfbaar is; breekt direct af met een duidelijke foutmelding op de console en in het logbestand als het bestand ReadOnly / niet beschrijfbaar is.
@@ -201,12 +202,15 @@ Wanneer het script draait (optioneel voorafgegaan door `--rclone`), verloopt de 
    - Converteert elk `.heic` / `.heif` bestand naar `.jpg` met behoud van volledige EXIF-metadata en automatische oriëntatie (`exif_transpose`).
    - Hernoemt het bestand naar `.jpg`.
    - Verwijdert het originele `.heic` bestand in de doelmap om schijfruimte te besparen en duplicaten te voorkomen.
-5. **Thumbnails & Slide-afbeeldingen**:
+5. **Sorteervolgorde & Mappenkoppeling**:
+   - Bepaalt per afbeelding de definitieve doelbestandsnaam (inclusief eventuele datum/tijd-prefix via EXIF bij `--rename`).
+   - Sorteert alle foto's strikt op deze doelbestandsnaam zodat thumbnails, volgnummers en navigatieknoppen altijd gelijk lopen.
+6. **Thumbnails & Slide-afbeeldingen**:
    - Genereert thumbnails in `_thumbs/` passend binnen `THUMBNAIL` afmetingen.
    - Indien `PICTURE` is ingesteld: verkleint slide-afbeelding en plaatst deze in `_pictures/`, eventueel voorzien van een watermerk (`WATERMARK`).
-6. **Slides & Navigatie**: Genereert individuele HTML-slidepagina's per foto met EXIF-data, downloadknop en navigatie.
-7. **Index & Raster**: Genereert `index.html` met responsive thumbnailgrid en preview-tegels voor submappen.
-8. **Logging**: Rapporteert alle acties live in de console en in `LOG_FILE`.
+7. **Slides & Navigatie**: Genereert individuele HTML-slidepagina's per foto met EXIF-data, downloadknop, navigatie en volgnummer `(1/N)`.
+8. **Index & Raster**: Genereert `index.html` met responsive thumbnailgrid en preview-tegels voor submappen (met de eerste foto uit die submap als preview).
+9. **Logging**: Rapporteert alle acties live in de console en in `LOG_FILE`.
 
 ---
 

@@ -63,7 +63,7 @@ html-album/
 - Slide-pagina's tonen geformatteerde EXIF-metadata (camera model, opnamedatum, sluitertijd, diafragma, ISO, brandpuntsafstand) indien beschikbaar
 - Slide-pagina's tonen indien geconfigureerd (`DOWNLOAD=yes`) een blauwe downloadknop met een download-icoon om de originele, hoge-resolutie foto direct te downloaden (geplaatst direct links van de vorige-foto knop)
 - Slide-pagina's tonen het volgnummer en het totale aantal foto's in de map in het formaat `(volgnummer/aantal)` (bijv. `(2/10)`) direct achter de mapnaam (breadcrumb)
-- Submappen krijgen een foldertegel met voorbeeldafbeelding (eerste foto uit submap)
+- Submappen krijgen een foldertegel met voorbeeldafbeelding (eerste foto uit de submap op basis van definitieve doelbestandsnaam/chronologische volgorde, 100% synchroon met slidevolgorde en indexraster; verouderde thumbnails worden opgeruimd)
 - Recursieve verwerking van submappen (elk krijgt eigen `index.html` en navigatie)
 - Rclone synchronisatie (`RCLONE=yes` of `--rclone`) synchroniseert bestanden en (lege) submappen (`--create-empty-src-dirs`) vanuit cloud/lokaal naar doellocatie vóór generatie
 - Rclone-uitvoer (bestandsoverdrachten, aangemaakte mappen, fouten en statistieken) wordt in real-time regel voor regel gelogd naar zowel stdout als `LOG_FILE`
