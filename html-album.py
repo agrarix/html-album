@@ -32,7 +32,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (02-10-2026 22:23)"
+VERSION = "v2 (03-10-2026 22:32)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1051,6 +1051,21 @@ if (slideImg) {{
 # ---------------------------------------------------------------------------
 # Genereer index.html voor één map
 # ---------------------------------------------------------------------------
+def get_folder_preview_image(subdir: Path) -> Union[tuple[Path, str], None]:
+    """
+    Vindt de eerste afbeelding in een submap op basis van de uiteindelijke weergavenaam/sorteervolgorde.
+    Retourneert (img_path, target_name) of None als er geen afbeeldingen zijn.
+    """
+    imgs = [
+        f for f in subdir.iterdir()
+        if f.is_file() and f.suffix.lower() in IMAGE_EXTS and not is_icon_file(f)
+    ]
+    if not imgs:
+        return None
+    mapped = [(f, get_new_filename(f)) for f in imgs]
+    mapped.sort(key=lambda item: item[1].lower(), reverse=REVERSE_ORDER)
+    return mapped[0]
+
 def generate_index_html(
     index_file: Path,
     title: str,
@@ -1059,6 +1074,7 @@ def generate_index_html(
     src_dir: Path,
     out_dir: Path,
     css_href: str,
+    mapped_images: list[tuple[Path, str, str]] = None,
 ) -> None:
     generated_date = datetime.now().strftime("%d-%m-%Y %H:%M")
 
@@ -1067,16 +1083,20 @@ def generate_index_html(
         svg_up = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>'
         up_btn = f'<a href="{up_href}" class="nav-btn up-btn" title="Up to parent directory">{svg_up}</a>'
 
-    images = sorted(
-        [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS and not is_icon_file(f)],
-        key=lambda f: f.name.lower(),
-        reverse=REVERSE_ORDER,
-    )
+    if mapped_images is None:
+        raw_images = [
+            f for f in src_dir.iterdir()
+            if f.is_file() and f.suffix.lower() in IMAGE_EXTS and not is_icon_file(f)
+        ]
+        mapped_images = []
+        for img in raw_images:
+            tname = get_new_filename(img)
+            tstem = Path(tname).stem
+            mapped_images.append((img, tname, tstem))
+        mapped_images.sort(key=lambda x: x[1].lower(), reverse=REVERSE_ORDER)
 
     img_cells: list[str] = []
-    for i, img in enumerate(images):
-        fname       = get_new_filename(img)
-        name_no_ext = Path(fname).stem
+    for _img, fname, name_no_ext in mapped_images:
         thumb_rel   = f"{THUMBS_DIR_NAME}/{name_no_ext}_thumb.jpg"
         slide_rel   = f"{PICTURES_DIR_NAME}/{name_no_ext}.html"
         
@@ -1103,19 +1123,23 @@ def generate_index_html(
 
     dir_cells: list[str] = []
     for subdir in subdirs:
-        dname            = subdir.name
+        dname = subdir.name
 
-        first_img = next(
-            (f for f in sorted(subdir.iterdir(), key=lambda x: x.name.lower(), reverse=REVERSE_ORDER) if f.is_file() and f.suffix.lower() in IMAGE_EXTS and not is_icon_file(f)),
-            None,
-        )
-
-        rel_parts = [p for p in out_dir.relative_to(OUTPUT_DIR).parts if p not in ('.', '/')]
-        relative_path_to_root = "../" * len(rel_parts)
-
-        if first_img:
-            first_img_stem = Path(get_new_filename(first_img)).stem
+        folder_preview = get_folder_preview_image(subdir)
+        if folder_preview:
+            first_img, first_img_fname = folder_preview
+            first_img_stem = Path(first_img_fname).stem
             folder_thumb_dst = out_dir / THUMBS_DIR_NAME / f"folder_{dname}_{first_img_stem}_thumb.jpg"
+
+            # Ruim eventuele verouderde preview-thumbnails van deze submap op
+            for old_ft in (out_dir / THUMBS_DIR_NAME).glob(f"folder_{dname}_*_thumb.jpg"):
+                if old_ft.name != folder_thumb_dst.name:
+                    try:
+                        old_ft.unlink()
+                        log_bericht(f"    🧹 Oude folder-thumbnail verwijderd: {old_ft.name}")
+                    except Exception:
+                        pass
+
             if needs_thumbnail_regeneration(folder_thumb_dst, first_img):
                 make_thumbnail(first_img, folder_thumb_dst)
                 log_bericht(f"    ✓ Folder '{dname}' ({THUMBS_DIR_NAME}/ with photo: {first_img.name})")
@@ -1281,12 +1305,11 @@ def process_dir(
             except Exception:
                 pass
 
-    images = sorted(
-        [f for f in src_dir.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTS and not is_icon_file(f)],
-        key=lambda f: f.name.lower(),
-        reverse=REVERSE_ORDER,
-    )
-    log_bericht(f"    photos : {len(images)}")
+    raw_images = [
+        f for f in src_dir.iterdir()
+        if f.is_file() and f.suffix.lower() in IMAGE_EXTS and not is_icon_file(f)
+    ]
+    log_bericht(f"    photos : {len(raw_images)}")
 
     # Bereken relatieve pad naar OUTPUT_DIR root voor CSS link
     rel_parts = [p for p in out_dir.relative_to(OUTPUT_DIR).parts if p not in ('.', '/')]
@@ -1326,12 +1349,14 @@ def process_dir(
         slide_links.append(f'<a href="../{INDEX_FILE_NAME}">{rel_path.parts[-1]}</a>')
         slide_breadcrumb_html = " / ".join(slide_links)
 
-    # Bepaal target bestandsnamen voor alle afbeeldingen in deze directory
+    # Bepaal target bestandsnamen voor alle afbeeldingen in deze directory en sorteer
     mapped_images = []
-    for img in images:
+    for img in raw_images:
         target_name = get_new_filename(img)
         target_stem = Path(target_name).stem
         mapped_images.append((img, target_name, target_stem))
+
+    mapped_images.sort(key=lambda item: item[1].lower(), reverse=REVERSE_ORDER)
 
     for i, (img, fname, name_no_ext) in enumerate(mapped_images):
         actions     = []
@@ -1417,6 +1442,7 @@ def process_dir(
         src_dir,
         out_dir,
         index_css_href,
+        mapped_images,
     )
 
     subdirs = sorted(
