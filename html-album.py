@@ -33,7 +33,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (04-10-2026 17:45)"
+VERSION = "v2 (04-10-2026 17:48)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1592,8 +1592,95 @@ def main() -> None:
         except Exception as exc:
             print(f"Kon logbestand niet maken op {LOG_FILE_PATH}: {exc}")
 
+    # Bepaal rclone parameters vooraf voor de overzichtstabel
     rclone_src = ""
     rclone_dst = ""
+    if DO_RCLONE:
+        if CLI_RCLONE and len(CLI_RCLONE) == 2:
+            rclone_src = CLI_RCLONE[0].strip()
+            rclone_dst = CLI_RCLONE[1].strip()
+        else:
+            rclone_src = cfg.get("RCLONE_SRC", "").strip()
+            rclone_dst = cfg.get("RCLONE_DST", "").strip()
+
+    # Formateer footer preview voor overzichtstabel
+    now = datetime.now()
+    date_str = now.strftime("%d-%m-%Y")
+    time_str = now.strftime("%H:%M")
+    footer_tmpl = cfg.get("FOOTER", _default_footer)
+    footer_preview = footer_tmpl
+    pgm_link = f'<a href="https://github.com/agrarix/{PGM}">{PGM}</a>'
+    footer_preview = footer_preview.replace("${PGM}", pgm_link).replace("{PGM}", pgm_link)
+    footer_preview = footer_preview.replace("v${VER}", "${VER}").replace("v{VER}", "{VER}").replace("v${VERSION}", "${VERSION}").replace("v{VERSION}", "{VERSION}")
+    footer_preview = footer_preview.replace("${VER}", VERSION).replace("{VER}", VERSION).replace("{VERSION}", VERSION)
+    footer_preview = footer_preview.replace("${DATE}", date_str).replace("{date_str}", date_str)
+    footer_preview = footer_preview.replace("${TIME}", time_str).replace("{time_str}", time_str)
+    if sys.platform != "win32":
+        footer_preview = footer_preview.replace("(${OS})", f"(Linux) at {_hostname}").replace("({OS})", f"(Linux) at {_hostname}")
+        if f"(Linux) at" not in footer_preview:
+            footer_preview = footer_preview.replace("(Linux)", f"(Linux) at {_hostname}")
+    footer_preview = footer_preview.replace("${OS}", _os_naam).replace("{OS}", _os_naam)
+    footer_preview = footer_preview.replace("${HOSTNAME}", _hostname).replace("{HOSTNAME}", _hostname)
+
+    # Toon configuratie-opties direct aan de start
+    log_bericht("HTML Photo Album Generator")
+    log_bericht("─" * 36)
+    log_bericht(f"CONFIG_FILE   : {CONFIG_FILE} (Path: {CONFIG_FILE.resolve()})")
+    log_bericht(f"SOURCE_DIR    : {SOURCE_DIR}")
+    log_bericht(f"OUTPUT_DIR    : {OUTPUT_DIR}")
+    if CLI_DIRECTORY:
+        log_bericht(f"TARGET_DIR    : {CLI_DIRECTORY}")
+    log_bericht(f"LOG_FILE      : {cfg.get('LOG_FILE')} (Path: {LOG_FILE_PATH})")
+    log_bericht(f"INDEX_FILE    : {INDEX_FILE_NAME}")
+    log_bericht(f"ICON          : {ICON_FILE_NAME}")
+    log_bericht(f"PICTURES_DIR  : {PICTURES_DIR_NAME}")
+    log_bericht(f"THUMBS_DIR    : {THUMBS_DIR_NAME}")
+    log_bericht(f"THUMBNAIL     : {cfg.get('THUMBNAIL')}")
+    log_bericht(f"PICTURE       : {cfg.get('PICTURE') if cfg.get('PICTURE') else 'Original size (not resized)'}")
+    log_bericht(f"EXCLUDED      : {cfg.get('EXCLUDED')}")
+    log_bericht(f"RENAME        : {RENAME_FILES} (RC: {cfg.get('RENAME')})")
+    log_bericht(f"DOWNLOAD      : {DOWNLOAD_PICTURES} (RC: {cfg.get('DOWNLOAD')})")
+    log_bericht(f"DOWNLOAD_DIR  : {DOWNLOAD_DIR_ENABLED} (RC: {cfg.get('DOWNLOAD_DIR')})")
+    log_bericht(f"REVERSE       : {REVERSE_ORDER} (RC: {cfg.get('REVERSE')})")
+    log_bericht(f"DISABLE_EXIF  : {DISABLE_EXIF} (RC: {cfg.get('NO_EXIF')})")
+    log_bericht(f"RCLONE        : {DO_RCLONE} (RC: {cfg.get('RCLONE')})")
+    if DO_RCLONE and rclone_src:
+        log_bericht(f"  RCLONE_SRC  : {rclone_src}")
+        log_bericht(f"  RCLONE_DST  : {rclone_dst}")
+    log_bericht(f"COLUMNS       : {cfg.get('COLUMNS')}")
+    log_bericht(f"ROWS          : {cfg.get('ROWS')}")
+    log_bericht(f"WATERMARK     : '{WATERMARK}'")
+    if WATERMARK:
+        log_bericht(f"  WM_FONT       : {WM_FONT}")
+        log_bericht(f"  WM_SIZE       : {WM_SIZE}")
+        log_bericht(f"  WM_ICON_SIZE  : {WM_ICON_SIZE}")
+        log_bericht(f"  WM_TRANSPARANCY: {cfg.get('WM_TRANSPARANCY')}")
+        log_bericht(f"  WM_LOCATION   : {cfg.get('WM_LOCATION')}")
+        log_bericht(f"  WM_ALLIGNMENT : {cfg.get('WM_ALLIGNMENT')}")
+    log_bericht(f"FOOTER        : '{cfg.get('FOOTER')}'")
+    log_bericht(f"  (Preview)   : {footer_preview}")
+    if HAS_PIL:
+        try:
+            from PIL import __version__ as pil_ver
+            log_bericht(f"Pillow        : ✓ (v{pil_ver})")
+        except Exception:
+            log_bericht("Pillow        : ✓")
+        if HAS_HEIF:
+            try:
+                import pillow_heif
+                log_bericht(f"HEIC/HEIF     : ✓ (pillow-heif v{pillow_heif.__version__})")
+            except Exception:
+                log_bericht("HEIC/HEIF     : ✓")
+        else:
+            log_bericht("HEIC/HEIF     : ✗ not found — install with: pip install pillow-heif")
+    else:
+        log_bericht("Pillow        : ✗ not found — install with: pip install Pillow")
+        log_bericht("                Without Pillow, original files will be used as thumbnails.")
+    log_bericht("─" * 36)
+
+    # 2 seconden wachten om opties te tonen vóór uitvoering
+    time.sleep(2)
+
     if DO_RCLONE:
         if CLI_RCLONE and len(CLI_RCLONE) == 2:
             rclone_src = CLI_RCLONE[0].strip()
@@ -1813,59 +1900,6 @@ def main() -> None:
             log_bericht("   Generatie afgebroken.")
             sys.exit(1)
 
-    log_bericht("HTML Photo Album Generator")
-    log_bericht("─" * 36)
-    log_bericht(f"CONFIG_FILE   : {CONFIG_FILE} (Path: {CONFIG_FILE.resolve()})")
-    log_bericht(f"SOURCE_DIR    : {SOURCE_DIR}")
-    log_bericht(f"OUTPUT_DIR    : {OUTPUT_DIR}")
-    if CLI_DIRECTORY:
-        log_bericht(f"TARGET_DIR    : {target_src_dir} (relative: {rel_path})")
-    log_bericht(f"LOG_FILE      : {cfg.get('LOG_FILE')} (Path: {LOG_FILE_PATH})")
-    log_bericht(f"INDEX_FILE    : {INDEX_FILE_NAME}")
-    log_bericht(f"ICON          : {ICON_FILE_NAME}")
-    log_bericht(f"PICTURES_DIR  : {PICTURES_DIR_NAME}")
-    log_bericht(f"THUMBS_DIR    : {THUMBS_DIR_NAME}")
-    log_bericht(f"THUMBNAIL     : {cfg.get('THUMBNAIL')}")
-    log_bericht(f"PICTURE       : {cfg.get('PICTURE') if cfg.get('PICTURE') else 'Original size (not resized)'}")
-    log_bericht(f"EXCLUDED      : {cfg.get('EXCLUDED')}")
-    log_bericht(f"RENAME        : {RENAME_FILES} (RC: {cfg.get('RENAME')})")
-    log_bericht(f"DOWNLOAD      : {DOWNLOAD_PICTURES} (RC: {cfg.get('DOWNLOAD')})")
-    log_bericht(f"DOWNLOAD_DIR  : {DOWNLOAD_DIR_ENABLED} (RC: {cfg.get('DOWNLOAD_DIR')})")
-    log_bericht(f"REVERSE       : {REVERSE_ORDER} (RC: {cfg.get('REVERSE')})")
-    log_bericht(f"DISABLE_EXIF  : {DISABLE_EXIF} (RC: {cfg.get('NO_EXIF')})")
-    log_bericht(f"RCLONE        : {DO_RCLONE} (RC: {cfg.get('RCLONE')})")
-    if DO_RCLONE and rclone_src:
-        log_bericht(f"  RCLONE_SRC  : {rclone_src}")
-        log_bericht(f"  RCLONE_DST  : {rclone_dst}")
-    log_bericht(f"COLUMNS       : {cfg.get('COLUMNS')}")
-    log_bericht(f"ROWS          : {cfg.get('ROWS')}")
-    log_bericht(f"WATERMARK     : '{WATERMARK}'")
-    if WATERMARK:
-        log_bericht(f"  WM_FONT       : {WM_FONT}")
-        log_bericht(f"  WM_SIZE       : {WM_SIZE}")
-        log_bericht(f"  WM_ICON_SIZE  : {WM_ICON_SIZE}")
-        log_bericht(f"  WM_TRANSPARANCY: {cfg.get('WM_TRANSPARANCY')}")
-        log_bericht(f"  WM_LOCATION   : {cfg.get('WM_LOCATION')}")
-        log_bericht(f"  WM_ALLIGNMENT : {cfg.get('WM_ALLIGNMENT')}")
-    log_bericht(f"FOOTER        : '{cfg.get('FOOTER')}'")
-    log_bericht(f"  (Preview)   : {footer_preview}")
-    if HAS_PIL:
-        try:
-            from PIL import __version__ as pil_ver
-            log_bericht(f"Pillow    : ✓ (v{pil_ver})")
-        except Exception:
-            log_bericht("Pillow    : ✓")
-        if HAS_HEIF:
-            try:
-                import pillow_heif
-                log_bericht(f"HEIC/HEIF : ✓ (pillow-heif v{pillow_heif.__version__})")
-            except Exception:
-                log_bericht("HEIC/HEIF : ✓")
-        else:
-            log_bericht("HEIC/HEIF : ✗ not found — install with: pip install pillow-heif")
-    else:
-        log_bericht("Pillow    : ✗ not found — install with: pip install Pillow")
-        log_bericht("            Without Pillow, original files will be used as thumbnails.")
     # Genereer en schrijf html-album.css naar de output directory
     try:
         (OUTPUT_DIR / "html-album.css").write_text(get_css(), encoding="utf-8")
