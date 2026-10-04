@@ -40,6 +40,7 @@ html-album/
 | `EXCLUDED`      | Mappen die overgeslagen worden                            | `["res"]`                                      |
 | `ICON`          | Bestandsnaam van het albumicoon / favicon                | `"Agrarix_Album_64x64.png"`                    |
 | `DOWNLOAD`      | Downloadknop tonen op slide-pagina's (`yes` / `no`)       | `"no"`                                         |
+| `DOWNLOAD_DIR`  | Downloadknop tonen op (sub)mappen als ZIP (`yes` / `no`)   | `"no"`                                         |
 | `REVERSE`       | Volgorde van mappen en foto's omkeren (`yes` / `no`)       | `"no"`                                         |
 | `WATERMARK`     | Tekst van het watermerk op slide-foto's                   | `""`                                           |
 | `WM_FONT`       | Lettertype voor het watermerk                             | `"Verdana"`                                    |
@@ -62,6 +63,7 @@ html-album/
 - HEIC-conversie gebeurt via **pillow-heif** (`pillow_heif`), met fallback naar externe tools (`heif-convert`, `convert`, `magick`)
 - Slide-pagina's tonen geformatteerde EXIF-metadata (camera model, opnamedatum, sluitertijd, diafragma, ISO, brandpuntsafstand) indien beschikbaar
 - Slide-pagina's tonen indien geconfigureerd (`DOWNLOAD=yes`) een blauwe downloadknop met een download-icoon om de originele, hoge-resolutie foto direct te downloaden (geplaatst direct links van de vorige-foto knop)
+- (Sub)mappen en indexpagina's tonen indien geconfigureerd (`DOWNLOAD_DIR=yes` of `--download-dir`) een blauwe downloadknop in de header en op foldertegels om alle foto's uit de gehele map (en onderliggende submappen) als ZIP-bestand te downloaden
 - Slide-pagina's tonen het volgnummer en het totale aantal foto's in de map in het formaat `(volgnummer/aantal)` (bijv. `(2/10)`) direct achter de mapnaam (breadcrumb)
 - Submappen krijgen een foldertegel met voorbeeldafbeelding (eerste foto uit de submap op basis van definitieve doelbestandsnaam/chronologische volgorde, 100% synchroon met slidevolgorde en indexraster; verouderde thumbnails worden opgeruimd)
 - Recursieve verwerking van submappen (elk krijgt eigen `index.html` en navigatie)

@@ -16,8 +16,9 @@ LOG_FILE="html-album.log"
 COLUMNS="0"    # 0 = responsive flex
 ROWS="0"
 RENAME="false"
-DOWNLOAD="no"  # Download pictures : yes | no
-REVERSE="no"   # Volgorde omkeren : yes | no
+DOWNLOAD="no"      # Download pictures on slide pages : yes | no
+DOWNLOAD_DIR="no"  # Download pictures in (sub)dirs as zip : yes | no
+REVERSE="no"       # Volgorde omkeren : yes | no
 
 # Watermerk instellingen
 WATERMARK=""   # bijv. "(c) Agrarix"

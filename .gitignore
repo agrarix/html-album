@@ -1,6 +1,9 @@
 # Foto's en gegenereerde albums niet uploaden
 output/
 test.html
+_thumbs/
+_pictures/
+*.zip
 
 # Logs
 *.log

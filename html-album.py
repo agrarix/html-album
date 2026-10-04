@@ -25,6 +25,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Union
+import zipfile
 
 # Forceer UTF-8 output zodat cmd/PowerShell niet crasht op speciale tekens
 if hasattr(sys.stdout, "reconfigure"):
@@ -32,7 +33,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (03-10-2026 22:32)"
+VERSION = "v2 (04-10-2026 17:28)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -180,6 +181,11 @@ parser.add_argument(
     help="Show a download button on slide pages"
 )
 parser.add_argument(
+    "--download-dir",
+    action="store_true",
+    help="Show a download button on (sub)directories (download as zip)"
+)
+parser.add_argument(
     "-d", "--directory",
     metavar="DIR",
     help="Process only a specific (sub)directory"
@@ -209,6 +215,7 @@ FORCE_ALL = args.all
 CLI_REVERSE = args.reverse
 CLI_RENAME = args.rename
 CLI_DOWNLOAD = args.download
+CLI_DOWNLOAD_DIR = args.download_dir
 CLI_DIRECTORY = args.directory
 CLI_NO_EXIF = args.no_exif
 CLI_RCLONE = args.rclone
@@ -248,6 +255,7 @@ DEFAULTS = {
     "FOOTER": _default_footer,
     "RENAME": "false",
     "DOWNLOAD": "no",
+    "DOWNLOAD_DIR": "no",
     "REVERSE": "no",
     "WATERMARK": "",
     "WM_FONT": "Verdana",
@@ -308,6 +316,7 @@ else:
 
 RENAME_FILES = CLI_RENAME or cfg.get("RENAME", "false").lower() in ("true", "1", "yes")
 DOWNLOAD_PICTURES = CLI_DOWNLOAD or cfg.get("DOWNLOAD", "no").lower() in ("true", "1", "yes")
+DOWNLOAD_DIR_ENABLED = CLI_DOWNLOAD_DIR or cfg.get("DOWNLOAD_DIR", "no").lower() in ("true", "1", "yes")
 REVERSE_ORDER = CLI_REVERSE or cfg.get("REVERSE", "no").lower() in ("true", "1", "yes")
 DISABLE_EXIF = CLI_NO_EXIF or cfg.get("NO_EXIF", "false").lower() in ("true", "1", "yes")
 DO_RCLONE = False if CLI_NO_RCLONE else ((CLI_RCLONE is not None) or cfg.get("RCLONE", "no").lower() in ("true", "1", "yes"))
@@ -577,6 +586,79 @@ def needs_image_regeneration(dst_path: Path, src_path: Path) -> bool:
         except Exception:
             return True
     return False
+
+# ---------------------------------------------------------------------------
+# ZIP archief maken voor een map
+# ---------------------------------------------------------------------------
+def get_directory_images(target_dir: Path, recursive: bool = True) -> list[tuple[Path, str]]:
+    """Verzamelt alle originele foto's in target_dir met hun relatieve paden voor het zip-bestand."""
+    images = []
+    if not target_dir.exists():
+        return images
+    if recursive:
+        for root, dirs, files in os.walk(target_dir):
+            dirs[:] = [
+                d for d in dirs
+                if d.lower() not in EXCLUDED
+                and d != PICTURES_DIR_NAME
+                and d != THUMBS_DIR_NAME
+            ]
+            root_path = Path(root)
+            for f in files:
+                p = root_path / f
+                if p.suffix.lower() in IMAGE_EXTS and not is_icon_file(p):
+                    rel_p = str(p.relative_to(target_dir)).replace("\\", "/")
+                    images.append((p, rel_p))
+    else:
+        for f in target_dir.iterdir():
+            if f.is_file() and f.suffix.lower() in IMAGE_EXTS and not is_icon_file(f):
+                images.append((f, f.name))
+    return sorted(images, key=lambda x: x[1].lower())
+
+def make_directory_zip(out_dir: Path, zip_name: str, recursive: bool = True) -> Path | None:
+    """Maakt een zip-bestand van alle foto's in de map (en eventuele submappen) indien DOWNLOAD_DIR actief is."""
+    if not DOWNLOAD_DIR_ENABLED:
+        return None
+
+    images = get_directory_images(out_dir, recursive=recursive)
+    if not images:
+        return None
+
+    zip_path = out_dir / zip_name
+
+    needs_rebuild = FORCE_ALL or not zip_path.exists()
+    if not needs_rebuild:
+        try:
+            zip_mtime = zip_path.stat().st_mtime
+            for img_path, _ in images:
+                if img_path.stat().st_mtime > zip_mtime:
+                    needs_rebuild = True
+                    break
+        except Exception:
+            needs_rebuild = True
+
+    if needs_rebuild:
+        temp_zip = out_dir / f"{zip_name}.tmp"
+        try:
+            with zipfile.ZipFile(temp_zip, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+                for img_path, arcname in images:
+                    zf.write(img_path, arcname)
+            if zip_path.exists():
+                try:
+                    zip_path.unlink()
+                except Exception:
+                    pass
+            temp_zip.replace(zip_path)
+            log_bericht(f"    📦 ZIP aangemaakt: {zip_name} ({len(images)} foto's)")
+        except Exception as e:
+            log_bericht(f"    ⚠ Fout bij maken ZIP '{zip_name}': {e}")
+            if temp_zip.exists():
+                try:
+                    temp_zip.unlink()
+                except Exception:
+                    pass
+            return None
+    return zip_path
 
 # ---------------------------------------------------------------------------
 # Grote afbeelding kopiëren/schalen met Pillow
@@ -1075,6 +1157,7 @@ def generate_index_html(
     out_dir: Path,
     css_href: str,
     mapped_images: list[tuple[Path, str, str]] = None,
+    zip_name: str = "",
 ) -> None:
     generated_date = datetime.now().strftime("%d-%m-%Y %H:%M")
 
@@ -1082,6 +1165,11 @@ def generate_index_html(
     if up_href:
         svg_up = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>'
         up_btn = f'<a href="{up_href}" class="nav-btn up-btn" title="Up to parent directory">{svg_up}</a>'
+
+    dl_header_btn = ""
+    if DOWNLOAD_DIR_ENABLED and zip_name and (out_dir / zip_name).exists():
+        svg_download = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>'
+        dl_header_btn = f'\n        <div class="header-nav"><a href="{zip_name}" download="{zip_name}" class="nav-btn dl-btn" title="Download album ({zip_name})">{svg_download}</a></div>'
 
     if mapped_images is None:
         raw_images = [
@@ -1151,6 +1239,12 @@ def generate_index_html(
             thumb_tag = '<div class="folder-icon">\U0001f4c1</div>'
             label     = f"\U0001f4c1 {dname}"
 
+        folder_dl_btn = ""
+        sub_zip_name = f"{dname}.zip"
+        if DOWNLOAD_DIR_ENABLED and (out_dir / dname / sub_zip_name).exists():
+            svg_download = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>'
+            folder_dl_btn = f'\n            <a href="{dname}/{sub_zip_name}" download="{sub_zip_name}" class="nav-btn dl-btn folder-dl-btn" title="Download \'{dname}\' ({sub_zip_name})">{svg_download}</a>'
+
         dir_cells.append(
             f'        <div class="thumb-cell folder">\n'
             f'            <a href="{dname}/{INDEX_FILE_NAME}" title="{dname}">\n'
@@ -1158,7 +1252,7 @@ def generate_index_html(
             f'                    {thumb_tag}\n'
             f'                </div>\n'
             f'                <div class="thumb-label">{label}</div>\n'
-            f'            </a>\n'
+            f'            </a>{folder_dl_btn}\n'
             f'        </div>'
         )
 
@@ -1218,7 +1312,7 @@ document.addEventListener('keydown', function(e) {{
 <div class="page-wrap">
     <div class="album-header">
         {up_btn}
-        <span class="header-title">{breadcrumb_html}</span>
+        <span class="header-title">{breadcrumb_html}</span>{dl_header_btn}
     </div>
     <div class="thumb-grid">
 {all_cells}
@@ -1434,17 +1528,6 @@ def process_dir(
         else:
             log_bericht(f"    ✓ {fname} (unchanged)")
 
-    generate_index_html(
-        out_dir / INDEX_FILE_NAME,
-        title,
-        breadcrumb_html,
-        parent_index,
-        src_dir,
-        out_dir,
-        index_css_href,
-        mapped_images,
-    )
-
     subdirs = sorted(
         [d for d in src_dir.iterdir() if d.is_dir() and d.name.lower() not in EXCLUDED],
         key=lambda d: d.name.lower(),
@@ -1457,6 +1540,25 @@ def process_dir(
             f"../{INDEX_FILE_NAME}",
             subdir.name,
         )
+
+    # ZIP archief generatie voor huidige directory (indien DOWNLOAD_DIR actief is)
+    zip_name = f"{out_dir.name}.zip" if out_dir != OUTPUT_DIR else f"{SOURCE_DIR.name or 'album'}.zip"
+    zip_path = None
+    if DOWNLOAD_DIR_ENABLED:
+        if out_dir != OUTPUT_DIR or mapped_images:
+            zip_path = make_directory_zip(out_dir, zip_name, recursive=(out_dir != OUTPUT_DIR))
+
+    generate_index_html(
+        out_dir / INDEX_FILE_NAME,
+        title,
+        breadcrumb_html,
+        parent_index,
+        src_dir,
+        out_dir,
+        index_css_href,
+        mapped_images,
+        zip_name if (zip_path and zip_path.exists()) else "",
+    )
 
 # ---------------------------------------------------------------------------
 # Startpunt
@@ -1710,6 +1812,7 @@ def main() -> None:
     log_bericht(f"EXCLUDED      : {cfg.get('EXCLUDED')}")
     log_bericht(f"RENAME        : {RENAME_FILES} (RC: {cfg.get('RENAME')})")
     log_bericht(f"DOWNLOAD      : {DOWNLOAD_PICTURES} (RC: {cfg.get('DOWNLOAD')})")
+    log_bericht(f"DOWNLOAD_DIR  : {DOWNLOAD_DIR_ENABLED} (RC: {cfg.get('DOWNLOAD_DIR')})")
     log_bericht(f"REVERSE       : {REVERSE_ORDER} (RC: {cfg.get('REVERSE')})")
     log_bericht(f"DISABLE_EXIF  : {DISABLE_EXIF} (RC: {cfg.get('NO_EXIF')})")
     log_bericht(f"RCLONE        : {DO_RCLONE} (RC: {cfg.get('RCLONE')})")
