@@ -33,7 +33,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (04-10-2026 17:48)"
+VERSION = "v2 (04-10-2026 17:52)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1560,11 +1560,17 @@ def process_dir(
         )
 
     # ZIP archief generatie voor huidige directory (indien DOWNLOAD_DIR actief is)
-    zip_name = f"{out_dir.name}.zip" if out_dir != OUTPUT_DIR else f"{SOURCE_DIR.name or 'album'}.zip"
+    if out_dir != OUTPUT_DIR:
+        zip_name = f"{out_dir.name}.zip"
+    else:
+        root_name = SOURCE_DIR.name if (SOURCE_DIR.name and SOURCE_DIR.name != ".") else OUTPUT_DIR.name
+        if not root_name or root_name == ".":
+            root_name = "album"
+        zip_name = f"{root_name}.zip"
+
     zip_path = None
     if DOWNLOAD_DIR_ENABLED:
-        if out_dir != OUTPUT_DIR or mapped_images:
-            zip_path = make_directory_zip(out_dir, zip_name, recursive=(out_dir != OUTPUT_DIR))
+        zip_path = make_directory_zip(out_dir, zip_name, recursive=True)
 
     generate_index_html(
         out_dir / INDEX_FILE_NAME,
