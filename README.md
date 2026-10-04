@@ -194,24 +194,37 @@ Via de configuratiesleutel `ICON` kan een afbeelding worden ingesteld als icoon 
 
 ## 🔧 Verwerkingsvolgorde (Wat doet de generator?)
 
-Wanneer het script draait (optioneel voorafgegaan door `--rclone`), verloopt de verwerking strikt in deze stappen:
+Wanneer het script draait, verloopt de verwerking strikt in deze chronologische stappen:
 
-1. **Rclone synchronisatie (optioneel)**: Indien geconfigureerd (`RCLONE=yes` of `--rclone`), worden eerst alle bestanden gesynchroniseerd vanaf cloudopslag (bijv. Google Drive) naar de lokale doeldirectory.
-2. **Configuratie & initialisatie**: Leest `html-album.rc`, controleert schrijfrechten op `INDEX_FILE`, en initialiseert logbestand en stijlen.
-3. **Mappen scannen**: Zoekt recursief naar alle ondersteunde afbeeldingen (`.jpg`, `.jpeg`, `.heic`, `.heif`) in de bronmap.
-4. **Automatische HEIC/HEIF conversie**:
-   - Converteert elk `.heic` / `.heif` bestand naar `.jpg` met behoud van volledige EXIF-metadata en automatische oriëntatie (`exif_transpose`).
-   - Hernoemt het bestand naar `.jpg`.
-   - Verwijdert het originele `.heic` bestand in de doelmap om schijfruimte te besparen en duplicaten te voorkomen.
-5. **Sorteervolgorde & Mappenkoppeling**:
-   - Bepaalt per afbeelding de definitieve doelbestandsnaam (inclusief eventuele datum/tijd-prefix via EXIF bij `--rename`).
-   - Sorteert alle foto's strikt op deze doelbestandsnaam zodat thumbnails, volgnummers en navigatieknoppen altijd gelijk lopen.
-6. **Thumbnails & Slide-afbeeldingen**:
-   - Genereert thumbnails in `_thumbs/` passend binnen `THUMBNAIL` afmetingen.
-   - Indien `PICTURE` is ingesteld: verkleint slide-afbeelding en plaatst deze in `_pictures/`, eventueel voorzien van een watermerk (`WATERMARK`).
-7. **Slides & Navigatie**: Genereert individuele HTML-slidepagina's per foto met EXIF-data, downloadknop, navigatie en volgnummer `(1/N)`.
-8. **Index & Raster**: Genereert `index.html` met responsive thumbnailgrid en preview-tegels voor submappen (met de eerste foto uit die submap als preview).
-9. **Logging**: Rapporteert alle acties live in de console en in `LOG_FILE`.
+1. **Configuratie inlezen (`.rc`) & opties bepalen**:
+   - Zoekt het gewenste configuratiebestand. Op Linux wordt gezocht in `~/etc/<naam>`, maar valt automatisch terug op de huidige werkmap (`./`) en scriptmap als het daar niet gevonden wordt.
+   - Leest de instellingen in en interpreteert boolean opties flexibel (`yes`, `ja`, `true`, `1`, `y`, `j`, `on`).
+   - Initialiseert het logbestand (`LOG_FILE`).
+2. **Optietabel tonen & pauze**:
+   - Toont direct aan het begin een complete overzichtstabel met alle actieve parameters (`CONFIG_FILE`, `SOURCE_DIR`, `OUTPUT_DIR`, `DOWNLOAD`, `DOWNLOAD_DIR`, `RCLONE`, `WATERMARK`, footer-preview, etc.) op de console en in het logbestand.
+   - Pauzeert 2 seconden (`time.sleep(2)`) zodat de gebruiker of webhook-monitor de gekozen opties duidelijk kan zien vóórdat de daadwerkelijke uitvoering begint.
+3. **Rclone synchronisatie (optioneel)**:
+   - Indien geactiveerd (`RCLONE=yes` of `--rclone`): synchroniseert bestanden en (lege) submappen vanaf cloudopslag of lokale bron naar de doellocatie.
+   - Logt alle bestandsoverdrachten en statistieken in real-time.
+   - Schoont na synchronisatie automatisch vervallen doelmappen op die niet meer in de bron bestaan.
+4. **Schrijfcontrole & asset-voorbereiding**:
+   - Controleert of `INDEX_FILE` beschrijfbaar is (breekt af bij ReadOnly).
+   - Genereert `html-album.css` in de uitvoermap en kopieert het albumicoon (`ICON`).
+5. **Recursieve verwerking van mappen en submappen**:
+   - Converteert `.heic` / `.heif` automatisch naar `.jpg` met behoud van volledige EXIF-metadata en automatische oriëntatie.
+   - Hernoemt optioneel foto's op basis van EXIF datum/tijd (`--rename`).
+   - Genereert thumbnails in `_thumbs/` en eventuele verkleinde versies in `_pictures/` (inclusief watermerk indien ingesteld via `WATERMARK`).
+   - Bouwt individuele slide-pagina's in `_pictures/*.html` met navigatie, EXIF-info en downloadknop per foto (`DOWNLOAD=yes`).
+6. **ZIP-archief generatie per map én complete albummap (`DOWNLOAD_DIR=yes`)**:
+   - Verwerkt eerst onderliggende submappen en bundelt alle originele foto's incrementeel in een `.zip`-bestand per submap (bijv. `Dag1.zip`).
+   - Bundelt op het hoogste niveau (`OUTPUT_DIR`) alle foto's uit het gehele album (inclusief alle submappen recursief) in `<albumnaam>.zip`.
+   - Overslaat het inpakken als er geen wijzigingen zijn (snelle timestamp-controle).
+7. **HTML Indexpagina's & Rasteroverzicht**:
+   - Genereert `index.html` per map met een responsive raster van thumbnails en submaptegels.
+   - Submaptegels tonen de eerste foto uit die submap als preview en bevatten optioneel een directe downloadknop naar de ZIP van die submap.
+   - Voegt de blauwe downloadknop toe in de header van elke directory en van de hoofdpagina om alle foto's (van die specifieke map of van het gehele album) als ZIP te downloaden.
+8. **Afronding & Logging**:
+   - Rapporteert de succesvolle afronding en het pad naar de geopende `index.html`.
 
 ---
 
