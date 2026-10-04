@@ -33,7 +33,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (04-10-2026 17:28)"
+VERSION = "v2 (04-10-2026 17:45)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -227,8 +227,21 @@ def _bepaal_config_pad(naam: str) -> Path:
     if p.is_absolute():
         return p
     if sys.platform != "win32":
-        return Path.home() / "etc" / naam
+        # Op Linux: controleer ~/etc/<naam>, maar val terug op werkmap en scriptmap
+        etc_p = Path.home() / "etc" / naam
+        if etc_p.exists():
+            return etc_p
+        cwd_p = Path.cwd() / naam
+        if cwd_p.exists():
+            return cwd_p
+        script_p = SCRIPT_DIR / p
+        if script_p.exists():
+            return script_p
+        return etc_p
     else:
+        cwd_p = Path.cwd() / naam
+        if cwd_p.exists():
+            return cwd_p
         return SCRIPT_DIR / p
 
 CONFIG_FILE = _bepaal_config_pad(config_naam)
@@ -314,12 +327,17 @@ else:
     else:
         cfg = DEFAULTS
 
-RENAME_FILES = CLI_RENAME or cfg.get("RENAME", "false").lower() in ("true", "1", "yes")
-DOWNLOAD_PICTURES = CLI_DOWNLOAD or cfg.get("DOWNLOAD", "no").lower() in ("true", "1", "yes")
-DOWNLOAD_DIR_ENABLED = CLI_DOWNLOAD_DIR or cfg.get("DOWNLOAD_DIR", "no").lower() in ("true", "1", "yes")
-REVERSE_ORDER = CLI_REVERSE or cfg.get("REVERSE", "no").lower() in ("true", "1", "yes")
-DISABLE_EXIF = CLI_NO_EXIF or cfg.get("NO_EXIF", "false").lower() in ("true", "1", "yes")
-DO_RCLONE = False if CLI_NO_RCLONE else ((CLI_RCLONE is not None) or cfg.get("RCLONE", "no").lower() in ("true", "1", "yes"))
+def _is_true(val: any) -> bool:
+    if isinstance(val, bool):
+        return val
+    return str(val).strip().lower() in ("true", "1", "yes", "ja", "y", "j", "on")
+
+RENAME_FILES = CLI_RENAME or _is_true(cfg.get("RENAME", "false"))
+DOWNLOAD_PICTURES = CLI_DOWNLOAD or _is_true(cfg.get("DOWNLOAD", "no"))
+DOWNLOAD_DIR_ENABLED = CLI_DOWNLOAD_DIR or _is_true(cfg.get("DOWNLOAD_DIR", "no"))
+REVERSE_ORDER = CLI_REVERSE or _is_true(cfg.get("REVERSE", "no"))
+DISABLE_EXIF = CLI_NO_EXIF or _is_true(cfg.get("NO_EXIF", "false"))
+DO_RCLONE = False if CLI_NO_RCLONE else ((CLI_RCLONE is not None) or _is_true(cfg.get("RCLONE", "no")))
 
 
 PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "_pictures"))
