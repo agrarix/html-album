@@ -42,6 +42,7 @@ html-album/
 | `DOWNLOAD`      | Downloadknop tonen op slide-pagina's (`yes` / `no`)       | `"no"`                                         |
 | `DOWNLOAD_DIR`  | Downloadknop tonen op (sub)mappen als ZIP (`yes` / `no`)   | `"no"`                                         |
 | `REVERSE`       | Volgorde van mappen en foto's omkeren (`yes` / `no`)       | `"no"`                                         |
+| `UNDER_CONSTRUCTION` | Tijdelijke 'Under Construction' pagina op index.html tijdens generatie (`yes` / `no`) | `"yes"` |
 | `WATERMARK`     | Tekst van het watermerk op slide-foto's                   | `""`                                           |
 | `WM_FONT`       | Lettertype voor het watermerk                             | `"Verdana"`                                    |
 | `WM_SIZE`       | Lettergrootte van het watermerk in pixels                 | `12`                                           |
@@ -70,6 +71,7 @@ html-album/
 - Rclone synchronisatie (`RCLONE=yes` of `--rclone`) synchroniseert bestanden en (lege) submappen (`--create-empty-src-dirs`) vanuit cloud/lokaal naar doellocatie vóór generatie
 - Rclone-uitvoer (bestandsoverdrachten, aangemaakte mappen, fouten en statistieken) wordt in real-time regel voor regel gelogd naar zowel stdout als `LOG_FILE`
 - Na rclone-synchronisatie worden vervallen doelmappen die niet (meer) in de bron bestaan automatisch opgeruimd (`shutil.rmtree`), inclusief bijbehorende preview-thumbnails (`folder_*_thumb.jpg`)
+- Tijdelijke "Under Construction" pagina (`UNDER_CONSTRUCTION=yes` of `--under-construction` / `-u`): Plaatst bij de start direct een gestylede "Under Construction" pagina met spinner en 10-seconden herlaadfunctie op `index.html` totdat de generatie is voltooid
 - Op Linux-systemen worden relatieve configuratiebestanden (.rc) standaard gezocht in `$HOME/etc/` in plaats van de scriptdirectory (voor dual OS ondersteuning)
 - Albumicoon & Favicon (`ICON`): Standaard `"Agrarix_Album_64x64.png"`. Automatisch gekopieerd naar `OUTPUT_DIR`, opgenomen als `<link rel="icon">` in alle pagina's. Mappen zonder foto's tonen altijd het neutrale map-icoon (📁). Zoekt in `SCRIPT_DIR`, symlink-bron, `SOURCE_DIR` en Linux mappen (`~/html-album`, `~/scripts`, `~/etc`). Uitgesloten van EXIF-hernoeming en fotogalerij.
 

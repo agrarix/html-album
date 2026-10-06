@@ -19,6 +19,7 @@ RENAME="false"
 DOWNLOAD="no"      # Download pictures on slide pages : yes | no
 DOWNLOAD_DIR="no"  # Download pictures in (sub)dirs as zip : yes | no
 REVERSE="no"       # Volgorde omkeren : yes | no
+UNDER_CONSTRUCTION="yes" # Tijdelijke 'Under Construction' pagina op index.html tijdens generatie : yes | no
 
 # Watermerk instellingen
 WATERMARK=""   # bijv. "(c) Agrarix"

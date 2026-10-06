@@ -33,7 +33,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (04-10-2026 17:59)"
+VERSION = "v2 (06-10-2026 20:07)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -208,6 +208,19 @@ parser.add_argument(
     action="store_true",
     help="Schakel rclone synchronisatie uit (overrulet RCLONE in config)"
 )
+parser.add_argument(
+    "-u", "--under-construction",
+    dest="under_construction",
+    action="store_true",
+    default=None,
+    help="Toon tijdelijke 'Under Construction' pagina op index.html bij de start van generatie"
+)
+parser.add_argument(
+    "--no-under-construction",
+    dest="no_under_construction",
+    action="store_true",
+    help="Schakel tijdelijke 'Under Construction' pagina uit (overrulet UNDER_CONSTRUCTION in config)"
+)
 
 args = parser.parse_args()
 config_naam = args.config_file
@@ -220,6 +233,8 @@ CLI_DIRECTORY = args.directory
 CLI_NO_EXIF = args.no_exif
 CLI_RCLONE = args.rclone
 CLI_NO_RCLONE = args.no_rclone
+CLI_UNDER_CONSTRUCTION = args.under_construction
+CLI_NO_UNDER_CONSTRUCTION = args.no_under_construction
 
 
 def _bepaal_config_pad(naam: str) -> Path:
@@ -282,6 +297,7 @@ DEFAULTS = {
     "RCLONE": "no",
     "RCLONE_SRC": "",
     "RCLONE_DST": "",
+    "UNDER_CONSTRUCTION": "no",
 }
 
 
@@ -338,6 +354,9 @@ DOWNLOAD_DIR_ENABLED = CLI_DOWNLOAD_DIR or _is_true(cfg.get("DOWNLOAD_DIR", "no"
 REVERSE_ORDER = CLI_REVERSE or _is_true(cfg.get("REVERSE", "no"))
 DISABLE_EXIF = CLI_NO_EXIF or _is_true(cfg.get("NO_EXIF", "false"))
 DO_RCLONE = False if CLI_NO_RCLONE else ((CLI_RCLONE is not None) or _is_true(cfg.get("RCLONE", "no")))
+UNDER_CONSTRUCTION_ENABLED = False if CLI_NO_UNDER_CONSTRUCTION else (
+    True if CLI_UNDER_CONSTRUCTION else _is_true(cfg.get("UNDER_CONSTRUCTION", "no"))
+)
 
 
 PICTURES_DIR_NAME: str = cfg.get("PICTURES_DIR", cfg.get("SLIDES_DIR", "_pictures"))
@@ -1348,6 +1367,59 @@ document.addEventListener('keydown', function(e) {{
         log_bericht(f"\n❌ Error: Kon {index_file.name} niet schrijven (ReadOnly of geen toegang): {pe}")
         sys.exit(1)
 
+def generate_under_construction_html(
+    index_file: Path,
+    title: str,
+    out_dir: Path,
+    css_href: str,
+    footer_text: str,
+) -> None:
+    """Genereert een tijdelijke 'Under Construction' index.html tijdens de albumgeneratie."""
+    rel_parts = [p for p in out_dir.relative_to(OUTPUT_DIR).parts if p not in ('.', '/')]
+    relative_path_to_root = "../" * len(rel_parts)
+    favicon_tag = ""
+    pingu_icon_path = OUTPUT_DIR / ICON_FILE_NAME
+    if pingu_icon_path.exists():
+        favicon_tag = f'\n    <link rel="icon" href="{relative_path_to_root}{ICON_FILE_NAME}">'
+
+    html = f"""\
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="10">
+    <meta name="keywords" content="photoalbum,gallery,photo,online">{favicon_tag}
+    <title>{title} - Under Construction</title>
+    <link rel="stylesheet" href="{css_href}">
+</head>
+<body>
+<div class="page-wrap">
+    <div class="album-header">
+        <span class="header-title">Album: {title}</span>
+    </div>
+    <div class="under-construction-container">
+        <div class="uc-card">
+            <div class="uc-icon">🚧</div>
+            <div class="uc-title">Under Construction</div>
+            <div class="uc-desc">This photo album is currently being generated or updated.<br>Please check back shortly.</div>
+            <div class="uc-spinner"></div>
+            <div class="uc-note">This page will automatically refresh every 10 seconds.</div>
+        </div>
+    </div>
+    <center>
+    <div class="footer">{footer_text}</div>
+    </center>
+</div>
+</body>
+</html>
+"""
+    try:
+        index_file.write_text(html, encoding="utf-8")
+    except PermissionError as pe:
+        log_bericht(f"\n❌ Error: Kon {index_file.name} niet schrijven (ReadOnly of geen toegang): {pe}")
+        sys.exit(1)
+
 # ---------------------------------------------------------------------------
 # Recursieve mapverwerking
 # ---------------------------------------------------------------------------
@@ -1648,6 +1720,7 @@ def main() -> None:
     log_bericht(f"DOWNLOAD      : {DOWNLOAD_PICTURES} (RC: {cfg.get('DOWNLOAD')})")
     log_bericht(f"DOWNLOAD_DIR  : {DOWNLOAD_DIR_ENABLED} (RC: {cfg.get('DOWNLOAD_DIR')})")
     log_bericht(f"REVERSE       : {REVERSE_ORDER} (RC: {cfg.get('REVERSE')})")
+    log_bericht(f"UNDER_CONSTR  : {UNDER_CONSTRUCTION_ENABLED} (RC: {cfg.get('UNDER_CONSTRUCTION', 'no')})")
     log_bericht(f"DISABLE_EXIF  : {DISABLE_EXIF} (RC: {cfg.get('NO_EXIF')})")
     log_bericht(f"RCLONE        : {DO_RCLONE} (RC: {cfg.get('RCLONE')})")
     if DO_RCLONE and rclone_src:
@@ -1686,6 +1759,23 @@ def main() -> None:
 
     # 2 seconden wachten om opties te tonen vóór uitvoering
     time.sleep(2)
+
+    if DO_RCLONE and UNDER_CONSTRUCTION_ENABLED and OUTPUT_DIR:
+        try:
+            OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+            (OUTPUT_DIR / "html-album.css").write_text(get_css(), encoding="utf-8")
+            pre_target = OUTPUT_DIR / INDEX_FILE_NAME
+            if is_file_writable(pre_target):
+                generate_under_construction_html(
+                    pre_target,
+                    SOURCE_DIR.name if (SOURCE_DIR and SOURCE_DIR.exists()) else "Album",
+                    OUTPUT_DIR,
+                    f"html-album.css?v={datetime.now().strftime('%Y%m%d%H%M%S')}",
+                    footer_preview,
+                )
+                log_bericht("Index         : 🚧 Under Construction pagina geplaatst vóór rclone sync")
+        except Exception:
+            pass
 
     if DO_RCLONE:
         if CLI_RCLONE and len(CLI_RCLONE) == 2:
@@ -1954,6 +2044,21 @@ def main() -> None:
             log_bericht(f"Icoon     : ✓ {target_icon_name} copied to {OUTPUT_DIR}")
         except Exception as exc:
             log_bericht(f"Icoon     : ✗ Error copying {target_icon_name}: {exc}")
+
+    # Under Construction pagina plaatsen bij de start van albumgeneratie
+    if UNDER_CONSTRUCTION_ENABLED:
+        rel_parts = [p for p in target_out_dir.relative_to(OUTPUT_DIR).parts if p not in ('.', '/')]
+        relative_path_to_root = "../" * len(rel_parts)
+        version_str = datetime.now().strftime("%Y%m%d%H%M%S")
+        index_css_href = f"{relative_path_to_root}html-album.css?v={version_str}"
+        generate_under_construction_html(
+            target_index_file,
+            root_title,
+            target_out_dir,
+            index_css_href,
+            footer_preview,
+        )
+        log_bericht(f"Index         : 🚧 Under Construction pagina geplaatst op {target_index_file.name}")
 
     log_bericht("─" * 36)
     time.sleep(1)
