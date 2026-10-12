@@ -58,7 +58,7 @@ html-album/
 
 ## Technische details
 
-- Taal van gegenereerde HTML: Engels (`lang="en"`)
+- Taal van gegenereerde HTML: Engels (`lang="en"`), voorzien van `<meta name="robots" content="noindex" />` in `<head>`
 - Ondersteunde afbeeldingen: `.jpg` / `.jpeg` en `.heic` / `.heif` (hoofdletterongevoelig; HEIC/HEIF wordt automatisch geconverteerd naar JPEG met behoud van EXIF-metadata)
 - Thumbnails worden bij voorkeur gegenereerd via **Pillow** (`PIL`) in Python, of anders via **ImageMagick** in Bash
 - HEIC-conversie gebeurt via **pillow-heif** (`pillow_heif`), met fallback naar externe tools (`heif-convert`, `convert`, `magick`)

@@ -33,7 +33,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 # Programma details voor de footer
 PGM = "html-album"
-VERSION = "v2 (06-10-2026 20:07)"
+VERSION = "v2 (12-10-2026 07:36)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1068,6 +1068,7 @@ def generate_slide_html(
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">{favicon_tag}
     <title>{img_fname}</title>
     <link rel="stylesheet" href="{css_href}">
@@ -1340,6 +1341,7 @@ document.addEventListener('keydown', function(e) {{
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="keywords" content="photoalbum,gallery,photo,online">{favicon_tag}
     <title>{title}</title>
@@ -1387,6 +1389,7 @@ def generate_under_construction_html(
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="refresh" content="10">
     <meta name="keywords" content="photoalbum,gallery,photo,online">{favicon_tag}
